@@ -16,7 +16,7 @@
     "order_form": {
       "status": "pending",
       "url": "",
-      "note": "待建立 Google 表單後補上"
+      "note": "填入 Google 表單連結後，所有產品的「立即購買」按鈕會自動指向這裡"
     },
     "line_official": {
       "status": "pending",
@@ -60,7 +60,7 @@
     },
     {
       "question": "怎麼下單？",
-      "answer": "在產品頁點「立即購買」，線上完成付款就好，不用另外匯款或等回覆。"
+      "answer": "點「立即購買」填寫表單，再依說明完成匯款就好。收到款項後會盡快安排出貨。"
     },
     {
       "question": "如果我不確定適合哪一款？",
