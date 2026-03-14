@@ -5,6 +5,7 @@ on:
     branches: ["main"]
     paths:
       - "feifei-ecommerce/landing-page/**"
+      - "feifei-ecommerce/products/**"
       - ".github/workflows/deploy-landing-page.yml"
   workflow_dispatch:
 
@@ -26,6 +27,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Prepare deploy folder
+        run: |
+          mkdir -p feifei-ecommerce/landing-page/products
+          cp feifei-ecommerce/products/products.json feifei-ecommerce/landing-page/products/
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
