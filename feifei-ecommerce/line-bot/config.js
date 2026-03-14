@@ -117,7 +117,7 @@ const LINE_BOT_CONFIG = {
   },
 
   links: {
-    landingPageUrl: "",
+    landingPageUrl: "https://ian0323.github.io/feifei-ecommerce/",
     wacaStoreUrl: "",
     lineOfficialUrl: ""
   },

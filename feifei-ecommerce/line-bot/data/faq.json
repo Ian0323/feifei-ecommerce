@@ -9,13 +9,13 @@
     "id": "how-to-order",
     "intent": "下單方式",
     "keywords": ["怎麼買", "怎麼下單", "下單", "購買", "表單"],
-    "answer": "目前第一版是填寫表單下單，再依說明完成匯款，確認後就會安排出貨。如果你要，我也可以直接把下單連結整理給你。"
+    "answer": "直接到官網下單就好喔！點這裡 👉 https://ian0323.github.io/feifei-ecommerce/ 選你喜歡的款式，填表單完成匯款就搞定了。"
   },
   {
     "id": "price-question",
     "intent": "價格詢問",
     "keywords": ["多少", "價格", "售價", "多少錢", "價錢"],
-    "answer": "價格資訊會依目前產品資料更新。如果你想看最新價格，我可以直接幫你整理對應款式的資訊。"
+    "answer": "最新價格都在官網上喔，直接點這裡看 👉 https://ian0323.github.io/feifei-ecommerce/"
   },
   {
     "id": "purifying-use-case",

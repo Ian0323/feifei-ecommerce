@@ -1,7 +1,23 @@
+const fs = require("fs");
+const path = require("path");
 const config = require("../config");
 const faqEntries = require("../data/faq.json");
-const productData = require("../data/products.json");
 const { buildSalesIntentReply } = require("./keyword_handler");
+
+function loadProductData() {
+  const mainPath = path.join(__dirname, "..", "..", "products", "products.json");
+  const localPath = path.join(__dirname, "..", "data", "products.json");
+
+  try {
+    if (fs.existsSync(mainPath)) {
+      return JSON.parse(fs.readFileSync(mainPath, "utf8"));
+    }
+  } catch (_) { /* fallback to local */ }
+
+  return require(localPath);
+}
+
+const productData = loadProductData();
 
 function normalizeText(text) {
   return typeof text === "string" ? text.trim().toLowerCase() : "";
