@@ -1,0 +1,32 @@
+[
+  {
+    "id": "daily-reset",
+    "category": "日常互動",
+    "enabled": true,
+    "text": "今天有沒有一個瞬間，很想把整個人重新整理一下呀？✨"
+  },
+  {
+    "id": "monday-energy",
+    "category": "工作情境",
+    "enabled": true,
+    "text": "新的開始有時候不是做更多，而是先把自己的狀態穩下來。你今天最需要哪一種能量呢？"
+  },
+  {
+    "id": "before-meeting",
+    "category": "產品帶入",
+    "enabled": true,
+    "text": "重要會面前，你會比較需要整理感、吸引力，還是穩住氣場呀？"
+  },
+  {
+    "id": "weekend-care",
+    "category": "生活感",
+    "enabled": true,
+    "text": "週末最適合把注意力拉回自己了，今天有沒有想對自己溫柔一點呢？💖"
+  },
+  {
+    "id": "store-soft-promo",
+    "category": "導購",
+    "enabled": false,
+    "text": "如果你最近剛好在找適合自己的香霧，也可以直接問我，我可以先幫你快速分款。"
+  }
+]

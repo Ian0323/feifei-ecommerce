@@ -1,0 +1,22 @@
+{
+  "name": "feifei-line-bot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LINE AI assistant for feifei-ecommerce",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test:direct": "node test-webhook.js sample-webhook-direct.json",
+    "test:group": "node test-webhook.js sample-webhook-group.json"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@line/bot-sdk": "^9.7.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

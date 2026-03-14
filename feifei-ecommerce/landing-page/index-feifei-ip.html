@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M+ feifei | 菲菲三部曲</title>
+    <meta
+        name="description"
+        content="菲菲三部曲：淨化、貴人、招財。更像 feifei 本人帶貨節奏的水晶香霧頁，照你現在的狀態直接選，喜歡就下訂，不確定就先到 LINE 問。"
+    >
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/gsap@3.12.2/dist/gsap.min.js"></script>
+    <script src="https://unpkg.com/gsap@3.12.2/dist/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ink: "#2c1810",
+                        cream: "#fbf4eb",
+                        wine: "#7c324d",
+                        plum: "#7b5ea7",
+                        blush: "#d4829c",
+                        gold: "#c9a84c",
+                        cocoa: "#5a382f"
+                    },
+                    fontFamily: {
+                        display: ["DM Serif Display", "serif"],
+                        sans: ["Noto Sans TC", "sans-serif"]
+                    },
+                    boxShadow: {
+                        soft: "0 24px 60px rgba(44,24,16,0.10)"
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body {
+            background:
+                radial-gradient(circle at top right, rgba(212,130,156,0.22), transparent 30%),
+                radial-gradient(circle at left 10%, rgba(123,94,167,0.14), transparent 28%),
+                linear-gradient(180deg, #fff8f1 0%, #f7eee2 100%);
+            color: #2c1810;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+        }
+        .hero-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.84), rgba(255,248,241,0.68));
+            backdrop-filter: blur(18px);
+        }
+        .mesh {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(124,50,77,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124,50,77,0.05) 1px, transparent 1px);
+            background-size: 28px 28px;
+            mask-image: linear-gradient(180deg, rgba(0,0,0,0.45), transparent);
+        }
+        .marquee {
+            animation: marquee 24s linear infinite;
+        }
+        @keyframes marquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(-50%); }
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <div class="mesh"></div>
+
+    <header class="fixed inset-x-0 top-0 z-50 px-4 py-4 md:px-8">
+        <div class="mx-auto flex max-w-6xl items-center justify-between rounded-full border border-white/70 bg-white/70 px-5 py-3 shadow-soft backdrop-blur-xl">
+            <a href="#top" class="font-display text-2xl text-ink">M+ feifei</a>
+            <nav class="hidden items-center gap-6 text-sm text-ink/70 md:flex">
+                <a href="#trilogy" class="hover:text-ink">菲菲三部曲</a>
+                <a href="#products" class="hover:text-ink">三款怎麼選</a>
+                <a href="#order" class="hover:text-ink">直接下訂</a>
+            </nav>
+            <a href="#order" class="rounded-full bg-ink px-4 py-2 text-sm font-bold text-white transition hover:bg-wine">喜歡就先下訂</a>
+        </div>
+    </header>
+
+    <main id="top">
+        <section class="relative px-4 pb-14 pt-28 md:px-8 md:pb-24 md:pt-36">
+            <div class="mx-auto grid max-w-6xl items-center gap-8 md:grid-cols-[1.05fr_0.95fr]">
+                <div class="reveal">
+                    <p class="text-sm font-bold uppercase tracking-[0.35em] text-wine/75">Feifei Trilogy</p>
+                    <h1 id="hero-title" class="mt-4 max-w-3xl font-display text-5xl leading-[1.05] text-ink md:text-7xl">
+                        菲菲三部曲：淨化、貴人、招財
+                    </h1>
+                    <p id="hero-description" class="mt-6 max-w-2xl text-base leading-8 text-ink/72 md:text-lg">
+                        我是 feifei，這三瓶是我自己真的很愛用的小寶貝。去到新的空間、要見人、要工作、要開工，我都會照自己當下的狀態去選。
+                    </p>
+                    <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                        <a href="#order" data-order-link class="rounded-full bg-wine px-7 py-3 text-center text-sm font-bold text-white transition hover:bg-ink">
+                            喜歡就先下訂
+                        </a>
+                        <a href="#order" data-line-link class="rounded-full border border-ink/15 bg-white/80 px-7 py-3 text-center text-sm font-bold text-ink transition hover:border-ink/35">
+                            不知道怎麼選就問我
+                        </a>
+                    </div>
+                    <div class="mt-10 grid gap-3 sm:grid-cols-3">
+                        <div class="rounded-[1.5rem] bg-white/75 px-4 py-4 shadow-soft">
+                            <p class="text-xs uppercase tracking-[0.24em] text-plum">Step 1</p>
+                            <p class="mt-2 font-bold text-ink">先淨化</p>
+                            <p class="mt-1 text-sm text-ink/65">空間亂、心也亂的時候，先把自己整理回來。</p>
+                        </div>
+                        <div class="rounded-[1.5rem] bg-white/75 px-4 py-4 shadow-soft">
+                            <p class="text-xs uppercase tracking-[0.24em] text-blush">Step 2</p>
+                            <p class="mt-2 font-bold text-ink">再貴人</p>
+                            <p class="mt-1 text-sm text-ink/65">見人、約會、談事前，讓自己亮一點。</p>
+                        </div>
+                        <div class="rounded-[1.5rem] bg-white/75 px-4 py-4 shadow-soft">
+                            <p class="text-xs uppercase tracking-[0.24em] text-gold">Step 3</p>
+                            <p class="mt-2 font-bold text-ink">最後招財</p>
+                            <p class="mt-1 text-sm text-ink/65">開工、衝業績、做生意前，把心定住再往前衝。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reveal">
+                    <div class="hero-card relative overflow-hidden rounded-[2rem] border border-white/70 p-4 shadow-soft">
+                        <div class="grid gap-4 md:grid-cols-[0.85fr_1.15fr]">
+                            <div class="overflow-hidden rounded-[1.6rem] bg-[#f1e6da]">
+                                <img src="assets/images/產品預覽圖.png" alt="feifei 香霧主視覺" class="h-full min-h-[320px] w-full object-cover">
+                            </div>
+                            <div class="flex flex-col justify-between rounded-[1.6rem] bg-[#fff6ef] p-6">
+                                <div>
+                                    <p class="text-sm font-bold uppercase tracking-[0.22em] text-ink/48">From Feifei</p>
+                                    <h2 class="mt-3 font-display text-3xl leading-tight text-ink">這三瓶不是擺著好看而已，是我自己真的很愛用的小寶貝</h2>
+                                    <p id="brand-story-short" class="mt-4 text-sm leading-8 text-ink/70">
+                                        我自己很在意狀態這件事。去到新的空間、要見人、要工作、要開工，我都會先把自己整理好，所以才有這三瓶。
+                                    </p>
+                                </div>
+                                <div id="trust-markers" class="mt-5 grid gap-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="overflow-hidden border-y border-ink/8 bg-white/55 py-5">
+            <div class="marquee flex w-[200%] text-sm font-bold uppercase tracking-[0.35em] text-ink/45">
+                <span class="w-1/2 shrink-0 px-4">淨化 貴人 招財 淨化 貴人 招財 喜歡就先下訂 不知道怎麼選就問我</span>
+                <span class="w-1/2 shrink-0 px-4">淨化 貴人 招財 淨化 貴人 招財 喜歡就先下訂 不知道怎麼選就問我</span>
+            </div>
+        </section>
+
+        <section id="trilogy" class="px-4 py-14 md:px-8 md:py-20">
+            <div class="mx-auto max-w-6xl">
+                <div class="reveal rounded-[2rem] bg-gradient-to-r from-plum/10 via-white/80 to-gold/10 p-7 shadow-soft md:p-10">
+                    <p class="text-sm uppercase tracking-[0.26em] text-ink/45">How Feifei Sells It</p>
+                    <h2 class="mt-3 font-display text-4xl text-ink md:text-5xl">不是三個平行商品，是一個很順的順序</h2>
+                    <p class="mt-5 max-w-3xl text-sm leading-8 text-ink/68 md:text-base">
+                        這就是我自己平常會走的節奏。先把空間和自己整理一下，再把人緣和貴人打開，最後讓工作、財運、做事情的感覺慢慢旺起來。
+                    </p>
+                    <div class="mt-8 grid gap-4 md:grid-cols-3">
+                        <div class="rounded-[1.75rem] bg-white/85 p-6 shadow-soft">
+                            <p class="text-xs font-bold uppercase tracking-[0.24em] text-plum">01 Purifying</p>
+                            <h3 class="mt-2 font-display text-3xl text-ink">淨化</h3>
+                            <p class="mt-3 text-sm leading-7 text-ink/68">去到新的空間、跑完一整天、整個人亂亂的時候，先讓自己乾淨一點。</p>
+                        </div>
+                        <div class="rounded-[1.75rem] bg-white/85 p-6 shadow-soft">
+                            <p class="text-xs font-bold uppercase tracking-[0.24em] text-blush">02 Attraction</p>
+                            <h3 class="mt-2 font-display text-3xl text-ink">貴人</h3>
+                            <p class="mt-3 text-sm leading-7 text-ink/68">要見人、約會、見客、做業務前，讓自己整個人柔一點、亮一點。</p>
+                        </div>
+                        <div class="rounded-[1.75rem] bg-white/85 p-6 shadow-soft">
+                            <p class="text-xs font-bold uppercase tracking-[0.24em] text-gold">03 Prosperity</p>
+                            <h3 class="mt-2 font-display text-3xl text-ink">招財</h3>
+                            <p class="mt-3 text-sm leading-7 text-ink/68">開工、進店、衝業績、談事情前，先把心和氣場穩住，再去把事情做好。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="products" class="px-4 py-14 md:px-8 md:py-20">
+            <div class="mx-auto max-w-6xl">
+                <div class="reveal mb-10 text-center">
+                    <p class="text-sm uppercase tracking-[0.28em] text-ink/45">Pick By Your State</p>
+                    <h2 class="mt-3 font-display text-4xl text-ink md:text-5xl">你不用研究很久，照你今天的狀態選就好</h2>
+                    <p class="mx-auto mt-4 max-w-3xl text-sm leading-8 text-ink/66 md:text-base">
+                        最近很亂就先看淨化，要見人就看貴人，要工作、開工、衝業績就先看招財。真的不知道怎麼選，就直接去 LINE 問我。
+                    </p>
+                </div>
+                <div id="products-grid" class="grid gap-6 md:grid-cols-3"></div>
+            </div>
+        </section>
+
+        <section class="px-4 py-14 md:px-8 md:py-20">
+            <div class="mx-auto grid max-w-6xl gap-6 md:grid-cols-[1.1fr_0.9fr]">
+                <div class="reveal rounded-[2rem] bg-ink p-7 text-white shadow-soft md:p-10">
+                    <p class="text-sm uppercase tracking-[0.26em] text-white/48">How I Use It</p>
+                    <h2 class="mt-3 font-display text-4xl md:text-5xl">我自己平常真的就是這樣用</h2>
+                    <div class="mt-6 space-y-5 text-sm leading-8 text-white/75 md:text-base">
+                        <p>去到新的空間，我會先噴淨化。</p>
+                        <p>今天如果要見人、拍照、約會或做業務，我通常會先拿貴人。</p>
+                        <p>如果今天是工作、開工、進店、談事情，我就會比較想先噴招財。</p>
+                    </div>
+                </div>
+                <div id="faq" class="reveal rounded-[2rem] bg-white/82 p-7 shadow-soft md:p-10">
+                    <p class="text-sm uppercase tracking-[0.26em] text-ink/45">FAQ</p>
+                    <h2 class="mt-3 font-display text-4xl text-ink">常見問題</h2>
+                    <div id="faq-list" class="mt-6 space-y-4 text-sm leading-7 text-ink/68"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="order" class="px-4 pb-20 pt-6 md:px-8 md:pb-24">
+            <div class="mx-auto max-w-6xl">
+                <div class="reveal overflow-hidden rounded-[2.25rem] bg-gradient-to-br from-[#2c1810] via-[#5a382f] to-[#7c324d] px-7 py-10 text-white shadow-soft md:px-10 md:py-12">
+                    <div class="grid gap-8 md:grid-cols-[1fr_0.9fr]">
+                        <div>
+                            <p class="text-sm uppercase tracking-[0.28em] text-white/50">Order</p>
+                            <h2 class="mt-3 font-display text-4xl md:text-6xl">喜歡就先下訂，不確定就先來問我</h2>
+                            <p class="mt-5 max-w-2xl text-sm leading-8 text-white/78 md:text-base">
+                                目前是用 Google 表單 + 匯款方式下單，這樣上線最快。如果你已經知道要哪一瓶，就直接下訂；如果還在猶豫，就先到官方 LINE 問我。
+                            </p>
+                            <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+                                <a href="#" data-order-link class="rounded-full bg-white px-7 py-3 text-center text-sm font-bold text-ink transition hover:bg-cream">
+                                    喜歡就先下訂
+                                </a>
+                                <a href="#" data-line-link class="rounded-full border border-white/30 px-7 py-3 text-center text-sm font-bold text-white transition hover:bg-white/10">
+                                    不知道怎麼選就問我
+                                </a>
+                            </div>
+                        </div>
+                        <div class="rounded-[1.8rem] bg-white/10 p-6 text-sm leading-7 text-white/78">
+                            <p class="font-bold text-white">下單流程很簡單</p>
+                            <ol class="mt-4 space-y-2">
+                                <li>1. 先填寫 Google 表單</li>
+                                <li>2. 依說明完成匯款</li>
+                                <li>3. 確認資料後安排出貨</li>
+                            </ol>
+                            <p class="mt-5 text-xs text-white/55">
+                                之後如果要改成更完整的流程，再接 WACA 商店或其他購物路徑。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="px-4 pb-10 md:px-8">
+        <div class="mx-auto flex max-w-6xl flex-col gap-4 border-t border-ink/10 pt-6 text-sm text-ink/48 md:flex-row md:items-center md:justify-between">
+            <p>© 2026 M+ feifei. All rights reserved.</p>
+            <div class="flex gap-5">
+                <a href="#" data-instagram-link class="hover:text-ink">Instagram</a>
+                <a href="#" data-line-link class="hover:text-ink">LINE</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const defaultData = {
+            brand: {
+                name: "M+ feifei",
+                tagline: "菲菲三部曲：淨化、貴人、招財",
+                description: "我是 feifei，這三瓶是我自己真的很愛用的小寶貝。去到新的空間、要見人、要工作、要開工，我都會照自己當下的狀態去選。"
+            },
+            links: {
+                order_form: { url: "#", status: "pending" },
+                line_official: { url: "#", status: "pending" },
+                instagram: { url: "#", status: "pending" }
+            },
+            trust_markers: [],
+            brand_story_short: "",
+            faq: [],
+            products: []
+        };
+
+        function formatPrice(product) {
+            if (typeof product.price_twd === "number") {
+                return `NT$ ${product.price_twd}`;
+            }
+            return product.price_note || "價格待確認";
+        }
+
+        function setLink(selector, linkData, fallback = "#order") {
+            document.querySelectorAll(selector).forEach((anchor) => {
+                anchor.href = linkData && linkData.url ? linkData.url : fallback;
+            });
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById("products-grid");
+            if (!container) return;
+
+            container.innerHTML = products.map((product) => `
+                <article class="reveal overflow-hidden rounded-[1.9rem] bg-white/85 shadow-soft">
+                    <div class="h-72" style="background:${product.background_color || "#f7efe5"};">
+                        <img src="${product.image?.src || ""}" alt="${product.image?.alt || product.name_zh}" class="h-full w-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <p class="text-xs font-bold uppercase tracking-[0.24em]" style="color:${product.theme_color || "#2c1810"};">${(product.name_en || "").toUpperCase()}</p>
+                        <h3 class="mt-2 font-display text-3xl text-ink">${product.name_zh}</h3>
+                        <p class="mt-3 text-sm leading-7 text-ink/68">${product.short_description || ""}</p>
+                        <div class="mt-4 rounded-[1.2rem] px-4 py-4 text-sm leading-7 text-ink/68" style="background:${product.background_color || "#f7efe5"};">
+                            適合時機：${Array.isArray(product.use_cases) ? product.use_cases.join("、") : ""}
+                        </div>
+                        <div class="mt-5 flex items-center justify-between gap-3">
+                            <span class="text-lg font-bold text-ink">${formatPrice(product)}</span>
+                            <a href="#order" class="rounded-full px-4 py-2 text-sm font-bold text-white transition hover:opacity-90" style="background:${product.theme_color || "#2c1810"};">
+                                ${product.cta_label || "喜歡這瓶"}
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            `).join("");
+        }
+
+        function renderFaq(items) {
+            const container = document.getElementById("faq-list");
+            if (!container) return;
+
+            container.innerHTML = items.map((item) => `
+                <div>
+                    <p class="font-bold text-ink">${item.question}</p>
+                    <p>${item.answer}</p>
+                </div>
+            `).join("");
+        }
+
+        function renderTrustMarkers(items) {
+            const container = document.getElementById("trust-markers");
+            if (!container) return;
+
+            container.innerHTML = items.map((item) => `
+                <div class="rounded-[1.1rem] bg-white px-4 py-3 text-sm leading-7 text-ink/68 shadow-soft">${item}</div>
+            `).join("");
+        }
+
+        async function loadContent() {
+            try {
+                const response = await fetch("../products/products.json");
+                if (!response.ok) throw new Error("Failed to load products.json");
+
+                const data = await response.json();
+                const content = { ...defaultData, ...data };
+
+                document.title = `${content.brand?.name || "M+ feifei"} | 菲菲三部曲`;
+                document.getElementById("hero-title").textContent = content.brand?.tagline || defaultData.brand.tagline;
+                document.getElementById("hero-description").textContent = content.brand?.description || defaultData.brand.description;
+
+                const brandStory = document.getElementById("brand-story-short");
+                if (brandStory) {
+                    brandStory.textContent = content.brand_story_short || "";
+                }
+
+                renderProducts(content.products || []);
+                renderFaq(content.faq || []);
+                renderTrustMarkers(content.trust_markers || []);
+
+                setLink("[data-order-link]", content.links?.order_form, "#order");
+                setLink("[data-line-link]", content.links?.line_official, "#order");
+                setLink("[data-instagram-link]", content.links?.instagram, "#");
+            } catch (error) {
+                renderProducts(defaultData.products);
+                renderFaq(defaultData.faq);
+                renderTrustMarkers(defaultData.trust_markers);
+            }
+        }
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        function bindRevealAnimations() {
+            gsap.utils.toArray(".reveal").forEach((element, index) => {
+                gsap.to(element, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.9,
+                    ease: "power3.out",
+                    delay: index === 0 ? 0.12 : 0,
+                    scrollTrigger: {
+                        trigger: element,
+                        start: "top 88%",
+                        once: true
+                    }
+                });
+            });
+        }
+
+        loadContent().finally(() => {
+            bindRevealAnimations();
+            ScrollTrigger.refresh();
+        });
+    </script>
+</body>
+</html>

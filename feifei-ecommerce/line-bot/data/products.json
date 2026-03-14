@@ -1,0 +1,60 @@
+{
+  "brand": "M+ feifei / 非非選品",
+  "products": [
+    {
+      "id": "purifying-mist",
+      "name": "淨化水晶香霧 (Purifying)",
+      "theme": "紫色",
+      "colors": {
+        "primary": "#7B5EA7",
+        "secondary": "#E8DFF5"
+      },
+      "scent": {
+        "top": "薰衣草",
+        "middle": "鼠尾草",
+        "base": "雪松"
+      },
+      "benefits": ["磁場淨化", "深呼吸", "靈性成長", "空間淨化"],
+      "description": "當世界過於喧囂，你需要一個能讓靈魂呼吸的出口。紫色水晶與香氛的結合，為你清理雜訊。",
+      "price": null,
+      "link": null
+    },
+    {
+      "id": "attraction-mist",
+      "name": "貴人水晶香霧 (Attraction)",
+      "theme": "粉色",
+      "colors": {
+        "primary": "#D4829C",
+        "secondary": "#FDE8EF"
+      },
+      "scent": {
+        "top": "玫瑰",
+        "middle": "天竺葵",
+        "base": "檀香"
+      },
+      "benefits": ["提升魅力", "貴人運", "柔軟心境", "自我關照"],
+      "description": "當你開始喜歡自己的氣味，世界也會更容易靠近你。粉色能量提醒你，你本來就值得被溫柔對待。",
+      "price": null,
+      "link": null
+    },
+    {
+      "id": "prosperity-mist",
+      "name": "招財水晶香霧 (Prosperity)",
+      "theme": "金色",
+      "colors": {
+        "primary": "#C9A84C",
+        "secondary": "#FFF5D6"
+      },
+      "scent": {
+        "top": "甜橙",
+        "middle": "岩蘭草",
+        "base": "廣藿香"
+      },
+      "benefits": ["財富吸引", "事業順利", "安定力量", "豐盛意識"],
+      "description": "當你開始順流金錢的能量，財富也會更願意靠近你。經過能量加持的金色香霧，助你穩定氣場。",
+      "price": null,
+      "link": null
+    }
+  ],
+  "store_link": "WACA 商店連結待定"
+}

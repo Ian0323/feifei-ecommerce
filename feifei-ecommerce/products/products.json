@@ -1,0 +1,181 @@
+{
+  "brand": {
+    "name": "M+ feifei",
+    "project_name": "非非選品",
+    "category": "水晶香霧",
+    "tagline": "菲菲三部曲：淨化、貴人、招財",
+    "description": "我是 feifei，這三瓶是我自己真的很愛用的小寶貝。去到新的空間、要見人、要工作、要開工，我都會照自己當下的狀態去選，讓你不用研究很久，直接知道現在該拿哪一瓶。",
+    "tone": [
+      "溫柔",
+      "親近",
+      "有感受但不玄",
+      "像主理人真心推薦"
+    ]
+  },
+  "links": {
+    "order_form": {
+      "status": "pending",
+      "url": "",
+      "note": "待建立 Google 表單後補上"
+    },
+    "line_official": {
+      "status": "pending",
+      "url": "",
+      "note": "待確認 LINE 官方帳號連結"
+    },
+    "instagram": {
+      "status": "active",
+      "url": "https://www.instagram.com/myfeifei768/",
+      "note": "已確認"
+    }
+  },
+  "ordering": {
+    "method": "direct-payment",
+    "steps": [
+      "選擇喜歡的款式",
+      "點「立即購買」完成付款",
+      "等待出貨通知"
+    ],
+    "shipping_note": "待業主提供正式出貨時程與方式",
+    "payment_note": "線上即時付款（綠界 ECPay），付完即完成訂單"
+  },
+  "owner_fill_checklist": {
+    "required_now": [
+      "三款香霧正式售價",
+      "三款產品正式圖片",
+      "Google 表單連結",
+      "LINE 官方帳號連結"
+    ],
+    "good_to_have": [
+      "品牌故事短版 80-120 字",
+      "出貨說明",
+      "更多 FAQ",
+      "主理人推薦語氣微調"
+    ]
+  },
+  "faq": [
+    {
+      "question": "三款差在哪裡？",
+      "answer": "你可以直接照現在的狀態選。最近很亂、很累、想整理自己，就先看淨化；今天要見人、約會、想讓自己更亮一點，就看貴人；最近在工作、衝業績、談合作，就先看招財。"
+    },
+    {
+      "question": "怎麼下單？",
+      "answer": "在產品頁點「立即購買」，線上完成付款就好，不用另外匯款或等回覆。"
+    },
+    {
+      "question": "如果我不確定適合哪一款？",
+      "answer": "往上看三款的介紹和使用情境，選最符合你現在狀態的那一瓶就對了。最近很亂選淨化、要見人選貴人、要工作衝刺選招財。"
+    }
+  ],
+  "trust_markers": [
+    "三款香霧都有明確使用情境，不是只拍得很美而已",
+    "feifei 會依照自己當下狀態實際使用與推薦",
+    "產品溝通主軸是淨化、貴人、招財三部曲"
+  ],
+  "brand_story_short": "我自己很在意狀態這件事。去到新的空間、要見人、要工作、要開工，我都會先把自己整理好，所以才有這三瓶。不是要你研究很多，而是讓你在當下就知道該拿哪一瓶。",
+  "products": [
+    {
+      "id": "purifying",
+      "name_zh": "淨化",
+      "name_en": "Purifying",
+      "status": "draft",
+      "price_twd": null,
+      "price_note": "待業主確認",
+      "theme_color": "#7B5EA7",
+      "background_color": "#F0EAF7",
+      "image": {
+        "status": "ready",
+        "src": "assets/images/淨化水晶香霧.jpg",
+        "alt": "淨化香霧"
+      },
+      "one_liner": "如果最近覺得很亂，我自己會先拿淨化。",
+      "short_description": "去到新的空間、跑完一整天、去完人很多的地方，或整個人覺得悶悶亂亂的，我通常都會先噴淨化，先把自己的狀態整理回來。",
+      "use_cases": [
+        "外出回家後",
+        "工作壓力大時",
+        "去過醫院或人多的地方後",
+        "想整理空間時"
+      ],
+      "cta_label": "立即購買",
+      "notes": [
+        "文案可再依業主語氣微調",
+        "價格與正式圖片待補"
+      ]
+    },
+    {
+      "id": "attraction",
+      "name_zh": "貴人",
+      "name_en": "Attraction",
+      "status": "draft",
+      "price_twd": null,
+      "price_note": "待業主確認",
+      "theme_color": "#D4829C",
+      "background_color": "#FDE8EF",
+      "image": {
+        "status": "ready",
+        "src": "assets/images/貴人水晶香霧.jpg",
+        "alt": "貴人香霧"
+      },
+      "one_liner": "今天如果要見人，我通常會先拿貴人。",
+      "short_description": "這瓶比較像把整個人的感覺打開一點。約會前、見客前、拍照前，或你只是想讓自己亮一點、柔一點，我會比較推薦貴人。",
+      "use_cases": [
+        "重要會面前",
+        "約會前",
+        "拍照或出門前",
+        "想提升自信時"
+      ],
+      "cta_label": "立即購買",
+      "notes": [
+        "文案走柔和吸引力，不要過度神化",
+        "價格與正式圖片待補"
+      ]
+    },
+    {
+      "id": "prosperity",
+      "name_zh": "招財",
+      "name_en": "Prosperity",
+      "status": "draft",
+      "price_twd": null,
+      "price_note": "待業主確認",
+      "theme_color": "#C9A84C",
+      "background_color": "#FFF8E7",
+      "image": {
+        "status": "ready",
+        "src": "assets/images/招財水晶香霧.jpg",
+        "alt": "招財香霧"
+      },
+      "one_liner": "要工作、開工、衝業績，我會先噴招財。",
+      "short_description": "這瓶就是比較偏做生意、工作、開工前會拿的那種感覺。不是空想發財，而是先把自己的心和氣場穩住，再去把事情做好。",
+      "use_cases": [
+        "進店前",
+        "開工前",
+        "談合作前",
+        "需要專注時"
+      ],
+      "cta_label": "立即購買",
+      "notes": [
+        "偏工作與行動場景，不直接承諾效果",
+        "價格與正式圖片待補"
+      ]
+    }
+  ],
+  "content_status": {
+    "pricing_confirmed": false,
+    "images_confirmed": false,
+    "brand_story_confirmed": false,
+    "faq_confirmed": false,
+    "order_form_ready": false
+  },
+  "data_source_notes": [
+    "landing-page/index.html 會直接讀取本檔",
+    "售價、FAQ、連結與產品卡內容請優先在此更新",
+    "notes 欄位為內部備註，不直接顯示給消費者"
+  ],
+  "next_actions": [
+    "向業主確認三款香霧正式售價",
+    "取得三款產品正式圖片",
+    "建立 Google 表單並補上 order_form.url",
+    "確認 LINE 官方帳號連結",
+    "依業主語氣微調產品文案"
+  ]
+}

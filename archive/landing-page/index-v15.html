@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M+ feifei | 水晶香霧 - 極簡開運美學</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/gsap@3.12.2/dist/gsap.min.js"></script>
+    <script src="https://unpkg.com/gsap@3.12.2/dist/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,700;1,400&family=Noto+Serif+TC:wght@300;600;900&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: { light: '#F4E7D3', DEFAULT: '#C9A84C', rich: '#D4AF37' },
+                        onyx: '#1A1A1A',
+                        sand: '#FDF8F3'
+                    },
+                    fontFamily: {
+                        serif: ['Noto Serif TC', 'serif'],
+                        fashion: ['Bodoni Moda', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        html.lenis { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        body { background-color: #FDF8F3; color: #1A1A1A; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        
+        /* 穩定顯示 */
+        .reveal { opacity: 0; transform: translateY(30px); will-change: transform, opacity; }
+        
+        /* 金光特效優化 */
+        .gold-shine {
+            background: linear-gradient(90deg, #D4AF37, #A68A3D, #D4AF37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 4s linear infinite;
+        }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        #preloader {
+            position: fixed; inset: 0; background: #FDF8F3; z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        .btn-mag { transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1); }
+        
+        /* 能量波紋背景 */
+        .aura-bg {
+            background: radial-gradient(circle at 50% 50%, rgba(212,175,55,0.05) 0%, rgba(253,248,243,0) 70%);
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none;
+        }
+        
+        .noise { fixed: inset 0; pointer-events: none; z-index: 999; opacity: 0.02; background-image: url('https://grainy-gradients.vercel.app/noise.svg'); }
+    </style>
+</head>
+<body>
+
+    <div class="noise fixed inset-0"></div>
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <div class="font-fashion italic text-gold text-4xl mb-4 tracking-widest animate-pulse">feifei.</div>
+        <div class="w-32 h-[1px] bg-gold/10 relative overflow-hidden">
+            <div id="preloader-bar" class="absolute top-0 left-0 h-full bg-gold w-0"></div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 px-10 py-8 flex justify-between items-center transition-all duration-500" id="navbar">
+        <a href="#" class="font-fashion italic text-3xl tracking-widest font-bold text-gold">feifei.</a>
+        <div class="hidden md:flex space-x-12 text-[10px] tracking-[0.3em] uppercase font-bold text-onyx/40">
+            <a href="#collection" class="hover:text-gold">The Collection</a>
+            <a href="#ritual" class="hover:text-gold">Ritual</a>
+            <a href="#form" class="hover:text-gold">Order</a>
+        </div>
+        <a href="#form" class="btn-mag bg-onyx text-gold px-8 py-3 text-[10px] tracking-[0.3em] uppercase font-black">我要請購</a>
+    </nav>
+
+    <!-- Hero Section: Clean & Pure White -->
+    <section class="relative h-screen flex flex-col items-center justify-center text-center px-6 overflow-hidden">
+        <!-- 能量光暈替代背景圖 -->
+        <div class="aura-bg"></div>
+        
+        <div class="relative z-10 reveal">
+            <span class="font-fashion italic text-gold text-sm md:text-lg mb-8 block tracking-[0.6em] uppercase opacity-60">Minimalist Ritual美學</span>
+            <h1 class="font-serif text-4xl md:text-8xl mb-12 leading-[1.2] font-black text-onyx tracking-tighter">
+                你的氣場，<br><span class="gold-shine underline decoration-gold/10 underline-offset-[16px]">決定</span>你吸引的是什麼。
+            </h1>
+            <p class="text-stone text-base md:text-2xl mb-16 font-light max-w-2xl mx-auto leading-loose italic opacity-70">
+                三款水晶香霧，為日常注入剛好的能量儀式。<br>
+                我不講大道理，我只分享我真心覺得好用的。
+            </p>
+            <div class="flex justify-center">
+                <a href="#collection" class="group relative px-16 py-6 border border-gold overflow-hidden">
+                    <span class="relative z-10 text-gold tracking-[0.5em] text-[11px] uppercase font-black group-hover:text-white transition-colors">探索開運選品</span>
+                    <div class="absolute inset-0 bg-gold translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Marquee -->
+    <div class="w-full overflow-hidden border-y border-gold/10 py-10 bg-white relative z-10">
+        <div class="whitespace-nowrap flex font-fashion italic text-4xl text-gold/10 uppercase tracking-[0.4em]" id="marquee">
+            <span class="px-10">Crystal Essence</span>
+            <span class="px-10">Business Aura</span>
+            <span class="px-10">Real Results</span>
+            <span class="px-10">Auspicious Life</span>
+            <span class="px-10">Curated By Feifei</span>
+            <span class="px-10">Crystal Essence</span>
+            <span class="px-10">Business Aura</span>
+        </div>
+    </div>
+
+    <!-- Collection: Correct assets/images paths -->
+    <section id="collection" class="py-40 bg-sand relative z-10">
+        <div class="max-w-7xl mx-auto px-10 text-center">
+            <h2 class="font-serif text-3xl md:text-5xl mb-32 font-black gold-shine reveal uppercase tracking-tighter">為未來的自己準備一點力量</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-20">
+                <!-- 招財 Prosperity -->
+                <div class="reveal group relative bg-white p-2 shadow-3xl transition-all duration-700 hover:border-gold">
+                    <div class="aspect-[3/4] overflow-hidden relative">
+                        <img src="assets/images/招財水晶香霧.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="招財">
+                        <div class="absolute inset-0 bg-onyx/5 group-hover:bg-transparent transition-all duration-700"></div>
+                        <div class="absolute inset-0 flex items-center justify-center p-10">
+                             <div class="w-full h-full border border-white/20 flex flex-col items-center justify-center relative backdrop-blur-[1px]">
+                                <h3 class="font-serif text-3xl font-black text-white tracking-widest bg-black/20 px-4 py-2">招財紅運</h3>
+                             </div>
+                        </div>
+                    </div>
+                    <div class="py-12 px-8 text-center bg-white">
+                        <p class="text-sm text-stone leading-relaxed mb-10 h-16 italic opacity-80">「業績跟財氣的定心丸。進店前、談合約必噴，讓妳氣場強到沒朋友。」</p>
+                        <a href="#form" class="btn-mag block w-full py-5 bg-onyx text-gold text-[10px] tracking-[0.4em] uppercase font-black">我要下單</a>
+                    </div>
+                </div>
+
+                <!-- 貴人 Attraction -->
+                <div class="reveal group relative bg-white p-2 shadow-3xl transition-all duration-700 hover:border-gold lg:translate-y-16">
+                    <div class="aspect-[3/4] overflow-hidden relative">
+                        <img src="assets/images/貴人水晶香霧.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="貴人">
+                        <div class="absolute inset-0 bg-onyx/5 group-hover:bg-transparent transition-all duration-700"></div>
+                        <div class="absolute inset-0 flex items-center justify-center p-10">
+                             <div class="w-full h-full border border-white/20 flex flex-col items-center justify-center relative backdrop-blur-[1px]">
+                                <h3 class="font-serif text-3xl font-black text-white tracking-widest bg-black/20 px-4 py-2">貴人護體</h3>
+                             </div>
+                        </div>
+                    </div>
+                    <div class="py-12 px-8 text-center bg-white">
+                        <p class="text-sm text-stone leading-relaxed mb-10 h-16 italic opacity-80">「讓妳整個人亮起來。吸引靈魂契合的貴人，談生意或約會都自帶引力。」</p>
+                        <a href="#form" class="btn-mag block w-full py-5 bg-onyx text-gold text-[10px] tracking-[0.4em] uppercase font-black">我要下單</a>
+                    </div>
+                </div>
+
+                <!-- 淨化 Purifying -->
+                <div class="reveal group relative bg-white p-2 shadow-3xl transition-all duration-700 hover:border-gold">
+                    <div class="aspect-[3/4] overflow-hidden relative">
+                        <img src="assets/images/淨化水晶香霧.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="淨化">
+                        <div class="absolute inset-0 bg-onyx/5 group-hover:bg-transparent transition-all duration-700"></div>
+                        <div class="absolute inset-0 flex items-center justify-center p-10">
+                             <div class="w-full h-full border border-white/20 flex flex-col items-center justify-center relative backdrop-blur-[1px]">
+                                <h3 class="font-serif text-3xl font-black text-white tracking-widest bg-black/20 px-4 py-2">淨化避邪</h3>
+                             </div>
+                        </div>
+                    </div>
+                    <div class="py-12 px-8 text-center bg-white">
+                        <p class="text-sm text-stone leading-relaxed mb-10 h-16 italic opacity-80">「清理沈重、髒髒的負能量。去完醫院或磁場亂的地方，噴完真的會鬆一口氣。」</p>
+                        <a href="#form" class="btn-mag block w-full py-5 bg-onyx text-gold text-[10px] tracking-[0.4em] uppercase font-black">我要下單</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Ritual Section -->
+    <section id="ritual" class="py-48 bg-onyx text-sand reveal relative z-10">
+        <div class="max-w-5xl mx-auto px-10 text-center">
+            <h2 class="font-serif text-4xl md:text-6xl mb-32 font-black gold-shine">每一瓶，皆是能量的結晶</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-24">
+                <div class="space-y-6">
+                    <span class="font-fashion italic text-gold text-2xl">I.</span>
+                    <h4 class="font-bold tracking-widest text-xs uppercase opacity-60">財神爺加持過爐</h4>
+                    <p class="text-xs leading-loose font-light opacity-40">遵循古法，在能量最強的時辰前往財神大廟祈福。</p>
+                </div>
+                <div class="space-y-6">
+                    <span class="font-fashion italic text-gold text-2xl">II.</span>
+                    <h4 class="font-bold tracking-widest text-xs uppercase opacity-60">AAA級原礦水晶</h4>
+                    <p class="text-xs leading-loose font-light opacity-40">嚴選高淨度原礦，將大地的穩定能量注入液體。</p>
+                </div>
+                <div class="space-y-6">
+                    <span class="font-fashion italic text-gold text-2xl">III.</span>
+                    <h4 class="font-bold tracking-widest text-xs uppercase opacity-60">靈魂的呼吸出口</h4>
+                    <p class="text-xs leading-loose font-light opacity-40">結合植物精油與頻率，讓妳在繁忙中找回核心。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <footer id="form" class="py-60 bg-sand text-center relative overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-10 flex items-center justify-center text-gold">
+            <h2 class="font-fashion italic text-[30vw] select-none">Rich</h2>
+        </div>
+        
+        <div class="max-w-2xl mx-auto px-10 relative z-10 reveal">
+            <h2 class="font-serif text-4xl md:text-7xl mb-12 font-black gold-shine tracking-tighter">讓好事慢慢靠近你。</h2>
+            <p class="text-stone mb-20 leading-loose text-xl font-light italic">
+                限量加持製作 · 預約請購制
+            </p>
+            
+            <a href="#" class="btn-mag inline-block px-24 py-8 bg-onyx text-gold text-[11px] tracking-[0.5em] uppercase font-black shadow-2xl">
+                立即填寫下單表單
+            </a>
+
+            <div class="mt-40 pt-16 border-t border-onyx/5 flex flex-col md:flex-row justify-between items-center gap-10 text-[9px] tracking-widest uppercase text-stone/40">
+                <div class="flex gap-10 font-bold">
+                    <a href="#" class="hover:text-gold transition-colors">Instagram</a>
+                    <a href="#" class="hover:text-gold transition-colors">LINE Service</a>
+                </div>
+                <p>© 2026 M+ feifei.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const lenis = new Lenis({ lerp: 0.1 });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Preloader
+        gsap.to("#preloader-bar", {
+            width: "100%", duration: 1.5, ease: "power4.inOut",
+            onComplete: () => {
+                gsap.to("#preloader", {
+                    yPercent: -100, duration: 1, ease: "expo.inOut",
+                    onComplete: () => { 
+                        document.getElementById("preloader").remove();
+                        // 啟動頁面首屏動畫
+                        gsap.to(".reveal", { opacity: 1, y: 0, duration: 1.5, stagger: 0.2, ease: "power4.out" });
+                    }
+                });
+            }
+        });
+
+        // 磁吸按鈕
+        document.querySelectorAll('.btn-mag').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.4, ease: "power2.out" });
+            });
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
+            });
+        });
+
+        // 跑馬燈
+        gsap.to("#marquee", { xPercent: -50, repeat: -1, duration: 25, ease: "none" });
+
+        // 滾動 Reveal
+        document.querySelectorAll('.reveal').forEach((el, i) => {
+            if (i > 0) {
+                gsap.to(el, {
+                    opacity: 1, y: 0, duration: 1.5, ease: "power3.out",
+                    scrollTrigger: { trigger: el, start: "top 85%", once: true }
+                });
+            }
+        });
+
+        // 導覽列自動隱藏
+        let lastScroll = 0;
+        const navbar = document.getElementById('navbar');
+        lenis.on('scroll', (e) => {
+            const currentScroll = e.scroll;
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                navbar.style.transform = 'translateY(-100%)';
+            } else {
+                navbar.style.transform = 'translateY(0)';
+            }
+            lastScroll = currentScroll;
+        });
+    </script>
+</body>
+</html>

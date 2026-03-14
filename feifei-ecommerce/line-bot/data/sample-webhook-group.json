@@ -1,0 +1,25 @@
+{
+  "destination": "Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "events": [
+    {
+      "type": "message",
+      "message": {
+        "type": "text",
+        "id": "100002",
+        "text": "@小非 最近業績有點卡，招財那款比較適合嗎？"
+      },
+      "webhookEventId": "sample-group-001",
+      "deliveryContext": {
+        "isRedelivery": false
+      },
+      "timestamp": 1762503600000,
+      "source": {
+        "type": "group",
+        "groupId": "C_SAMPLE_GROUP",
+        "userId": "U_SAMPLE_MEMBER"
+      },
+      "replyToken": "SAMPLE_REPLY_TOKEN_GROUP",
+      "mode": "active"
+    }
+  ]
+}

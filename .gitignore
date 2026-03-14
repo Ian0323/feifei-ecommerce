@@ -1,0 +1,13 @@
+.env
+node_modules/
+dist/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+feifei-ecommerce/line-bot/.env
+feifei-ecommerce/line-bot/node_modules/
+feifei-ecommerce/landing-page/assets/images/originals/
+brand-analysis/video/
+brand-analysis/images/
+

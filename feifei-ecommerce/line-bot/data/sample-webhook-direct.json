@@ -1,0 +1,24 @@
+{
+  "destination": "Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "events": [
+    {
+      "type": "message",
+      "message": {
+        "type": "text",
+        "id": "100001",
+        "text": "我最近工作壓力很大，想問淨化適合嗎？"
+      },
+      "webhookEventId": "sample-direct-001",
+      "deliveryContext": {
+        "isRedelivery": false
+      },
+      "timestamp": 1762500000000,
+      "source": {
+        "type": "user",
+        "userId": "U_SAMPLE_USER"
+      },
+      "replyToken": "SAMPLE_REPLY_TOKEN_DIRECT",
+      "mode": "active"
+    }
+  ]
+}
