@@ -11,7 +11,7 @@
 
 | Sprint | 目標 | 狀態 | 預計時間 |
 |--------|------|------|---------|
-| Sprint 1 | 打破僵局，先上線 | 🔄 進行中 | 本週 |
+| Sprint 1 | 打破僵局，先上線 | ✅ 完成 | 2026-03-14 |
 | Sprint 2 | 宗教 IP 內容系統 | ⬜ 未開始 | 下週 |
 | Sprint 3 | LINE Bot 上線 | ⬜ 未開始 | 第 3 週 |
 | Sprint 4 | 金流串接 + 數據追蹤 | ⬜ 未開始 | 第 4 週 |
@@ -24,15 +24,17 @@
 
 | 項目 | 狀態 | 備註 |
 |------|------|------|
-| Git repo 初始化 | ⬜ 未開始 | 從 Dropbox 遷移到 GitHub |
-| Landing page 用現有素材上線 | 🔄 進行中 | 程式碼修改完成，待部署 |
+| Git repo 初始化 | ✅ 完成 | github.com/Ian0323/feifei-ecommerce |
+| Landing page 用現有素材上線 | ✅ 完成 | GitHub Pages 部署中 |
 | Hero 圖替換 placeholder | ✅ 完成 | 改用產品預覽圖.png |
 | CTA 改為購買導向 | ✅ 完成 | 全站移除「加 LINE 諮詢」，改為「立即購買」 |
 | Instagram 連結填入 | ✅ 完成 | myfeifei768 已填入 footer + order section |
 | products.json 更新 | ✅ 完成 | CTA 改「立即購買」，FAQ 改直接購買導向，ordering 改即時付款 |
 | SEO meta 更新 | ✅ 完成 | 移除 LINE 相關文案 |
 | LINE Bot 程式碼修正 | ✅ 完成 | model ID 更新、導購 CTA 改官網、field name 修正 |
-| GitHub Pages 部署 | ⬜ 未開始 | 需先初始化 git repo |
+| GitHub Pages 部署 | ✅ 完成 | https://ian0323.github.io/feifei-ecommerce/ |
+| 圖片壓縮 | ✅ 完成 | 28.7MB → 383KB (99% smaller)，原圖備份在 originals/ |
+| products.json 部署路徑修正 | ✅ 完成 | CI 自動複製 + fallback fetch |
 
 ---
 
@@ -115,4 +117,7 @@
 | 2026-03-14 | PROGRESS.md 重整：改為 Sprint-based 追蹤 |
 | 2026-03-14 | 金流策略確認：即時付款（綠界/WACA），LINE 不處理訂單 |
 | 2026-03-14 | Code Review 完成：修復 8 項問題（hero 圖、CTA、model ID、導購邏輯、field name） |
+| 2026-03-14 | 圖片壓縮：28.7MB → 383KB |
+| 2026-03-14 | Git repo 初始化 + GitHub Pages 部署 |
+| 2026-03-14 | Sprint 1 完成 |
 | 2026-03-09 | 建立 PROGRESS.md，從現有系統狀態初始化 |
