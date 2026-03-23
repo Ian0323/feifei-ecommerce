@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M+ feifei | 非非三部曲 — 水晶香霧</title>
+    <meta name="description" content="非非三部曲：淨化、貴人、招財。每一瓶水晶香霧經圓城宮教母郭明玲老師親自加持，以日常香氣陪你找回安定與好能量。">
+    <!-- GA4: 將 GA_MEASUREMENT_ID 替換為實際的 Measurement ID（格式 G-XXXXXXXXXX） -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ink: "#2C1810",
+                        mist: "#FDF8F3",
+                        plum: "#7B5EA7",
+                        blush: "#D4829C",
+                        gold: "#C9A84C",
+                        sand: "#F6EFE7"
+                    },
+                    fontFamily: {
+                        serif: ["Noto Serif TC", "serif"],
+                        sans: ["Noto Sans TC", "sans-serif"]
+                    },
+                    boxShadow: {
+                        soft: "0 20px 50px rgba(44, 24, 16, 0.08)"
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body {
+            background: linear-gradient(180deg, #FDF8F3 0%, #F8F2EC 100%);
+            color: #2C1810;
+            overflow-x: hidden;
+        }
+        .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        .gold-shimmer {
+            background: linear-gradient(90deg, #B8933E, #C9A84C, #DCC080, #C9A84C, #B8933E);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 4s linear infinite;
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+        .sparkle {
+            position: absolute;
+            width: 4px; height: 4px;
+            background: #C9A84C;
+            border-radius: 50%;
+            animation: sparkle 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <!-- ===== HERO ===== -->
+    <section class="relative min-h-screen flex flex-col items-center justify-center px-6 py-16 overflow-hidden text-center">
+        <div class="sparkle" style="top:15%;left:12%"></div>
+        <div class="sparkle" style="top:25%;right:15%;animation-delay:1s;width:3px;height:3px"></div>
+        <div class="sparkle" style="bottom:30%;left:20%;animation-delay:2s;width:5px;height:5px"></div>
+        <div class="sparkle" style="top:40%;right:25%;animation-delay:0.5s"></div>
+        <div class="sparkle" style="bottom:20%;right:10%;animation-delay:1.5s;width:3px;height:3px"></div>
+
+        <div class="reveal">
+            <span id="hero-badge" class="inline-block rounded-full bg-gradient-to-r from-gold to-yellow-600 px-6 py-2 text-xs font-medium tracking-[0.2em] text-white mb-8"></span>
+        </div>
+
+        <div class="reveal max-w-[550px] mx-auto mb-8">
+            <img id="hero-image" src="assets/images/product.jpg" alt="非非三部曲 水晶香霧" class="w-full h-auto drop-shadow-2xl">
+        </div>
+
+        <h1 class="reveal font-serif font-semibold text-ink tracking-[0.12em] leading-relaxed mb-3" style="font-size:clamp(1.4rem,4vw,2rem)">
+            <span id="hero-title">非非三部曲</span><br>
+            <span class="gold-shimmer" id="hero-trilogy">淨化 → 貴人 → 招財</span>
+        </h1>
+        <p class="reveal text-sm text-ink/60 tracking-[0.1em]" id="hero-sub">圓城宮教母親自加持 · 天然水晶礦石 · feifei 自己天天在用</p>
+    </section>
+
+    <!-- ===== TRUST BANNER ===== -->
+    <section id="trust-banner" class="reveal relative overflow-hidden bg-gradient-to-r from-yellow-700 via-gold to-yellow-600 py-12 px-6 text-center text-white">
+        <div class="relative z-10 max-w-xl mx-auto">
+            <h2 id="trust-title" class="font-serif font-semibold tracking-[0.15em] mb-2" style="font-size:clamp(1.1rem,3vw,1.4rem)"></h2>
+            <p id="trust-desc" class="text-sm text-white/80 leading-8 tracking-wide"></p>
+            <div id="trust-seals" class="flex flex-wrap justify-center gap-2 mt-5"></div>
+        </div>
+    </section>
+
+    <!-- ===== TRILOGY FLOW ===== -->
+    <section class="reveal py-16 px-6 text-center">
+        <h2 class="font-serif font-medium text-ink tracking-[0.12em] mb-2" style="font-size:clamp(1.2rem,3vw,1.5rem)">三部曲，有順序的</h2>
+        <p class="text-sm text-ink/60 tracking-wide mb-4">先淨化，招貴人，有貴人之後你的財路就會更好——feifei 自己就是照這個順序在用</p>
+        <div class="font-serif text-xl text-gold tracking-[0.3em] mb-10">淨化 → 貴人 → 招財</div>
+
+        <div class="max-w-3xl mx-auto grid gap-4 md:grid-cols-3">
+            <div class="rounded-2xl bg-plum/8 p-6 text-center">
+                <h3 class="font-serif text-2xl text-plum mb-2">淨化</h3>
+                <p class="text-sm text-ink/60 leading-7">先把亂掉的感覺整理回來，空間和自己都先清一清。</p>
+            </div>
+            <div class="rounded-2xl bg-blush/8 p-6 text-center">
+                <h3 class="font-serif text-2xl text-blush mb-2">貴人</h3>
+                <p class="text-sm text-ink/60 leading-7">讓自己整個人亮一點，見人、約會、做業務都比較順。</p>
+            </div>
+            <div class="rounded-2xl bg-gold/10 p-6 text-center">
+                <h3 class="font-serif text-2xl text-gold mb-2">招財</h3>
+                <p class="text-sm text-ink/60 leading-7">把工作、財路、衝業績前的心和氣場穩住，再把事情做起來。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PRODUCT CARDS ===== -->
+    <section id="products" class="py-16 px-6">
+        <div class="max-w-3xl mx-auto">
+            <div class="reveal text-center mb-12">
+                <h2 class="font-serif font-semibold text-ink" style="font-size:clamp(1.3rem,3.5vw,1.7rem)">三款香霧，照你現在的狀態選</h2>
+            </div>
+            <div id="products-list" class="space-y-6"></div>
+        </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section id="faq" class="py-16 px-6">
+        <div class="max-w-2xl mx-auto">
+            <div class="reveal text-center mb-10">
+                <h2 class="font-serif font-semibold text-ink text-2xl">常見問題</h2>
+            </div>
+            <div id="faq-list" class="reveal space-y-6"></div>
+        </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section id="order" class="reveal py-16 px-6">
+        <div class="max-w-2xl mx-auto overflow-hidden rounded-3xl bg-gradient-to-br from-ink via-[#4a2e25] to-plum p-8 md:p-12 text-white text-center shadow-soft">
+            <h2 class="font-serif font-semibold text-2xl md:text-3xl mb-4">喜歡就帶一瓶回家</h2>
+            <p class="text-sm text-white/75 leading-8 mb-2" id="cta-promo"></p>
+            <p class="text-sm text-white/75 leading-8 mb-6" id="cta-pricing"></p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center mb-6">
+                <a id="cta-order-btn" href="#products" class="rounded-full bg-white px-8 py-3 text-sm font-medium text-ink transition hover:bg-sand">立即購買</a>
+                <a href="https://www.instagram.com/myfeifei768/" target="_blank" rel="noopener noreferrer" class="rounded-full border border-white/25 px-8 py-3 text-sm font-medium text-white transition hover:bg-white/10">追蹤 feifei 的 IG</a>
+            </div>
+            <div class="rounded-2xl bg-white/10 p-5 text-sm text-white/78 leading-7 text-left inline-block max-w-sm">
+                <p class="font-medium text-white mb-2">下單超簡單</p>
+                <ol id="cta-steps" class="space-y-1 list-decimal list-inside"></ol>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="px-6 pb-10">
+        <div class="mx-auto flex max-w-4xl flex-col gap-4 border-t border-ink/8 pt-6 text-sm text-ink/48 md:flex-row md:items-center md:justify-between">
+            <p>&copy; 2026 M+ feifei. All rights reserved.</p>
+            <div class="flex gap-5">
+                <a href="index.html" class="hover:text-ink">回主頁</a>
+                <a href="https://www.instagram.com/myfeifei768/" target="_blank" rel="noopener noreferrer" class="hover:text-ink">Instagram</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const PRODUCT_STEP_LABELS = ["第一步", "第二步", "第三步"];
+        // slogans now come from products.json (product.slogan field)
+        let orderFormUrl = "#order";
+
+        function formatPrice(product) {
+            if (typeof product.price_twd === "number" && product.price_twd !== null) {
+                return "NT$ " + product.price_twd.toLocaleString();
+            }
+            return product.price_note || "價格待確認";
+        }
+
+        function renderTrustBanner(blessing) {
+            if (!blessing) return;
+            const title = document.getElementById("trust-title");
+            const desc = document.getElementById("trust-desc");
+            const seals = document.getElementById("trust-seals");
+            const badge = document.getElementById("hero-badge");
+
+            title.textContent = blessing.teacher_title + " " + blessing.teacher_name + " 親自加持";
+            desc.innerHTML = blessing.description;
+            badge.textContent = blessing.teacher_title + " " + blessing.teacher_name + " 親自加持";
+
+            if (blessing.seals) {
+                seals.innerHTML = blessing.seals.map(function(s) {
+                    var label = typeof s === "string" ? s : s.label;
+                    return '<span class="inline-block rounded-full bg-white/20 px-4 py-1.5 text-xs tracking-wide backdrop-blur-sm">'
+                        + label + "</span>";
+                }).join("");
+            }
+        }
+
+        function renderProducts(products) {
+            var container = document.getElementById("products-list");
+            if (!container || !products.length) return;
+
+            container.innerHTML = products.map(function(product, i) {
+                var scentsText = Array.isArray(product.scents) ? product.scents.join(" · ") : "";
+                var useCasesText = Array.isArray(product.use_cases) ? product.use_cases.join("、") : "";
+                var stepLabel = PRODUCT_STEP_LABELS[i] || "STEP 0" + (i + 1);
+                var slogan = product.slogan || product.one_liner || "";
+                var btnUrl = product.order_url || orderFormUrl;
+                var isExternal = btnUrl.startsWith("http");
+
+                return '<article class="reveal rounded-3xl overflow-hidden shadow-soft" style="background:' + (product.background_color || "#f5efe8") + ';">'
+                    + '<div class="md:flex">'
+                    + '<div class="md:w-2/5">'
+                    + '<img src="' + (product.image && product.image.src ? product.image.src : "") + '" alt="' + (product.image && product.image.alt ? product.image.alt : product.name_zh) + '" class="h-72 md:h-full w-full object-cover">'
+                    + '</div>'
+                    + '<div class="p-6 md:p-8 md:w-3/5 flex flex-col justify-center">'
+                    + '<span class="inline-block self-start rounded-full px-4 py-1 text-xs font-semibold tracking-[0.3em] mb-4" style="background:' + (product.theme_color || "#2C1810") + '20;color:' + (product.theme_color || "#2C1810") + ';">' + stepLabel + '</span>'
+                    + '<h3 class="font-serif font-semibold tracking-[0.2em] mb-1" style="font-size:clamp(1.8rem,5vw,2.2rem);color:' + (product.theme_color || "#2C1810") + ';">' + product.name_zh + '</h3>'
+                    + ''
+                    + '<p class="font-serif text-ink/80 tracking-wide leading-8 mb-4">' + slogan + '</p>'
+                    + '<p class="text-xs tracking-wider text-ink/45 mb-2">聞起來的感覺</p>'
+                    + '<div class="flex flex-wrap gap-2 mb-4">'
+                    + (Array.isArray(product.scents) ? product.scents.map(function(s) {
+                        return '<span class="rounded-full px-3 py-1 text-xs tracking-wide" style="background:' + (product.theme_color || "#2C1810") + '12;color:' + (product.theme_color || "#2C1810") + ';">' + s + '</span>';
+                      }).join("") : "")
+                    + '</div>'
+                    + '<p class="text-sm text-ink/60 leading-7 mb-4">' + (product.short_description || "") + '</p>'
+                    + '<div class="rounded-xl px-4 py-3 text-sm text-ink/65 leading-7 mb-5" style="background:rgba(255,255,255,0.6);">'
+                    + '適合時機：' + useCasesText
+                    + '</div>'
+                    + '<div class="flex items-center justify-between gap-3">'
+                    + '<span class="text-lg font-medium text-ink">' + formatPrice(product) + '</span>'
+                    + '<a href="' + btnUrl + '"' + (isExternal ? ' target="_blank" rel="noopener noreferrer"' : '') + ' class="rounded-full px-6 py-2.5 text-sm font-medium text-white transition hover:opacity-90" style="background:' + (product.theme_color || "#2C1810") + ';">' + (product.cta_label || "立即購買") + '</a>'
+                    + '</div>'
+                    + '</div></div></article>';
+            }).join('');
+        }
+
+        function renderFaq(items) {
+            var container = document.getElementById("faq-list");
+            if (!container || !items.length) return;
+
+            container.innerHTML = items.map(function(item) {
+                return '<div class="rounded-2xl bg-white/70 p-5 shadow-soft">'
+                    + '<p class="font-medium text-ink mb-2">' + item.question + '</p>'
+                    + '<p class="text-sm text-ink/60 leading-7">' + item.answer + '</p>'
+                    + '</div>';
+            }).join("");
+        }
+
+        function renderCta(pricing, ordering, links) {
+            if (pricing) {
+                var promo = document.getElementById("cta-promo");
+                var price = document.getElementById("cta-pricing");
+                if (pricing.promo_label) {
+                    promo.textContent = pricing.promo_label + " — " + (pricing.promo_description || "");
+                }
+                if (pricing.promo_display_price) {
+                    price.textContent = "NT$ " + pricing.promo_display_price.toLocaleString();
+                }
+            }
+
+            if (ordering && ordering.steps) {
+                var steps = document.getElementById("cta-steps");
+                steps.innerHTML = ordering.steps.map(function(s) {
+                    return "<li>" + s + "</li>";
+                }).join("");
+            }
+
+            if (links && links.order_form && links.order_form.url) {
+                document.getElementById("cta-order-btn").href = links.order_form.url;
+            }
+        }
+
+        async function loadContent() {
+            try {
+                var response = await fetch("../products/products.json");
+                if (!response.ok) throw new Error("Failed to load");
+                var data = await response.json();
+
+                if (data.links && data.links.order_form && data.links.order_form.url) {
+                    orderFormUrl = data.links.order_form.url;
+                }
+
+                renderTrustBanner(data.blessing || null);
+                renderProducts(data.products || []);
+                renderFaq(data.faq || []);
+                renderCta(data.pricing || null, data.ordering || null, data.links || null);
+            } catch (e) {
+                console.error("Failed to load products.json:", e);
+            }
+        }
+
+        // Scroll reveal via Intersection Observer
+        function bindReveal() {
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add("visible");
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: "0px 0px -40px 0px" });
+
+            document.querySelectorAll(".reveal").forEach(function(el) {
+                observer.observe(el);
+            });
+        }
+
+        loadContent().finally(function() {
+            bindReveal();
+        });
+    </script>
+</body>
+</html>

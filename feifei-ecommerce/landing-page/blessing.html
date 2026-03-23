@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圓城宮 × M+ feifei | 教母加持水晶香霧</title>
+    <meta name="description" content="圓城宮教母郭明玲老師親自加持，M+ feifei 水晶香霧三部曲 — 淨化、貴人、招財。">
+    <!-- GA4: 將 GA_MEASUREMENT_ID 替換為實際的 Measurement ID（格式 G-XXXXXXXXXX） -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;500;600;700;900&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        temple: "#1A1410",
+                        card: "#231E18",
+                        gold: "#D4A94B",
+                        "gold-bright": "#F0D080",
+                        "gold-dark": "#B8862D",
+                        warm: "#F0E8D8",
+                        dim: "#A09080",
+                        crimson: "#8B1A1A"
+                    },
+                    fontFamily: {
+                        serif: ["Noto Serif TC", "serif"],
+                        sans: ["Noto Sans TC", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { background: #1A1410; color: #F0E8D8; -webkit-font-smoothing: antialiased; }
+        .gold-gradient {
+            background: linear-gradient(180deg, #F0D080, #D4A94B, #B8862D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gold-line {
+            background: linear-gradient(90deg, transparent, rgba(212,169,75,0.7), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 6s linear infinite;
+        }
+        @keyframes shimmer {
+            from { background-position: 200% 0; }
+            to { background-position: -200% 0; }
+        }
+        .border-gold-subtle { border-color: rgba(212,169,75,0.15); }
+    </style>
+</head>
+<body class="font-serif">
+
+    <!-- Hero -->
+    <section class="relative overflow-hidden px-5 pb-12 pt-16 text-center md:pb-16 md:pt-24">
+        <div class="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full border border-gold/5"></div>
+        <div class="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full border border-gold/5"></div>
+        <div class="mx-auto max-w-lg">
+            <p id="temple-label" class="mb-4 text-xs font-light tracking-[0.5em] text-gold"></p>
+            <h1 class="gold-gradient text-[clamp(1.6rem,5vw,2.2rem)] font-bold leading-relaxed tracking-[0.2em]">
+                教母加持<br>水晶香霧
+            </h1>
+            <p id="hero-sub" class="mt-4 text-sm font-light leading-loose tracking-[0.12em] text-dim"></p>
+        </div>
+    </section>
+
+    <div class="gold-line mx-auto h-px w-16 opacity-40"></div>
+
+    <!-- Blessing Story -->
+    <section class="px-5 py-12 text-center md:py-16">
+        <p class="mb-6 text-[0.65rem] font-light tracking-[0.5em] text-gold">加持緣起</p>
+        <div id="blessing-text" class="mx-auto max-w-md text-[clamp(0.95rem,2.5vw,1.1rem)] font-light leading-[2.5] tracking-wider text-dim"></div>
+        <div id="blessing-seals" class="mt-10 flex flex-wrap justify-center gap-6"></div>
+    </section>
+
+    <div class="gold-line mx-auto h-px w-16 opacity-40"></div>
+
+    <!-- Products -->
+    <section class="px-5 py-12 md:py-16">
+        <p class="mb-10 text-center text-[0.65rem] font-light tracking-[0.5em] text-gold">香霧三部曲</p>
+        <div id="product-cards" class="mx-auto flex max-w-lg flex-col gap-6"></div>
+    </section>
+
+    <!-- Product Photo -->
+    <div class="px-5 py-8 text-center">
+        <img
+            src="assets/images/product.jpg"
+            alt="圓城宮加持水晶香霧三部曲"
+            class="mx-auto max-w-[min(500px,90vw)] drop-shadow-[0_20px_60px_rgba(212,169,75,0.1)]"
+        >
+    </div>
+
+    <div class="gold-line mx-auto h-px w-16 opacity-40"></div>
+
+    <!-- CTA / Offering -->
+    <section class="px-5 py-12 text-center md:py-16">
+        <p class="mb-6 text-[0.65rem] font-light tracking-[0.5em] text-gold">請購</p>
+        <h2 class="mx-auto max-w-sm text-[clamp(1.2rem,3.5vw,1.5rem)] font-semibold leading-loose tracking-[0.15em] text-warm">
+            先淨化，招貴人<br>有貴人，財路通
+        </h2>
+
+        <div id="pricing-box" class="mx-auto mt-8 max-w-sm rounded-2xl border border-gold-subtle bg-card p-6"></div>
+
+        <a
+            id="cta-btn"
+            href="index.html"
+            class="mt-8 inline-block rounded-full bg-gradient-to-br from-gold-dark to-gold px-10 py-3 font-sans text-sm font-semibold tracking-[0.2em] text-temple transition hover:-translate-y-0.5 hover:shadow-[0_8px_30px_rgba(212,169,75,0.3)]"
+        >立即購買</a>
+
+        <p id="fan-note" class="mt-5 text-xs font-light text-dim"></p>
+    </section>
+
+    <!-- Footer -->
+    <!-- Navigation -->
+    <div class="px-5 pb-6 text-center">
+        <a href="index.html" class="inline-block rounded-full border border-gold-subtle px-6 py-2.5 font-sans text-xs tracking-wider text-gold transition hover:bg-gold/10">
+            看三款香霧完整介紹 →
+        </a>
+    </div>
+
+    <footer class="border-t border-gold-subtle px-5 py-10 text-center text-[0.6rem] leading-loose tracking-wider text-dim">
+        <span id="footer-text"></span><br><br>
+        &copy; 2026 M+ feifei. All rights reserved.
+    </footer>
+
+    <script>
+        const STEP_LABELS = ["第一步", "第二步", "第三步"];
+        const CARD_STYLES = {
+            purifying:   { border: "#9B7DB8", title: "#B89DD0", css: "purify" },
+            attraction:  { border: "#D4949E", title: "#E8B8C0", css: "noble" },
+            prosperity:  { border: "#D4A94B", title: "#F0D080", css: "wealth" }
+        };
+
+        let orderFormUrl = "index.html";
+
+        function formatPromoPrice(pricing) {
+            if (!pricing) return "";
+            return `
+                <p class="mb-2 text-sm font-medium tracking-wider text-gold">${pricing.promo_label || ""}</p>
+                <p class="text-sm text-dim line-through">NT$ ${(pricing.original_display_price || 0).toLocaleString()} / 兩瓶</p>
+                <p class="my-1 text-3xl font-black text-gold-bright tracking-wide">NT$ ${(pricing.promo_display_price || 0).toLocaleString()}</p>
+                <p class="text-xs text-dim">${pricing.promo_description || ""}</p>
+            `;
+        }
+
+        function renderBlessingText(blessing) {
+            const el = document.getElementById("blessing-text");
+            if (!el || !blessing) return;
+            const t = blessing.teacher_name || "";
+            const temple = blessing.temple_name || "";
+            el.innerHTML = `
+                每一瓶香霧在裝瓶前<br>
+                都先經過<strong class="text-warm font-medium">淨化</strong><br>
+                再由${temple} <strong class="text-warm font-medium">${t}</strong><br>
+                親自加持過才出去<br><br>
+                是真的有被好好對待過的東西
+            `;
+        }
+
+        function renderSeals(seals) {
+            const el = document.getElementById("blessing-seals");
+            if (!el || !seals) return;
+            el.innerHTML = seals.map(s => {
+                var label = typeof s === "string" ? s : s.label;
+                return `<div class="flex h-16 flex-col items-center justify-center rounded-full border border-gold-subtle bg-gold/[0.03] px-4">
+                    <span class="text-[0.65rem] tracking-wider text-gold">${label}</span>
+                </div>`;
+            }).join("");
+        }
+
+        function renderProducts(products) {
+            const el = document.getElementById("product-cards");
+            if (!el) return;
+            el.innerHTML = products.map((p, i) => {
+                const style = CARD_STYLES[p.id] || CARD_STYLES.purifying;
+                const scents = (p.scents || []).join(" · ");
+                const crystalNote = p.crystals
+                    ? `<div class="mt-4 rounded-lg border border-gold/10 bg-gold/[0.06] px-3 py-2 text-center text-xs tracking-wide text-gold">
+                        瓶內含${p.crystals.join(" + ")}，教母親自加持
+                       </div>`
+                    : "";
+                return `
+                <article class="relative overflow-hidden rounded-2xl border border-gold-subtle bg-card p-6">
+                    <div class="absolute inset-x-0 top-0 h-[3px] opacity-60" style="background:linear-gradient(90deg,transparent,${style.border},transparent)"></div>
+                    <div class="flex items-start gap-4">
+                        <div class="flex-1">
+                            <p class="text-[0.6rem] tracking-[0.3em] text-dim">${STEP_LABELS[i] || ""}</p>
+                            <h3 class="mt-2 text-2xl font-bold tracking-[0.2em]" style="color:${style.title}">${p.name_zh}</h3>
+                            <p class="mt-1 text-[0.6rem] tracking-[0.3em] text-dim">${(p.scents || []).join(" · ")}</p>
+                        </div>
+                        ${p.image?.src ? `<img src="${p.image.src}" alt="${p.image.alt || p.name_zh}" class="h-28 w-28 rounded-xl object-cover flex-shrink-0">` : ""}
+                    </div>
+                    <p class="mt-4 font-sans text-[0.82rem] font-light leading-loose text-warm/55">${p.one_liner || ""}</p>
+                    <p class="mt-2 font-sans text-[0.78rem] font-light leading-loose text-warm/45">${p.short_description || ""}</p>
+                    ${p.use_cases ? '<p class="mt-2 font-sans text-[0.7rem] text-dim">適合：' + p.use_cases.join("、") + '</p>' : ''}
+                    ${crystalNote}
+                </article>`;
+            }).join("");
+        }
+
+        function renderPricing(pricing) {
+            const el = document.getElementById("pricing-box");
+            if (!el || !pricing) return;
+            el.innerHTML = formatPromoPrice(pricing);
+        }
+
+        async function loadContent() {
+            try {
+                const res = await fetch("../products/products.json");
+                if (!res.ok) throw new Error("fetch failed");
+                const data = await res.json();
+
+                // Order URL
+                if (data.links?.order_form?.url) {
+                    orderFormUrl = data.links.order_form.url;
+                }
+                const ctaBtn = document.getElementById("cta-btn");
+                if (ctaBtn) {
+                    ctaBtn.href = orderFormUrl || "#";
+                    if (orderFormUrl.startsWith("http")) {
+                        ctaBtn.target = "_blank";
+                        ctaBtn.rel = "noopener noreferrer";
+                    }
+                }
+
+                // Temple label
+                const blessing = data.blessing || {};
+                document.getElementById("temple-label").textContent =
+                    `${blessing.temple_name || "圓城宮"} × ${data.brand?.name || "M+ feifei"}`;
+
+                // Hero sub
+                document.getElementById("hero-sub").innerHTML =
+                    `${blessing.temple_name || "圓城宮"}${blessing.teacher_title || "教母"} ${blessing.teacher_name || ""} 親自加持`;
+
+                // Footer
+                document.getElementById("footer-text").textContent =
+                    `${blessing.temple_name || "圓城宮"} × ${data.brand?.name || "M+ feifei"} 聯名加持系列`;
+
+                // Fan note
+                document.getElementById("fan-note").textContent =
+                    `${blessing.teacher_name || "郭老師"}的朋友下單備註「郭老師」，會有小驚喜`;
+
+                renderBlessingText(blessing);
+                renderSeals(blessing.seals || []);
+                renderProducts(data.products || []);
+                renderPricing(data.pricing || null);
+            } catch (err) {
+                console.error("Failed to load products.json:", err);
+            }
+        }
+
+        loadContent();
+    </script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>非非 FeiFei — 生活選物・靈性好物</title>
+    <meta name="description" content="非非 FeiFei 個人品牌中心。穿搭、探店、靈性好物、水晶香霧，所有連結一次找到。">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { ink: "#2C1810", mist: "#FDF8F3", plum: "#7B5EA7", blush: "#D4829C", gold: "#C9A84C", sand: "#F6EFE7" },
+                    fontFamily: { sans: ["Noto Sans TC", "sans-serif"] }
+                }
+            }
+        };
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { background: linear-gradient(180deg, #fdf8f3 0%, #f8f2ec 100%); }
+        .fade-in { animation: fadeUp 0.6s ease both; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="font-sans text-ink max-w-[480px] mx-auto min-h-screen pb-12">
+
+    <!-- Profile -->
+    <section class="text-center px-6 pt-10 pb-4 fade-in">
+        <div class="w-[90px] h-[90px] rounded-full bg-gradient-to-br from-blush to-plum mx-auto mb-4 border-[3px] border-white shadow-lg overflow-hidden">
+            <img src="assets/images/產品預覽圖.jpg" alt="非非 FeiFei" class="w-full h-full object-cover">
+        </div>
+        <h1 class="text-xl font-bold tracking-widest">非非 FeiFei</h1>
+        <p class="text-sm text-ink/50 mt-1">@myfeifei768</p>
+        <p class="text-sm text-ink/55 leading-7 mt-3">穿搭 / 探店 / 靈性好物 / 旅行日常</p>
+    </section>
+
+    <!-- Featured Product (static fallback, JS will enhance) -->
+    <section class="px-5 mb-4 fade-in" style="animation-delay:0.1s">
+        <div id="featured-card" class="rounded-2xl overflow-hidden border border-gold/15 bg-gradient-to-br from-[#FDF6E8] to-[#F8EEDB]">
+            <img src="assets/images/product.jpg" alt="非非三部曲 水晶香霧" class="w-full h-auto">
+            <div class="px-5 pt-4 pb-5">
+                <p class="text-xs text-gold font-medium tracking-wider mb-2">圓城宮教母 郭明玲老師 親自加持</p>
+                <h2 class="text-lg font-bold tracking-wider mb-1">非非三部曲 水晶香霧</h2>
+                <p class="text-sm text-ink/60 leading-7 mb-4">菲菲三部曲：淨化、貴人、招財</p>
+                <a href="index.html" class="block text-center bg-ink text-white text-sm font-medium py-3 rounded-xl tracking-wider transition hover:bg-plum">
+                    看三款介紹
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About -->
+    <section class="px-5 mb-4 fade-in" style="animation-delay:0.15s">
+        <div class="rounded-2xl bg-white/60 border border-ink/[0.04] p-5">
+            <p class="text-xs font-medium text-ink/40 tracking-wider mb-2">關於非非</p>
+            <p id="about-text" class="text-sm text-ink/65 leading-7">我自己很在意狀態這件事。去到新的空間、要見人、要工作、要開工，我都會先把自己整理好，所以才有這三瓶。不是要你研究很多，而是讓你在當下就知道該拿哪一瓶。</p>
+        </div>
+    </section>
+
+    <!-- Quick Links (static fallback) -->
+    <section class="px-5 mb-4 fade-in" style="animation-delay:0.2s">
+        <div id="links-container" class="space-y-2.5">
+            <a href="mist.html" class="flex items-center bg-white/80 border border-ink/[0.06] rounded-2xl px-5 py-3.5 transition hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-md">
+                <div class="flex-1"><p class="text-sm font-medium">水晶香霧 — 完整介紹</p><p class="text-xs text-ink/40 mt-0.5">淨化・貴人・招財三款詳細說明</p></div>
+                <span class="text-ink/25 text-sm">&rsaquo;</span>
+            </a>
+            <a href="go.html" class="flex items-center bg-white/80 border border-ink/[0.06] rounded-2xl px-5 py-3.5 transition hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-md">
+                <div class="flex-1"><p class="text-sm font-medium">限時團購</p><p class="text-xs text-ink/40 mt-0.5">買一送一</p></div>
+                <span class="text-ink/25 text-sm">&rsaquo;</span>
+            </a>
+            <a href="blessing.html" class="flex items-center bg-white/80 border border-ink/[0.06] rounded-2xl px-5 py-3.5 transition hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-md">
+                <div class="flex-1"><p class="text-sm font-medium">教母加持 — 郭明玲老師</p><p class="text-xs text-ink/40 mt-0.5">圓城宮認證</p></div>
+                <span class="text-ink/25 text-sm">&rsaquo;</span>
+            </a>
+            <a href="https://www.instagram.com/myfeifei768/" target="_blank" rel="noopener noreferrer" class="flex items-center bg-white/80 border border-ink/[0.06] rounded-2xl px-5 py-3.5 transition hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-md">
+                <div class="flex-1"><p class="text-sm font-medium">feifei 的 IG</p><p class="text-xs text-ink/40 mt-0.5">穿搭・探店・日常</p></div>
+                <span class="text-ink/25 text-sm">&rsaquo;</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Products (static fallback) -->
+    <section class="px-5 mb-4 fade-in" style="animation-delay:0.25s">
+        <p class="text-xs font-medium tracking-wider text-ink/40 mb-3 pl-1">三款香霧</p>
+        <div id="product-cards" class="space-y-3">
+            <a href="index.html#products" class="flex items-center gap-4 bg-white/70 border border-ink/[0.05] rounded-2xl p-3 transition hover:border-gold/30 hover:shadow-sm">
+                <div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+                    <img src="assets/images/淨化水晶香霧.jpg" alt="淨化水晶香霧" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold" style="color:#7B5EA7">淨化</p>
+                    <p class="text-xs text-ink/50 mt-0.5 leading-relaxed">如果最近覺得很亂，我自己會先拿淨化。</p>
+                    <p class="text-[0.65rem] text-ink/35 mt-1">雪松 · 檀香 · 岩蘭草 · 艾草 · 沉香</p>
+                </div>
+                <span class="text-ink/20 text-sm shrink-0">&rsaquo;</span>
+            </a>
+            <a href="index.html#products" class="flex items-center gap-4 bg-white/70 border border-ink/[0.05] rounded-2xl p-3 transition hover:border-gold/30 hover:shadow-sm">
+                <div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+                    <img src="assets/images/貴人水晶香霧.jpg" alt="貴人水晶香霧" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold" style="color:#D4829C">貴人</p>
+                    <p class="text-xs text-ink/50 mt-0.5 leading-relaxed">今天如果要見人，我通常會先拿貴人。</p>
+                    <p class="text-[0.65rem] text-ink/35 mt-1">鈴蘭 · 桂花 · 桃花</p>
+                </div>
+                <span class="text-ink/20 text-sm shrink-0">&rsaquo;</span>
+            </a>
+            <a href="index.html#products" class="flex items-center gap-4 bg-white/70 border border-ink/[0.05] rounded-2xl p-3 transition hover:border-gold/30 hover:shadow-sm">
+                <div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+                    <img src="assets/images/招財水晶香霧.jpg" alt="招財水晶香霧" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-bold" style="color:#C9A84C">招財</p>
+                    <p class="text-xs text-ink/50 mt-0.5 leading-relaxed">要工作、開工、衝業績，我會先噴招財。</p>
+                    <p class="text-[0.65rem] text-ink/35 mt-1">岩蘭草 · 琥珀 · 玫瑰</p>
+                </div>
+                <span class="text-ink/20 text-sm shrink-0">&rsaquo;</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Trust -->
+    <section class="px-5 mb-6 fade-in" style="animation-delay:0.3s">
+        <div id="trust-section" class="flex flex-wrap justify-center gap-2">
+            <span class="text-[0.65rem] text-ink/40 bg-white/50 rounded-full px-3 py-1.5">圓城宮教母郭明玲老師親自加持</span>
+            <span class="text-[0.65rem] text-ink/40 bg-white/50 rounded-full px-3 py-1.5">天然水晶礦石</span>
+            <span class="text-[0.65rem] text-ink/40 bg-white/50 rounded-full px-3 py-1.5">feifei 自己每天在用的東西</span>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center px-5 pt-4 pb-8">
+        <p class="text-[0.65rem] text-ink/30 tracking-wider">&copy; 2026 M+ feifei</p>
+    </footer>
+
+    <script>
+        async function loadContent() {
+            try {
+                var response = await fetch("../products/products.json");
+                if (!response.ok) { response = await fetch("products/products.json"); }
+                if (!response.ok) return;
+                var data = await response.json();
+
+                // Update about text from JSON
+                var aboutEl = document.getElementById("about-text");
+                if (aboutEl && data.brand_story_short) aboutEl.textContent = data.brand_story_short;
+
+                // Update featured card pricing if available
+                var pricing = data.pricing || {};
+                if (pricing.promo_display_price) {
+                    var card = document.getElementById("featured-card");
+                    var priceHtml = '<div class="text-center mb-3 text-sm text-ink/50">'
+                        + '<span class="text-blush font-bold text-base">NT$ ' + pricing.promo_display_price.toLocaleString() + ' / 兩瓶</span>'
+                        + '<span class="ml-1 text-xs">' + (pricing.promo_label || "") + '</span></div>';
+                    var ctaBtn = card.querySelector("a");
+                    if (ctaBtn) ctaBtn.insertAdjacentHTML("beforebegin", priceHtml);
+                }
+
+                // Update CTA link if order form URL is available
+                var orderUrl = data.links?.order_form?.url;
+                if (orderUrl) {
+                    var btns = document.querySelectorAll("#featured-card a");
+                    btns.forEach(function(btn) {
+                        btn.href = orderUrl;
+                        btn.textContent = "立即購買";
+                        if (orderUrl.startsWith("http")) { btn.target = "_blank"; btn.rel = "noopener noreferrer"; }
+                    });
+                }
+
+                // Update IG link
+                var igUrl = data.links?.instagram?.url;
+                if (igUrl) {
+                    var igLinks = document.querySelectorAll('a[href*="instagram.com"]');
+                    igLinks.forEach(function(l) { l.href = igUrl; });
+                }
+
+                // Update trust markers
+                var trustEl = document.getElementById("trust-section");
+                var markers = data.trust_markers || [];
+                if (trustEl && markers.length) {
+                    trustEl.innerHTML = markers.map(function(m) {
+                        return '<span class="text-[0.65rem] text-ink/40 bg-white/50 rounded-full px-3 py-1.5">' + m + '</span>';
+                    }).join("");
+                }
+            } catch (e) {
+                // Static fallback content already visible, no action needed
+            }
+        }
+        loadContent();
+    </script>
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M+ feifei | 水晶香霧</title>
+    <meta name="description" content="M+ feifei 水晶香霧，以日常香氣陪你找回安定、吸引力與好能量。探索淨化、貴人、招財三款香霧。">
+    <!-- GA4 placeholder -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/gsap@3.12.2/dist/gsap.min.js"></script>
+    <script src="https://unpkg.com/gsap@3.12.2/dist/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: "#0A0908",
+                        cream: "#F5F0E8",
+                        "warm-white": "#FAF8F4",
+                        gold: "#C4A265",
+                        "gold-light": "#D4B97A",
+                        "gold-dark": "#A8884A",
+                        purple: "#9B7DB8",
+                        "purple-deep": "#7B5D98",
+                        pink: "#D4A0A0",
+                        "pink-soft": "#E8C4C4"
+                    },
+                    fontFamily: {
+                        serif: ["Noto Serif TC", "serif"]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { background: #0A0908; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+        /* Hero atmosphere layers */
+        .atmo-layer {
+            position: absolute; inset: -50%; width: 200%; height: 200%;
+            border-radius: 50%; filter: blur(80px); opacity: 0;
+            animation: atmoPulse 12s ease-in-out infinite;
+        }
+        .atmo-layer:nth-child(1) {
+            background: radial-gradient(ellipse, rgba(196,162,101,0.2) 0%, transparent 60%);
+            top: -30%; left: -20%; animation-duration: 12s;
+        }
+        .atmo-layer:nth-child(2) {
+            background: radial-gradient(ellipse, rgba(155,125,184,0.12) 0%, transparent 55%);
+            top: 10%; left: 30%; animation-delay: 3s; animation-duration: 14s;
+        }
+        .atmo-layer:nth-child(3) {
+            background: radial-gradient(ellipse, rgba(212,160,160,0.1) 0%, transparent 50%);
+            top: -10%; left: 50%; animation-delay: 6s; animation-duration: 11s;
+        }
+        @keyframes atmoPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1) translate(0,0); }
+            30% { opacity: 0.6; transform: scale(1.1) translate(2%,-3%); }
+            60% { opacity: 0.4; transform: scale(1.05) translate(-1%,2%); }
+        }
+
+        /* Mist drift */
+        .hero-mist {
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(196,162,101,0.06) 0%, transparent 40%),
+                radial-gradient(ellipse at 80% 20%, rgba(155,125,184,0.04) 0%, transparent 40%);
+            animation: mistDrift 20s ease-in-out infinite alternate;
+        }
+        @keyframes mistDrift {
+            from { transform: translateX(-5%) translateY(0); }
+            to { transform: translateX(5%) translateY(-3%); }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: absolute; width: 2px; height: 2px;
+            background: #D4B97A; border-radius: 50%; opacity: 0;
+            animation: particleUp linear infinite;
+        }
+        .particle:nth-child(1) { left:15%; animation-duration:8s; }
+        .particle:nth-child(2) { left:30%; animation-duration:12s; animation-delay:2s; width:3px; height:3px; }
+        .particle:nth-child(3) { left:50%; animation-duration:10s; animation-delay:4s; background:rgba(155,125,184,0.4); width:4px; height:4px; }
+        .particle:nth-child(4) { left:70%; animation-duration:9s; animation-delay:1s; }
+        .particle:nth-child(5) { left:85%; animation-duration:11s; animation-delay:5s; background:#E8C4C4; width:3px; height:3px; }
+        .particle:nth-child(6) { left:40%; animation-duration:13s; animation-delay:3s; }
+        @keyframes particleUp {
+            0% { bottom:-5%; opacity:0; transform:translateX(0); }
+            10% { opacity:0.6; }
+            90% { opacity:0.3; }
+            100% { bottom:105%; opacity:0; transform:translateX(30px); }
+        }
+
+        /* Shimmer text */
+        .shimmer-text {
+            background: linear-gradient(90deg, #C4A265, #D4B97A, #C4A265);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 5s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        /* Scroll line pulse */
+        .scroll-line {
+            animation: scrollPulse 2s ease-in-out infinite;
+        }
+        @keyframes scrollPulse {
+            0%, 100% { transform: scaleY(1); opacity:0.5; }
+            50% { transform: scaleY(0.6); opacity:1; }
+        }
+
+        /* Immersive glow shift */
+        @keyframes glowShift {
+            0% { transform: translate(0,0) scale(1); }
+            100% { transform: translate(3%,-2%) scale(1.05); }
+        }
+
+        /* Reveal base state */
+        .reveal { opacity: 0; transform: translateY(30px); }
+
+        /* Grain overlay */
+        .grain-overlay {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            background-size: 128px 128px;
+        }
+    </style>
+</head>
+<body class="font-serif font-light leading-relaxed text-cream">
+
+    <!-- Preview banner -->
+    <div class="fixed inset-x-0 top-0 z-[100] bg-gold-dark/90 backdrop-blur-sm px-4 py-2 text-center text-xs tracking-widest text-cream">
+        此頁面為品牌升級預覽版，尚未正式啟用
+    </div>
+
+    <!-- Hero -->
+    <section class="relative flex h-screen items-center justify-center overflow-hidden bg-dark pt-8">
+        <!-- Atmosphere -->
+        <div class="absolute inset-0 z-0">
+            <div class="atmo-layer"></div>
+            <div class="atmo-layer"></div>
+            <div class="atmo-layer"></div>
+            <div class="hero-mist absolute inset-0"></div>
+            <div class="grain-overlay absolute inset-0 opacity-[0.03] pointer-events-none"></div>
+        </div>
+        <!-- Particles -->
+        <div class="absolute inset-0 z-[1] pointer-events-none">
+            <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+            <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+        </div>
+        <!-- Content -->
+        <div class="relative z-[2] px-8 text-center">
+            <p class="mb-8 text-xs font-extralight tracking-[0.6em] text-cream/40 animate-[fadeInUp_2s_ease_0.5s_both]">M+ FEIFEI</p>
+            <h1 id="hero-tagline" class="text-[clamp(1.5rem,4vw,2.4rem)] font-extralight tracking-[0.2em] leading-[2.2] text-cream/85 animate-[fadeInUp_1.5s_ease_1s_both]">
+                給自己一次<span class="shimmer-text font-light">深呼吸</span>的時間
+            </h1>
+        </div>
+        <!-- Scroll hint -->
+        <div class="absolute bottom-10 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-3 animate-[fadeInUp_2s_ease_2s_both]">
+            <span class="text-[0.65rem] tracking-[0.3em] text-cream/25">往下看</span>
+            <div class="scroll-line h-10 w-px bg-gradient-to-b from-gold/40 to-transparent"></div>
+        </div>
+    </section>
+
+    <!-- Philosophy -->
+    <section class="relative flex min-h-screen items-center justify-center bg-gradient-to-b from-dark via-[#12100E] to-dark px-8 py-24">
+        <div class="reveal max-w-xl text-center">
+            <p class="text-[clamp(1rem,2.5vw,1.25rem)] font-extralight tracking-[0.15em] leading-[2.5] text-cream/55">
+                我自己很在意狀態這件事
+            </p>
+            <p class="mt-7 text-[clamp(1rem,2.5vw,1.25rem)] font-extralight tracking-[0.15em] leading-[2.5] text-cream/55">
+                去到新的空間、要見人、要工作
+            </p>
+            <p class="mt-7 text-[clamp(1rem,2.5vw,1.25rem)] font-light tracking-[0.15em] leading-[2.5] text-cream/90">
+                我都會先把自己整理好
+            </p>
+            <div class="mx-auto my-12 h-px w-8 bg-gold opacity-50"></div>
+            <p class="text-[clamp(1rem,2.5vw,1.25rem)] font-extralight tracking-[0.15em] leading-[2.5] text-cream/55">
+                噴一下，深呼吸<br>不用研究很多，<span class="font-light text-cream/90">直接知道該拿哪一瓶</span>
+            </p>
+        </div>
+    </section>
+
+    <!-- Immersive product sections (data-driven) -->
+    <div id="immersive-sections"></div>
+
+    <!-- Product overview -->
+    <section class="bg-gradient-to-b from-dark via-[#0E0D0B] to-dark px-8 py-32 text-center">
+        <p class="reveal text-[0.65rem] font-extralight tracking-[0.5em] text-gold/60 mb-8">三瓶香霧</p>
+        <div class="reveal mx-auto mb-12 max-w-[min(650px,90vw)]">
+            <img src="assets/images/product.jpg" alt="非非三部曲 水晶香霧" class="w-full h-auto drop-shadow-[0_30px_80px_rgba(196,162,101,0.1)]">
+        </div>
+        <div id="overview-details" class="reveal mx-auto grid max-w-2xl gap-8 sm:grid-cols-3"></div>
+    </section>
+
+    <!-- Brand story -->
+    <section class="mx-auto max-w-3xl px-8 py-24">
+        <div class="reveal rounded-xl border border-gold/15 bg-gold/[0.02] px-8 py-12 text-center md:px-12">
+            <h2 class="text-xl font-light tracking-[0.1em] text-gold-light mb-4">關於非非</h2>
+            <p id="brand-story" class="mx-auto max-w-md text-sm font-extralight leading-[2.2] text-cream/60"></p>
+        </div>
+    </section>
+
+    <!-- Product cards -->
+    <section class="px-8 py-24">
+        <div class="reveal mx-auto max-w-5xl text-center mb-12">
+            <h2 class="text-2xl font-light tracking-[0.15em] text-cream/80 md:text-3xl">選一瓶，陪你走過今天</h2>
+        </div>
+        <div id="product-cards" class="mx-auto grid max-w-5xl gap-8 md:grid-cols-3"></div>
+    </section>
+
+    <!-- CTA -->
+    <section class="relative overflow-hidden px-8 py-32 text-center">
+        <div class="absolute inset-[-50%] bg-[radial-gradient(ellipse_at_center,rgba(196,162,101,0.06)_0%,transparent_60%)] pointer-events-none animate-[atmoPulse_10s_ease-in-out_infinite]"></div>
+        <div class="reveal relative z-10">
+            <h2 class="text-[clamp(1.2rem,3vw,1.6rem)] font-extralight tracking-[0.15em] text-cream/80 mb-10">喜歡就帶一瓶回家</h2>
+            <div id="cta-pricing" class="mb-10"></div>
+            <a id="cta-button" href="index.html" class="inline-block rounded-full border border-cream/30 px-14 py-4 text-sm font-light tracking-[0.3em] text-cream transition-all duration-500 hover:bg-cream hover:text-dark hover:border-cream">
+                立即購買
+            </a>
+            <p class="mt-7 text-[0.7rem] font-extralight text-cream/40 tracking-widest">
+                想先了解更多？<a id="ig-link" href="https://www.instagram.com/myfeifei768/" target="_blank" rel="noopener noreferrer" class="text-cream/55 underline underline-offset-4 transition-colors hover:text-gold">追蹤 feifei 的 IG</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-cream/[0.06] px-8 py-12 text-center">
+        <p class="text-xs font-extralight tracking-[0.4em] text-cream/20 mb-4">M+ FEIFEI</p>
+        <div class="mb-6 flex justify-center gap-8">
+            <a id="footer-ig" href="https://www.instagram.com/myfeifei768/" target="_blank" rel="noopener noreferrer" class="text-[0.65rem] tracking-[0.2em] text-cream/35 no-underline transition-colors hover:text-gold">Instagram</a>
+        </div>
+        <p class="text-[0.55rem] tracking-widest text-cream/25">&copy; 2026 M+ feifei</p>
+    </footer>
+
+    <script>
+        const PRODUCT_GLOW_MAP = {
+            purifying: "radial-gradient(ellipse at 40% 40%, rgba(155,125,184,0.2) 0%, transparent 60%), radial-gradient(ellipse at 60% 70%, rgba(123,93,152,0.12) 0%, transparent 50%)",
+            attraction: "radial-gradient(ellipse at 50% 40%, rgba(212,160,160,0.2) 0%, transparent 60%), radial-gradient(ellipse at 30% 70%, rgba(232,196,196,0.1) 0%, transparent 50%)",
+            prosperity: "radial-gradient(ellipse at 30% 50%, rgba(196,162,101,0.2) 0%, transparent 60%), radial-gradient(ellipse at 70% 60%, rgba(168,136,74,0.1) 0%, transparent 50%)"
+        };
+
+        const PRODUCT_FEELINGS = {
+            purifying: "跑完一整天回到家<br>或是去完人很多的地方<br>我都會先噴一下，把自己整理回來",
+            attraction: "今天要見人、約會、拍照<br>想讓自己亮一點柔一點<br>我就會拿這瓶",
+            prosperity: "要工作、開工、談合作<br>先把心和氣場穩住<br>再去把事情做好"
+        };
+
+        const COLOR_CLASS = {
+            purifying: "text-purple",
+            attraction: "text-pink-soft",
+            prosperity: "text-gold-light"
+        };
+
+        function formatPrice(product) {
+            if (typeof product.price_twd === "number") return `NT$ ${product.price_twd}`;
+            return product.price_note || "價格待確認";
+        }
+
+        function renderImmersive(products) {
+            const container = document.getElementById("immersive-sections");
+            if (!container || !products.length) return;
+            /* Fixed order: purifying -> attraction -> prosperity (淨化 -> 貴人 -> 招財) */
+            const order = ["purifying", "attraction", "prosperity"];
+            const sorted = order.map(id => products.find(p => p.id === id)).filter(Boolean);
+            container.innerHTML = sorted.map(p => `
+                <section class="immersive-section relative flex min-h-screen items-center justify-center overflow-hidden" data-product="${p.id}">
+                    <div class="absolute inset-[-30%] opacity-0 transition-opacity duration-[1.5s] blur-[100px]" style="background:${PRODUCT_GLOW_MAP[p.id] || ""}; animation: glowShift 12s ease-in-out infinite alternate;" data-glow></div>
+                    <div class="absolute border border-current opacity-[0.06] pointer-events-none ${COLOR_CLASS[p.id] || "text-gold"}" style="width:200px;height:200px;top:15%;right:10%;transform:rotate(45deg);animation:glowShift 15s ease-in-out infinite;"></div>
+                    <div class="reveal relative z-[1] px-8 text-center">
+                        <p class="mb-8 text-[0.65rem] font-extralight tracking-[0.5em] text-cream/40">${p.scents ? p.scents.join(" / ") : ""}</p>
+                        <h2 class="mb-4 text-[clamp(2.5rem,8vw,5rem)] font-light tracking-[0.3em] leading-tight ${COLOR_CLASS[p.id] || "text-cream"}">${p.name_zh}</h2>
+                        <p class="mb-12 text-[0.7rem] font-extralight tracking-[0.4em] text-cream/30">${p.scents ? p.scents.join(" / ") : ""}</p>
+                        <p class="mx-auto max-w-md text-[clamp(0.95rem,2.2vw,1.15rem)] font-extralight tracking-[0.12em] leading-[2.2] text-cream/60">
+                            ${PRODUCT_FEELINGS[p.id] || p.one_liner}
+                        </p>
+                    </div>
+                </section>
+            `).join("");
+        }
+
+        function renderOverview(products) {
+            const container = document.getElementById("overview-details");
+            if (!container || !products.length) return;
+            container.innerHTML = products.map(p => `
+                <div class="text-center py-6">
+                    <h3 class="text-base font-normal tracking-[0.2em] mb-3 ${COLOR_CLASS[p.id] || "text-cream"}">${p.name_zh}</h3>
+                    <p class="text-xs font-extralight tracking-widest leading-8 text-cream/40">${(p.scents || []).join(" / ")}</p>
+                </div>
+            `).join("");
+        }
+
+        function renderProductCards(products, orderUrl) {
+            const container = document.getElementById("product-cards");
+            if (!container) return;
+            container.innerHTML = products.map(p => {
+                const buyUrl = p.order_url || orderUrl || "#";
+                const external = buyUrl.startsWith("http") ? 'target="_blank" rel="noopener noreferrer"' : "";
+                return `
+                <article class="reveal group rounded-2xl border border-cream/[0.06] bg-cream/[0.02] overflow-hidden transition-all duration-500 hover:border-cream/[0.12] hover:-translate-y-2">
+                    <div class="h-72 overflow-hidden bg-cream/[0.04]">
+                        <img src="${p.image?.src || ""}" alt="${p.image?.alt || p.name_zh}" class="h-full w-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-105">
+                    </div>
+                    <div class="p-7">
+                        <p class="text-[0.65rem] font-extralight tracking-[0.4em] mb-2 ${COLOR_CLASS[p.id] || "text-cream/40"}">${(p.scents || []).join(" / ")}</p>
+                        <h3 class="text-2xl font-light tracking-[0.15em] text-cream/90 mb-4">${p.name_zh}</h3>
+                        <p class="text-sm font-extralight leading-[2] text-cream/55 mb-5">${p.short_description || ""}</p>
+                        <div class="rounded-lg bg-cream/[0.04] px-4 py-3 text-xs font-extralight leading-7 text-cream/45 mb-5">
+                            適合時機：${Array.isArray(p.use_cases) ? p.use_cases.join("、") : ""}</div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-base font-light tracking-wider text-cream/70">${formatPrice(p)}</span>
+                            <a href="${buyUrl}" ${external}
+                               class="rounded-full border border-cream/20 px-5 py-2 text-xs font-light tracking-[0.2em] text-cream transition-all duration-300 hover:bg-cream hover:text-dark">
+                                ${p.cta_label || "立即購買"}
+                            </a>
+                        </div>
+                    </div>
+                </article>`;
+            }).join("");
+        }
+
+        function renderCTA(data) {
+            const pricing = data.pricing;
+            const container = document.getElementById("cta-pricing");
+            if (!container || !pricing) return;
+            container.innerHTML = `
+                <div class="mb-4 inline-block rounded-full bg-gradient-to-r from-gold-dark to-gold px-8 py-2 text-xs font-normal tracking-[0.2em] text-cream">${pricing.promo_label || ""}</div>
+                <p class="text-sm font-extralight tracking-widest text-cream/50 mb-1">
+                    <span class="line-through opacity-40">NT$ ${(pricing.original_display_price || "").toLocaleString()}</span>
+                    <span class="mx-2">&rarr;</span>
+                    <span class="font-light text-gold-light">NT$ ${(pricing.promo_display_price || "").toLocaleString()}</span>
+                </p>
+                <p class="text-[0.7rem] font-extralight tracking-widest text-cream/25">${pricing.promo_description || ""}</p>
+            `;
+        }
+
+        async function loadContent() {
+            try {
+                var res = await fetch("../products/products.json");
+                if (!res.ok) { res = await fetch("products/products.json"); }
+                if (!res.ok) throw new Error("Failed to load");
+                const data = await res.json();
+                const products = data.products || [];
+
+                document.getElementById("hero-tagline").innerHTML =
+                    `給自己一次<span class="shimmer-text font-light">深呼吸</span>的時間`;
+
+                const story = document.getElementById("brand-story");
+                if (story) story.textContent = data.brand_story_short || data.brand?.description || "";
+
+                const igUrl = data.links?.instagram?.url || "https://www.instagram.com/myfeifei768/";
+                document.getElementById("ig-link").href = igUrl;
+                document.getElementById("footer-ig").href = igUrl;
+
+                const orderUrl = data.links?.order_form?.url || "#";
+                const ctaBtn = document.getElementById("cta-button");
+                if (ctaBtn) {
+                    ctaBtn.href = orderUrl || "#";
+                    if (orderUrl.startsWith("http")) {
+                        ctaBtn.target = "_blank";
+                        ctaBtn.rel = "noopener noreferrer";
+                    }
+                }
+
+                renderImmersive(products);
+                renderOverview(products);
+                renderProductCards(products, orderUrl);
+                renderCTA(data);
+            } catch (e) {
+                console.error("Data load error:", e);
+            }
+        }
+
+        gsap.registerPlugin(ScrollTrigger);
+
+        function bindAnimations() {
+            gsap.utils.toArray(".reveal").forEach((el, i) => {
+                gsap.to(el, {
+                    opacity: 1, y: 0, duration: 1.2, ease: "power3.out",
+                    delay: i === 0 ? 0.15 : 0,
+                    scrollTrigger: { trigger: el, start: "top 88%", once: true }
+                });
+            });
+            /* Immersive glow reveal */
+            document.querySelectorAll(".immersive-section").forEach(sec => {
+                const glow = sec.querySelector("[data-glow]");
+                if (!glow) return;
+                ScrollTrigger.create({
+                    trigger: sec, start: "top 60%", once: true,
+                    onEnter: () => { glow.style.opacity = "1"; }
+                });
+            });
+        }
+
+        loadContent().finally(() => {
+            bindAnimations();
+            ScrollTrigger.refresh();
+        });
+    </script>
+</body>
+</html>

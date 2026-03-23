@@ -3,14 +3,21 @@
     "name": "M+ feifei",
     "project_name": "非非選品",
     "category": "水晶香霧",
-    "tagline": "菲菲三部曲：淨化、貴人、招財",
-    "description": "我是 feifei，這三瓶是我自己真的很愛用的小寶貝。去到新的空間、要見人、要工作、要開工，我都會照自己當下的狀態去選，讓你不用研究很久，直接知道現在該拿哪一瓶。",
+    "tagline": "把廟裡的祝福，帶進你的日常",
+    "description": "我是 feifei，這三瓶是我自己跑廟、拜拜之後，真心覺得好用才做出來的。照你現在的狀態選一瓶，噴一下就好。",
     "tone": [
       "溫柔",
       "親近",
       "有感受但不玄",
       "像主理人真心推薦"
-    ]
+    ],
+    "language_rules": {
+      "product_term": "香霧（不說噴霧）",
+      "trilogy_order": "淨化 → 貴人 → 招財（固定順序）",
+      "teacher_title": "圓城宮教母 郭明玲老師",
+      "promo_wording": "買一送一（不說五折）",
+      "cta_tone": "溫暖但直接：「立即購買」「帶一瓶回家」"
+    }
   },
   "links": {
     "order_form": {
@@ -28,6 +35,16 @@
       "url": "https://www.instagram.com/myfeifei768/",
       "note": "已確認"
     }
+  },
+  "pricing": {
+    "status": "reference",
+    "note": "以下為策略建議定價，正式售價待業主確認",
+    "unit_price": 1800,
+    "promo_label": "買一送一",
+    "promo_description": "兩瓶 NT$1,800（等於每瓶 NT$900）",
+    "original_display_price": 3600,
+    "promo_display_price": 1800,
+    "price_anchor_note": "維持 1,800 定價錨點，用買一送一降低門檻，不直接定價 900"
   },
   "ordering": {
     "method": "direct-payment",
@@ -50,8 +67,18 @@
       "品牌故事短版 80-120 字",
       "出貨說明",
       "更多 FAQ",
-      "主理人推薦語氣微調"
+      "主理人推薦語氣微調",
+      "郭老師加持儀式照片或短影片",
+      "業主與郭老師合照",
+      "3-5 則真實客戶回饋截圖"
     ]
+  },
+  "blessing": {
+    "teacher_name": "郭明玲老師",
+    "teacher_title": "圓城宮教母",
+    "temple_name": "圓城宮",
+    "description": "每一瓶水晶香霧都經過圓城宮教母郭明玲老師親自加持，注入祝福能量。",
+    "seals": ["教母加持", "宮廟認證", "水晶淨化", "開光祈福"]
   },
   "faq": [
     {
@@ -65,29 +92,40 @@
     {
       "question": "如果我不確定適合哪一款？",
       "answer": "往上看三款的介紹和使用情境，選最符合你現在狀態的那一瓶就對了。最近很亂選淨化、要見人選貴人、要工作衝刺選招財。"
+    },
+    {
+      "question": "香霧可以用多久？",
+      "answer": "每瓶大約可以使用 1-2 個月，依使用頻率而定。用完可以再回來補貨。"
+    },
+    {
+      "question": "有配送海外嗎？",
+      "answer": "目前僅限台灣本島配送。海外配送方案規劃中，請追蹤 IG 獲得最新消息。"
     }
   ],
   "trust_markers": [
-    "三款香霧都有明確使用情境，不是只拍得很美而已",
-    "feifei 會依照自己當下狀態實際使用與推薦",
-    "產品溝通主軸是淨化、貴人、招財三部曲"
+    "圓城宮教母郭明玲老師親自加持",
+    "天然水晶礦石",
+    "三款香霧都有明確使用情境",
+    "feifei 自己每天在用的東西"
   ],
   "brand_story_short": "我自己很在意狀態這件事。去到新的空間、要見人、要工作、要開工，我都會先把自己整理好，所以才有這三瓶。不是要你研究很多，而是讓你在當下就知道該拿哪一瓶。",
   "products": [
     {
       "id": "purifying",
       "name_zh": "淨化",
-      "name_en": "Purifying",
+      "name_en": "Purifying Mist",
       "status": "draft",
       "price_twd": null,
-      "price_note": "待業主確認",
+      "price_note": "詳見購買頁",
       "theme_color": "#7B5EA7",
       "background_color": "#F0EAF7",
+      "scents": ["雪松", "檀香", "岩蘭草", "艾草", "沉香"],
       "image": {
         "status": "ready",
         "src": "assets/images/淨化水晶香霧.jpg",
-        "alt": "淨化香霧"
+        "alt": "淨化水晶香霧"
       },
+      "slogan": "淨化空間，轉換能量",
       "one_liner": "如果最近覺得很亂，我自己會先拿淨化。",
       "short_description": "去到新的空間、跑完一整天、去完人很多的地方，或整個人覺得悶悶亂亂的，我通常都會先噴淨化，先把自己的狀態整理回來。",
       "use_cases": [
@@ -105,17 +143,19 @@
     {
       "id": "attraction",
       "name_zh": "貴人",
-      "name_en": "Attraction",
+      "name_en": "Attraction Mist",
       "status": "draft",
       "price_twd": null,
-      "price_note": "待業主確認",
+      "price_note": "詳見購買頁",
       "theme_color": "#D4829C",
       "background_color": "#FDE8EF",
+      "scents": ["鈴蘭", "桂花", "桃花"],
       "image": {
         "status": "ready",
         "src": "assets/images/貴人水晶香霧.jpg",
-        "alt": "貴人香霧"
+        "alt": "貴人水晶香霧"
       },
+      "slogan": "好人緣慢慢流向你",
       "one_liner": "今天如果要見人，我通常會先拿貴人。",
       "short_description": "這瓶比較像把整個人的感覺打開一點。約會前、見客前、拍照前，或你只是想讓自己亮一點、柔一點，我會比較推薦貴人。",
       "use_cases": [
@@ -133,17 +173,20 @@
     {
       "id": "prosperity",
       "name_zh": "招財",
-      "name_en": "Prosperity",
+      "name_en": "Prosperity Mist",
       "status": "draft",
       "price_twd": null,
-      "price_note": "待業主確認",
+      "price_note": "詳見購買頁",
       "theme_color": "#C9A84C",
       "background_color": "#FFF8E7",
+      "scents": ["岩蘭草", "琥珀", "玫瑰"],
+      "crystals": ["水晶", "金元寶"],
       "image": {
         "status": "ready",
         "src": "assets/images/招財水晶香霧.jpg",
-        "alt": "招財香霧"
+        "alt": "招財水晶香霧"
       },
+      "slogan": "有貴人之後，財路就會更好",
       "one_liner": "要工作、開工、衝業績，我會先噴招財。",
       "short_description": "這瓶就是比較偏做生意、工作、開工前會拿的那種感覺。不是空想發財，而是先把自己的心和氣場穩住，再去把事情做好。",
       "use_cases": [
@@ -159,6 +202,43 @@
       ]
     }
   ],
+  "pages": {
+    "note": "多入口落地頁系統，各頁面依訪客心理狀態設計",
+    "index": {
+      "path": "index.html",
+      "route": "/",
+      "description": "主產品頁（完整說服流程）",
+      "traffic_source": "IG bio link、朋友分享、LINE 轉發"
+    },
+    "links": {
+      "path": "links.html",
+      "route": "/links",
+      "description": "KOL 個人品牌中心（link-in-bio 格式）",
+      "traffic_source": "IG bio link 替代入口",
+      "status": "ready"
+    },
+    "go": {
+      "path": "go.html",
+      "route": "/go",
+      "description": "限時團購頁（配合 Reels 導購）",
+      "traffic_source": "特定 Reels 導購",
+      "status": "ready"
+    },
+    "blessing": {
+      "path": "blessing.html",
+      "route": "/blessing",
+      "description": "宮廟聯名（郭老師粉絲專用入口）",
+      "traffic_source": "郭老師社群貼文",
+      "status": "ready"
+    },
+    "brand": {
+      "path": "brand.html",
+      "route": "/brand",
+      "description": "高端品牌形象頁（未來品牌升級用）",
+      "traffic_source": "品牌廣告投放",
+      "status": "future"
+    }
+  },
   "content_status": {
     "pricing_confirmed": false,
     "images_confirmed": false,
@@ -167,15 +247,17 @@
     "order_form_ready": false
   },
   "data_source_notes": [
-    "landing-page/index.html 會直接讀取本檔",
+    "所有 landing-page/*.html 都會讀取本檔",
     "售價、FAQ、連結與產品卡內容請優先在此更新",
-    "notes 欄位為內部備註，不直接顯示給消費者"
+    "notes 欄位為內部備註，不直接顯示給消費者",
+    "pricing 區塊為策略建議定價，正式售價以 products[].price_twd 為準"
   ],
   "next_actions": [
     "向業主確認三款香霧正式售價",
     "取得三款產品正式圖片",
     "建立 Google 表單並補上 order_form.url",
     "確認 LINE 官方帳號連結",
-    "依業主語氣微調產品文案"
+    "依業主語氣微調產品文案",
+    "取得郭老師加持儀式照片"
   ]
 }

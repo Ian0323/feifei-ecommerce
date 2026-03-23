@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M+ feifei | 限時團購</title>
+    <meta name="description" content="M+ feifei 水晶香霧限時團購，買一送一限定優惠。淨化、貴人、招財三款任選。">
+    <!-- GA4: 將 GA_MEASUREMENT_ID 替換為實際的 Measurement ID（格式 G-XXXXXXXXXX） -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ink: "#2C1810",
+                        mist: "#FDF8F3",
+                        plum: "#7B5EA7",
+                        blush: "#D4829C",
+                        gold: "#C9A84C",
+                        sand: "#F6EFE7",
+                        urgent: "#E63946"
+                    },
+                    fontFamily: {
+                        serif: ["Cormorant Garamond", "serif"],
+                        sans: ["Noto Sans TC", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.6;} }
+        .timer-pulse { animation: pulse 2s infinite; }
+    </style>
+</head>
+<body class="font-sans bg-mist text-ink max-w-[600px] mx-auto">
+
+<!-- Countdown Bar -->
+<div id="urgency-bar" class="sticky top-0 z-50 bg-urgent text-white text-center py-3 px-4">
+    <p class="text-xs tracking-widest opacity-90 mb-1">本團倒數中</p>
+    <div id="countdown" class="flex justify-center gap-2">
+        <div class="bg-white/20 rounded-lg px-3 py-1 min-w-[44px]">
+            <span id="days" class="block font-black text-xl">0</span>
+            <span class="text-[10px] tracking-wider opacity-80">天</span>
+        </div>
+        <div class="bg-white/20 rounded-lg px-3 py-1 min-w-[44px]">
+            <span id="hours" class="block font-black text-xl">0</span>
+            <span class="text-[10px] tracking-wider opacity-80">時</span>
+        </div>
+        <div class="bg-white/20 rounded-lg px-3 py-1 min-w-[44px]">
+            <span id="mins" class="block font-black text-xl">0</span>
+            <span class="text-[10px] tracking-wider opacity-80">分</span>
+        </div>
+        <div class="bg-white/20 rounded-lg px-3 py-1 min-w-[44px]">
+            <span id="secs" class="block font-black text-xl">0</span>
+            <span class="text-[10px] tracking-wider opacity-80">秒</span>
+        </div>
+    </div>
+</div>
+
+<!-- Closed State (hidden by default) -->
+<div id="closed-state" class="hidden min-h-screen flex flex-col items-center justify-center px-6 text-center">
+    <h1 class="font-serif text-3xl font-semibold text-ink mb-3">本團已結束</h1>
+    <p class="text-ink/60 leading-7 mb-6">這團結束了，但隨時都可以直接買！</p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="index.html"
+           class="rounded-full bg-ink px-6 py-3 text-sm font-medium text-white hover:bg-plum transition">
+            前往購買
+        </a>
+        <a href="https://www.instagram.com/myfeifei768/" target="_blank" rel="noopener noreferrer"
+           class="rounded-full border border-ink/20 px-6 py-3 text-sm font-medium text-ink hover:bg-ink/5 transition">
+            追蹤 feifei IG
+        </a>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div id="main-content">
+    <!-- Hero -->
+    <section class="px-5 pt-6 pb-2 text-center">
+        <span class="inline-block bg-gold text-white text-xs font-bold tracking-widest px-4 py-1.5 rounded-full mb-4">
+            圓城宮教母加持
+        </span>
+        <div class="mx-auto max-w-[400px] mb-4">
+            <img src="assets/images/product.jpg" alt="非非三部曲水晶香霧" class="w-full drop-shadow-lg rounded-2xl">
+        </div>
+        <h1 class="font-serif text-3xl font-semibold tracking-wide mb-2">
+            非非三部曲 <span class="text-gold">水晶香霧</span>
+        </h1>
+        <p id="hero-sub" class="text-sm text-ink/60">每瓶都有圓城宮教母加持，照你的狀態選，噴一下就有感覺</p>
+    </section>
+
+    <!-- Trust Markers (real data from products.json) -->
+    <div id="trust-badges" class="flex justify-center gap-4 flex-wrap px-5 py-4 text-center">
+        <div class="text-center px-3 py-2 bg-white/60 rounded-full"><span class="text-[11px] text-ink/60">教母加持</span></div>
+        <div class="text-center px-3 py-2 bg-white/60 rounded-full"><span class="text-[11px] text-ink/60">宮廟認證</span></div>
+        <div class="text-center px-3 py-2 bg-white/60 rounded-full"><span class="text-[11px] text-ink/60">水晶淨化</span></div>
+        <div class="text-center px-3 py-2 bg-white/60 rounded-full"><span class="text-[11px] text-ink/60">開光祈福</span></div>
+    </div>
+
+    <!-- Deal Box -->
+    <section class="mx-5 mb-5">
+        <div class="relative bg-gradient-to-br from-red-50 to-rose-50 border-2 border-urgent rounded-2xl p-5 text-center">
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-urgent text-white text-xs font-bold tracking-wider px-5 py-1 rounded-full whitespace-nowrap">
+                非非團購限定 買一送一
+            </span>
+            <div class="mt-2">
+                <p id="deal-original" class="text-sm text-ink/40 line-through">原價 NT$ 3,600 / 兩瓶</p>
+                <p id="deal-price" class="font-serif text-3xl font-bold text-urgent">
+                    NT$ 1,800 <small class="text-base font-normal">/ 兩瓶</small>
+                </p>
+                <p class="text-xs text-ink/50 mt-1">等同一瓶只要 NT$ 900・可任選不同款</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Combo Selector -->
+    <section class="px-5 mb-5">
+        <p class="text-xs font-bold text-ink/50 tracking-wider mb-3">選擇組合</p>
+        <div id="combo-options" class="flex flex-col gap-2">
+            <div class="combo-opt flex items-center gap-3 p-3 border-2 border-urgent bg-red-50 rounded-xl cursor-pointer transition" data-price="NT$ 1,800" onclick="selectCombo(this)">
+                <div class="combo-radio w-5 h-5 rounded-full border-2 bg-urgent border-urgent flex items-center justify-center text-xs flex-shrink-0"><span class="block w-2.5 h-2.5 bg-white rounded-full"></span></div>
+                <div class="flex-1"><div class="text-sm font-medium">兩瓶任選（買一送一）<span class="bg-urgent text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-1">最多人選</span></div><div class="text-xs text-ink/40">任選兩瓶不同款，只付一瓶的錢</div></div>
+                <div class="text-sm font-bold text-urgent whitespace-nowrap">NT$ 1,800</div>
+            </div>
+            <div class="combo-opt flex items-center gap-3 p-3 border-2 border-ink/5 rounded-xl cursor-pointer transition" data-price="NT$ 3,600" onclick="selectCombo(this)">
+                <div class="combo-radio w-5 h-5 rounded-full border-2 border-ink/20 flex items-center justify-center text-xs flex-shrink-0"></div>
+                <div class="flex-1"><div class="text-sm font-medium">三部曲全套（3瓶）</div><div class="text-xs text-ink/40">淨化＋貴人＋招財各一瓶</div></div>
+                <div class="text-sm font-bold whitespace-nowrap">NT$ 3,600</div>
+            </div>
+            <div class="combo-opt flex items-center gap-3 p-3 border-2 border-ink/5 rounded-xl cursor-pointer transition" data-price="NT$ 1,800" onclick="selectCombo(this)">
+                <div class="combo-radio w-5 h-5 rounded-full border-2 border-ink/20 flex items-center justify-center text-xs flex-shrink-0"></div>
+                <div class="flex-1"><div class="text-sm font-medium">單瓶體驗</div><div class="text-xs text-ink/40">選一瓶最有感覺的</div></div>
+                <div class="text-sm font-bold whitespace-nowrap">NT$ 1,800</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="px-5 mb-5">
+        <a id="cta-btn" href="index.html"
+           class="block w-full text-center bg-urgent text-white text-lg font-bold py-4 rounded-2xl tracking-wider hover:bg-red-700 transition hover:-translate-y-0.5 hover:shadow-lg">
+            立即購買
+        </a>
+        <p class="text-center text-xs text-ink/40 mt-3">下單後 3 個工作天內寄出</p>
+    </section>
+
+    <!-- Fan Note -->
+    <div class="mx-5 mb-5 px-4 py-3 bg-amber-50 border border-gold/20 rounded-xl text-sm text-gold text-center">
+        郭老師的朋友下單時備註「郭老師」，會有小驚喜喔
+    </div>
+
+    <!-- Product Details -->
+    <section class="px-5 py-5 border-t border-ink/5">
+        <h3 class="font-serif text-lg font-semibold tracking-wide mb-4">三款香霧，照狀態選</h3>
+        <div id="product-details" class="space-y-5">
+            <div class="flex gap-3 items-start">
+                <img src="assets/images/淨化水晶香霧.jpg" alt="淨化" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">
+                <div>
+                    <p class="font-bold text-sm mb-1"><span class="inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle" style="background:#7B5EA7"></span>淨化</p>
+                    <p class="text-xs text-ink/50 mb-1">雪松・檀香・岩蘭草・艾草・沉香</p>
+                    <p class="text-xs text-ink/40 leading-relaxed">去到新的空間、跑完一整天、去完人很多的地方，先把自己的狀態整理回來。</p>
+                </div>
+            </div>
+            <div class="flex gap-3 items-start">
+                <img src="assets/images/貴人水晶香霧.jpg" alt="貴人" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">
+                <div>
+                    <p class="font-bold text-sm mb-1"><span class="inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle" style="background:#D4829C"></span>貴人</p>
+                    <p class="text-xs text-ink/50 mb-1">鈴蘭・桂花・桃花</p>
+                    <p class="text-xs text-ink/40 leading-relaxed">約會前、見客前、拍照前，想讓自己亮一點、柔一點。</p>
+                </div>
+            </div>
+            <div class="flex gap-3 items-start">
+                <img src="assets/images/招財水晶香霧.jpg" alt="招財" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">
+                <div>
+                    <p class="font-bold text-sm mb-1"><span class="inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle" style="background:#C9A84C"></span>招財</p>
+                    <p class="text-xs text-ink/50 mb-1">岩蘭草・琥珀・玫瑰（含水晶＋金元寶）</p>
+                    <p class="text-xs text-ink/40 leading-relaxed">做生意、工作、開工前，先把心和氣場穩住，再去把事情做好。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center py-6 text-[10px] text-ink/30 border-t border-ink/5">
+        © 2026 M+ feifei. 本團限時開放，結團後關閉
+    </footer>
+</div>
+
+<script>
+    /* ── Config: set the group-buy end date here ── */
+    const GROUP_BUY_END = new Date('2026-03-28T23:59:59+08:00');
+
+    let orderFormUrl = 'index.html';
+    let selectedPrice = '';
+
+    /* ── Countdown ── */
+    function updateCountdown() {
+        const now = Date.now();
+        const diff = GROUP_BUY_END.getTime() - now;
+
+        if (diff <= 0) {
+            document.getElementById('urgency-bar').classList.add('hidden');
+            document.getElementById('main-content').classList.add('hidden');
+            const closed = document.getElementById('closed-state');
+            closed.classList.remove('hidden');
+            closed.classList.add('flex');
+            return;
+        }
+
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+
+        document.getElementById('days').textContent = d;
+        document.getElementById('hours').textContent = h;
+        document.getElementById('mins').textContent = m;
+        document.getElementById('secs').textContent = s;
+    }
+
+    updateCountdown();
+    var countdownTimer = setInterval(function() {
+        var diff = GROUP_BUY_END.getTime() - Date.now();
+        if (diff <= 0) { clearInterval(countdownTimer); }
+        updateCountdown();
+    }, 1000);
+
+    /* ── Combo selection ── */
+    function selectCombo(el) {
+        document.querySelectorAll('.combo-opt').forEach(function(o) {
+            o.classList.remove('border-urgent', 'bg-red-50');
+            o.classList.add('border-ink/5');
+            var radio = o.querySelector('.combo-radio');
+            if (radio) {
+                radio.classList.remove('bg-urgent', 'border-urgent');
+                radio.classList.add('border-ink/20');
+                radio.innerHTML = '';
+            }
+        });
+        el.classList.remove('border-ink/5');
+        el.classList.add('border-urgent', 'bg-red-50');
+        var radio = el.querySelector('.combo-radio');
+        if (radio) {
+            radio.classList.remove('border-ink/20');
+            radio.classList.add('bg-urgent', 'border-urgent');
+            radio.innerHTML = '<span class="block w-2.5 h-2.5 bg-white rounded-full"></span>';
+        }
+        selectedPrice = el.dataset.price || '';
+        var btn = document.getElementById('cta-btn');
+        btn.textContent = '立即購買 — ' + selectedPrice;
+    }
+
+    /* ── Render ── */
+    function renderTrustBadges(data) {
+        var markers = data.trust_markers || [];
+        var blessing = data.blessing || {};
+        var seals = blessing.seals || [];
+        var container = document.getElementById('trust-badges');
+        if (!container) return;
+
+        var items = seals.length > 0
+            ? seals.map(function(s) { var label = typeof s === "string" ? s : s.label; return '<div class="text-center px-3 py-2 bg-white/60 rounded-full"><span class="text-[11px] text-ink/60">' + label + '</span></div>'; })
+            : markers.map(function(m) { return '<div class="text-xs text-ink/50 px-3 py-2 bg-white/60 rounded-full">' + m + '</div>'; });
+
+        container.innerHTML = items.join('');
+    }
+
+    function buildCombos(pricing) {
+        var unit = pricing.unit_price || 1800;
+        var promo = pricing.promo_display_price || 1800;
+        var original = pricing.original_display_price || 3600;
+
+        return [
+            {
+                name: '兩瓶任選（買一送一）',
+                desc: '任選兩瓶不同款，只付一瓶的錢',
+                price: 'NT$ ' + promo.toLocaleString(),
+                tag: '最多人選',
+                active: true
+            },
+            {
+                name: '三部曲全套（3瓶）',
+                desc: '淨化＋貴人＋招財各一瓶',
+                price: 'NT$ ' + (unit + promo).toLocaleString(),
+                tag: '',
+                active: false
+            },
+            {
+                name: '單瓶體驗',
+                desc: '選一瓶最有感覺的',
+                price: 'NT$ ' + unit.toLocaleString(),
+                tag: '',
+                active: false
+            }
+        ];
+    }
+
+    function renderCombos(pricing) {
+        var container = document.getElementById('combo-options');
+        if (!container) return;
+        var combos = buildCombos(pricing);
+
+        container.innerHTML = combos.map(function(c) {
+            var activeClass = c.active ? 'border-urgent bg-red-50' : 'border-ink/5';
+            var radioClass = c.active ? 'bg-urgent border-urgent text-white' : 'border-ink/20';
+            var radioText = c.active ? '<span class="block w-2.5 h-2.5 bg-white rounded-full"></span>' : '';
+            var tagHtml = c.tag ? '<span class="bg-urgent text-white text-[10px] font-bold px-2 py-0.5 rounded-full ml-1">' + c.tag + '</span>' : '';
+
+            return '<div class="combo-opt flex items-center gap-3 p-3 border-2 ' + activeClass + ' rounded-xl cursor-pointer transition" data-price="' + c.price + '" onclick="selectCombo(this)">'
+                + '<div class="combo-radio w-5 h-5 rounded-full border-2 ' + radioClass + ' flex items-center justify-center text-xs flex-shrink-0">' + radioText + '</div>'
+                + '<div class="flex-1 min-w-0">'
+                + '<div class="text-sm font-medium">' + c.name + tagHtml + '</div>'
+                + '<div class="text-xs text-ink/40">' + c.desc + '</div>'
+                + '</div>'
+                + '<div class="text-sm font-bold whitespace-nowrap' + (c.active ? ' text-urgent' : '') + '">' + c.price + '</div>'
+                + '</div>';
+        }).join('');
+
+        var active = combos.find(function(c) { return c.active; });
+        if (active) {
+            selectedPrice = active.price;
+            document.getElementById('cta-btn').textContent = '立即購買 — ' + active.price;
+        }
+    }
+
+    function renderDealBox(pricing) {
+        var promo = pricing.promo_display_price || 1800;
+        var original = pricing.original_display_price || 3600;
+        document.getElementById('deal-original').textContent = '原價 NT$ ' + original.toLocaleString() + ' / 兩瓶';
+        document.getElementById('deal-price').innerHTML = 'NT$ ' + promo.toLocaleString() + ' <small class="text-base font-normal">/ 兩瓶</small>';
+    }
+
+    function renderProductDetails(products) {
+        var container = document.getElementById('product-details');
+        if (!container) return;
+
+        container.innerHTML = products.map(function(p) {
+            var scents = (p.scents || []).join('・');
+            if (p.crystals) scents += '（含' + p.crystals.join('＋') + '）';
+            var imgHtml = p.image && p.image.src
+                ? '<img src="' + p.image.src + '" alt="' + (p.image.alt || p.name_zh) + '" class="w-14 h-14 rounded-lg object-cover flex-shrink-0">'
+                : '';
+            return '<div class="flex gap-3 items-start">'
+                + imgHtml
+                + '<div class="flex-1">'
+                + '<p class="font-bold text-sm mb-1"><span class="inline-block w-2.5 h-2.5 rounded-full mr-1.5 align-middle" style="background:' + (p.theme_color || '#2C1810') + '"></span>' + p.name_zh + '</p>'
+                + '<p class="text-xs text-ink/50 mb-1">' + scents + '</p>'
+                + '<p class="text-xs text-ink/40 leading-relaxed">' + (p.short_description || '') + '</p>'
+                + '</div></div>';
+        }).join('');
+    }
+
+
+    /* ── Load data ── */
+    async function loadContent() {
+        try {
+            var response = await fetch('../products/products.json');
+            if (!response.ok) throw new Error('fetch failed');
+            var data = await response.json();
+
+            if (data.links && data.links.order_form && data.links.order_form.url) {
+                orderFormUrl = data.links.order_form.url;
+            }
+            document.getElementById('cta-btn').href = orderFormUrl;
+
+            var pricing = data.pricing || {};
+            renderDealBox(pricing);
+            renderCombos(pricing);
+            renderTrustBadges(data);
+            renderProductDetails(data.products || []);
+
+            if (data.links && data.links.instagram && data.links.instagram.url) {
+                var igLink = document.querySelector('#closed-state a');
+                if (igLink) igLink.href = data.links.instagram.url;
+            }
+        } catch (e) {
+            console.warn('Could not load products.json:', e);
+        }
+    }
+
+    loadContent();
+</script>
+</body>
+</html>
