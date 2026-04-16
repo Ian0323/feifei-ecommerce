@@ -1,8 +1,8 @@
 var SETTINGS = {
   SHEET_ID: '1IUDCeB087LLFoLyzGxp_4eTSpycYiWjNM8PJ6b7DhwM',
-  SHEET_NAME: 'bookings',
+  SHEET_NAME: '\u9810\u7d04\u7d00\u9304',
   ASSISTANT_EMAIL: 'iankuo1999@gmail.com',
-  BRAND_NAME: 'feifei768',
+  BRAND_NAME: '\u975e\u975e768',
   SERVICE_PRICE: 'NT$3,800'
 };
 
@@ -18,15 +18,15 @@ function initSheet() {
     sheet = ss.insertSheet(SETTINGS.SHEET_NAME);
   }
   sheet.getRange(1, 1, 1, 10).setValues([[
-    'Submitted', 'Date', 'Time', 'Name', 'Phone',
-    'Email', 'Topic', 'Notes', 'Status', 'ConfirmedAt'
+    '\u63d0\u4ea4\u6642\u9593', '\u9810\u7d04\u65e5\u671f', '\u9810\u7d04\u6642\u6bb5', '\u59d3\u540d', '\u96fb\u8a71',
+    'Email', '\u8aee\u8a62\u4e3b\u984c', '\u5099\u8a3b', '\u72c0\u614b', '\u78ba\u8a8d\u6642\u9593'
   ]]);
   var header = sheet.getRange(1, 1, 1, 10);
   header.setFontWeight('bold');
   header.setBackground('#7B5EA7');
   header.setFontColor('#FFFFFF');
   var rule = SpreadsheetApp.newDataValidation()
-    .requireValueInList(['pending', 'confirmed', 'cancelled', 'done'])
+    .requireValueInList(['\u5f85\u78ba\u8a8d', '\u5df2\u78ba\u8a8d', '\u5df2\u53d6\u6d88', '\u5df2\u5b8c\u6210'])
     .setAllowInvalid(false)
     .build();
   sheet.getRange(2, 9, 100, 1).setDataValidation(rule);
@@ -45,6 +45,25 @@ function doGet(e) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+function formatDateKey(val) {
+  if (val instanceof Date) {
+    var y = val.getFullYear();
+    var m = ('0' + (val.getMonth() + 1)).slice(-2);
+    var d = ('0' + val.getDate()).slice(-2);
+    return y + '-' + m + '-' + d;
+  }
+  return String(val);
+}
+
+function formatTimeKey(val) {
+  if (val instanceof Date) {
+    var h = ('0' + val.getHours()).slice(-2);
+    var m = ('0' + val.getMinutes()).slice(-2);
+    return h + ':' + m;
+  }
+  return String(val);
+}
+
 function getBookedSlots() {
   var sheet = getSheet();
   var lastRow = sheet.getLastRow();
@@ -58,10 +77,9 @@ function getBookedSlots() {
   for (var i = 0; i < data.length; i++) {
     var row = data[i];
     var status = row[8];
-    // Only block slots that are pending or confirmed (not cancelled)
-    if (status === 'pending' || status === 'confirmed') {
-      var date = row[1];
-      var time = row[2];
+    if (status === '\u5f85\u78ba\u8a8d' || status === '\u5df2\u78ba\u8a8d') {
+      var date = formatDateKey(row[1]);
+      var time = formatTimeKey(row[2]);
       if (!booked[date]) {
         booked[date] = [];
       }
@@ -76,6 +94,9 @@ function getBookedSlots() {
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+    if (data.action === 'getBooked') {
+      return getBookedSlots();
+    }
     var sheet = getSheet();
     sheet.appendRow([
       new Date(),
@@ -86,7 +107,7 @@ function doPost(e) {
       data.email,
       data.topic,
       data.notes || '',
-      'pending',
+      '\u5f85\u78ba\u8a8d',
       ''
     ]);
     if (SETTINGS.ASSISTANT_EMAIL) {
@@ -103,16 +124,16 @@ function doPost(e) {
 }
 
 function sendAssistantNotification(data) {
-  var subject = '[New Booking] ' + data.name + ' - ' + data.dateDisplay + ' ' + data.time;
-  var body = SETTINGS.BRAND_NAME + ' new booking:\n\n'
-    + 'Name: ' + data.name + '\n'
-    + 'Phone: ' + data.phone + '\n'
-    + 'Email: ' + data.email + '\n'
-    + 'Date: ' + data.dateDisplay + '\n'
-    + 'Time: ' + data.time + '\n'
-    + 'Topic: ' + data.topic + '\n'
-    + 'Notes: ' + (data.notes || 'none') + '\n\n'
-    + 'Change status to "confirmed" in Google Sheet to notify customer.';
+  var subject = '[\u65b0\u9810\u7d04] ' + data.name + ' - ' + data.dateDisplay + ' ' + data.time;
+  var body = SETTINGS.BRAND_NAME + ' \u65b0\u9810\u7d04\uff1a\n\n'
+    + '\u59d3\u540d\uff1a' + data.name + '\n'
+    + '\u96fb\u8a71\uff1a' + data.phone + '\n'
+    + 'Email\uff1a' + data.email + '\n'
+    + '\u65e5\u671f\uff1a' + data.dateDisplay + '\n'
+    + '\u6642\u6bb5\uff1a' + data.time + '\n'
+    + '\u4e3b\u984c\uff1a' + data.topic + '\n'
+    + '\u5099\u8a3b\uff1a' + (data.notes || '\u7121') + '\n\n'
+    + '\u8acb\u5230 Google Sheet \u5c07\u72c0\u614b\u6539\u70ba\u300c\u5df2\u78ba\u8a8d\u300d\uff0c\u7cfb\u7d71\u6703\u81ea\u52d5\u901a\u77e5\u5ba2\u6236\u3002';
   MailApp.sendEmail(SETTINGS.ASSISTANT_EMAIL, subject, body);
 }
 
@@ -125,7 +146,7 @@ function checkStatusChanges() {
     var row = data[i];
     var status = row[8];
     var confirmTime = row[9];
-    if (status === 'confirmed' && !confirmTime) {
+    if (status === '\u5df2\u78ba\u8a8d' && !confirmTime) {
       var booking = {
         date: row[1], time: row[2], name: row[3],
         phone: row[4], email: row[5], topic: row[6]
@@ -133,7 +154,7 @@ function checkStatusChanges() {
       sendCustomerConfirmation(booking);
       sheet.getRange(i + 2, 10).setValue(new Date());
     }
-    if (status === 'cancelled' && !confirmTime) {
+    if (status === '\u5df2\u53d6\u6d88' && !confirmTime) {
       var booking2 = {
         date: row[1], time: row[2], name: row[3], email: row[5]
       };
@@ -144,25 +165,31 @@ function checkStatusChanges() {
 }
 
 function sendCustomerConfirmation(booking) {
-  var subject = '[Booking Confirmed] ' + SETTINGS.BRAND_NAME + ' - ' + booking.date + ' ' + booking.time;
-  var body = booking.name + ',\n\n'
-    + 'Your booking is confirmed!\n\n'
-    + 'Date: ' + booking.date + '\n'
-    + 'Time: ' + booking.time + '\n'
-    + 'Topic: ' + booking.topic + '\n'
-    + 'Price: ' + SETTINGS.SERVICE_PRICE + '\n\n'
-    + 'Details will be sent by our assistant.\n\n'
+  var subject = '[\u9810\u7d04\u78ba\u8a8d] ' + SETTINGS.BRAND_NAME + ' - ' + booking.date + ' ' + booking.time;
+  var body = booking.name + ' \u60a8\u597d\uff0c\n\n'
+    + '\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u78ba\u8a8d\uff01\n\n'
+    + '\u65e5\u671f\uff1a' + booking.date + '\n'
+    + '\u6642\u6bb5\uff1a' + booking.time + '\n'
+    + '\u4e3b\u984c\uff1a' + booking.topic + '\n'
+    + '\u8cbb\u7528\uff1a' + SETTINGS.SERVICE_PRICE + '\n\n'
+    + '\u8aee\u8a62\u65b9\u5f0f\u5c07\u7531\u52a9\u7406\u53e6\u884c\u901a\u77e5\u3002\n'
+    + '\u5982\u9700\u66f4\u6539\u6216\u53d6\u6d88\uff0c\u8acb\u63d0\u524d\u806f\u7e6b\u6211\u5011\u3002\n\n'
     + SETTINGS.BRAND_NAME;
   MailApp.sendEmail(booking.email, subject, body);
 }
 
 function sendCancellationNotice(booking) {
-  var subject = '[Booking Cancelled] ' + SETTINGS.BRAND_NAME + ' - ' + booking.date + ' ' + booking.time;
-  var body = booking.name + ',\n\n'
-    + 'Sorry, your booking has been cancelled.\n\n'
-    + 'Date: ' + booking.date + '\n'
-    + 'Time: ' + booking.time + '\n\n'
-    + 'Please book another time.\n\n'
+  var subject = '[\u9810\u7d04\u53d6\u6d88] ' + SETTINGS.BRAND_NAME + ' - ' + booking.date + ' ' + booking.time;
+  var body = booking.name + ' \u60a8\u597d\uff0c\n\n'
+    + '\u5f88\u62b1\u6b49\uff0c\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u56e0\u6642\u9593\u7121\u6cd5\u914d\u5408\uff0c\u5df2\u53d6\u6d88\u3002\n\n'
+    + '\u539f\u8a02\u65e5\u671f\uff1a' + booking.date + '\n'
+    + '\u539f\u8a02\u6642\u6bb5\uff1a' + booking.time + '\n\n'
+    + '\u6b61\u8fce\u91cd\u65b0\u9810\u7d04\u5176\u4ed6\u6642\u6bb5\uff0c\u9020\u6210\u4e0d\u4fbf\u8acb\u898b\u8ad2\u3002\n\n'
     + SETTINGS.BRAND_NAME;
   MailApp.sendEmail(booking.email, subject, body);
+}
+
+function testDoGet() {
+  var result = getBookedSlots();
+  Logger.log(result.getContent());
 }

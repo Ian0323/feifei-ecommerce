@@ -302,7 +302,7 @@
     // ===== Configuration =====
     const CONFIG = {
         // Google Apps Script Web App URL (部署後填入)
-        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyCv0uWy7UFrnz1vD_3jLHi2vofECWGr30wMYdaiID1wJuKVDopxhM0xVdXS4x2A08/exec',
+        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyIm5XPUyfR__N66-59kjUY1vyM8uY3RDeQzlIYj5gepuu7CBTHkOxO3HVU-eoKDlxC/exec',
         // 可預約的星期幾 (0=日, 1=一, 2=二, 3=三, 4=四, 5=五, 6=六)
         AVAILABLE_DAYS: [1, 2, 3, 4, 5],
         // 可預約時段
@@ -331,11 +331,14 @@
     async function fetchBookedSlots() {
         if (!CONFIG.SCRIPT_URL) return;
         try {
-            const res = await fetch(CONFIG.SCRIPT_URL + '?action=getBooked');
+            const res = await fetch(CONFIG.SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ action: 'getBooked' }),
+            });
             const data = await res.json();
             if (data.booked) {
                 bookedSlots = data.booked;
-                // Re-render time slots if already on step 2
                 if (currentStep === 2 && selectedDate) {
                     renderTimeSlots();
                 }
