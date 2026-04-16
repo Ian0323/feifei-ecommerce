@@ -327,25 +327,58 @@
     renderCalendar();
     fetchBookedSlots();
 
-    // ===== Fetch Booked Slots =====
-    async function fetchBookedSlots() {
-        if (!CONFIG.SCRIPT_URL) return;
-        try {
-            const res = await fetch(CONFIG.SCRIPT_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ action: 'getBooked' }),
-            });
-            const data = await res.json();
-            if (data.booked) {
-                bookedSlots = data.booked;
+    // ===== Fetch Booked Slots (via public Google Sheet, no customer data) =====
+    function fetchBookedSlots() {
+        var sheetId = '1mWyyA9N3bHsbCGZWg_FbQGinbev1sKG-gquh60Qtc-E';
+        var url = 'https://docs.google.com/spreadsheets/d/' + sheetId
+            + '/gviz/tq?tqx=responseHandler:__bookedCallback&sheet='
+            + encodeURIComponent('\u6642\u6bb5\u72c0\u614b');
+
+        window.__bookedCallback = function(response) {
+            try {
+                if (response.status !== 'ok') return;
+                var rows = response.table.rows;
+                var newBooked = {};
+                for (var i = 0; i < rows.length; i++) {
+                    var cells = rows[i].c;
+                    if (!cells[0] || !cells[1]) continue;
+
+                    // Column A = date, Column B = time (public sheet only has 3 columns)
+                    var date = cells[0].v || cells[0].f || '';
+                    var time = cells[1].v || cells[1].f || '';
+
+                    // Handle gviz Date format if Google auto-converts
+                    if (typeof date === 'string' && date.indexOf('Date(') === 0) {
+                        var dm = date.match(/Date\((\d+),(\d+),(\d+)\)/);
+                        if (dm) {
+                            date = dm[1] + '-' + ('0'+(parseInt(dm[2])+1)).slice(-2) + '-' + ('0'+dm[3]).slice(-2);
+                        }
+                    }
+                    if (typeof time === 'string' && time.indexOf('Date(') === 0) {
+                        var tm = time.match(/,(\d+),(\d+),\d+\)/);
+                        if (tm) {
+                            time = ('0'+tm[1]).slice(-2) + ':' + ('0'+tm[2]).slice(-2);
+                        }
+                    }
+
+                    if (date && time) {
+                        if (!newBooked[date]) newBooked[date] = [];
+                        newBooked[date].push(time);
+                    }
+                }
+                bookedSlots = newBooked;
                 if (currentStep === 2 && selectedDate) {
                     renderTimeSlots();
                 }
+            } catch (err) {
+                console.log('Error parsing booked slots:', err);
             }
-        } catch (err) {
-            console.log('Could not fetch booked slots:', err);
-        }
+        };
+
+        var script = document.createElement('script');
+        script.src = url;
+        script.onerror = function() { console.log('Could not fetch booked slots'); };
+        document.body.appendChild(script);
     }
 
     // ===== Calendar =====

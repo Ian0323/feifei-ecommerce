@@ -1,6 +1,8 @@
 var SETTINGS = {
   SHEET_ID: '1IUDCeB087LLFoLyzGxp_4eTSpycYiWjNM8PJ6b7DhwM',
   SHEET_NAME: '\u9810\u7d04\u7d00\u9304',
+  PUBLIC_SHEET_ID: '1mWyyA9N3bHsbCGZWg_FbQGinbev1sKG-gquh60Qtc-E',
+  PUBLIC_SHEET_NAME: '\u6642\u6bb5\u72c0\u614b',
   ASSISTANT_EMAIL: 'iankuo1999@gmail.com',
   BRAND_NAME: '\u975e\u975e768',
   SERVICE_PRICE: 'NT$3,800'
@@ -35,14 +37,56 @@ function initSheet() {
   }
 }
 
-function doGet(e) {
-  var action = e.parameter.action;
-  if (action === 'getBooked') {
-    return getBookedSlots();
+function initPublicSheet() {
+  if (!SETTINGS.PUBLIC_SHEET_ID) {
+    Logger.log('Please set PUBLIC_SHEET_ID first');
+    return;
   }
-  return ContentService
-    .createTextOutput(JSON.stringify({ error: 'unknown action' }))
-    .setMimeType(ContentService.MimeType.JSON);
+  var ss = SpreadsheetApp.openById(SETTINGS.PUBLIC_SHEET_ID);
+  var sheet = ss.getSheetByName(SETTINGS.PUBLIC_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SETTINGS.PUBLIC_SHEET_NAME);
+  }
+  sheet.getRange(1, 1, 1, 3).setValues([[
+    '\u9810\u7d04\u65e5\u671f', '\u9810\u7d04\u6642\u6bb5', '\u72c0\u614b'
+  ]]);
+  var header = sheet.getRange(1, 1, 1, 3);
+  header.setFontWeight('bold');
+  header.setBackground('#7B5EA7');
+  header.setFontColor('#FFFFFF');
+  Logger.log('Public sheet initialized');
+}
+
+function syncPublicSheet() {
+  if (!SETTINGS.PUBLIC_SHEET_ID) return;
+  var source = getSheet();
+  var lastRow = source.getLastRow();
+
+  var target = SpreadsheetApp.openById(SETTINGS.PUBLIC_SHEET_ID)
+    .getSheetByName(SETTINGS.PUBLIC_SHEET_NAME);
+  var targetLastRow = target.getLastRow();
+  if (targetLastRow > 1) {
+    target.getRange(2, 1, targetLastRow - 1, 3).clearContent();
+  }
+
+  if (lastRow <= 1) return;
+
+  var data = source.getRange(2, 1, lastRow - 1, 10).getValues();
+  var publicRows = [];
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    var status = row[8];
+    if (status === '\u5f85\u78ba\u8a8d' || status === '\u5df2\u78ba\u8a8d') {
+      publicRows.push([
+        formatDateKey(row[1]),
+        formatTimeKey(row[2]),
+        status
+      ]);
+    }
+  }
+  if (publicRows.length > 0) {
+    target.getRange(2, 1, publicRows.length, 3).setValues(publicRows);
+  }
 }
 
 function formatDateKey(val) {
@@ -64,39 +108,9 @@ function formatTimeKey(val) {
   return String(val);
 }
 
-function getBookedSlots() {
-  var sheet = getSheet();
-  var lastRow = sheet.getLastRow();
-  if (lastRow <= 1) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ booked: {} }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-  var data = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
-  var booked = {};
-  for (var i = 0; i < data.length; i++) {
-    var row = data[i];
-    var status = row[8];
-    if (status === '\u5f85\u78ba\u8a8d' || status === '\u5df2\u78ba\u8a8d') {
-      var date = formatDateKey(row[1]);
-      var time = formatTimeKey(row[2]);
-      if (!booked[date]) {
-        booked[date] = [];
-      }
-      booked[date].push(time);
-    }
-  }
-  return ContentService
-    .createTextOutput(JSON.stringify({ booked: booked }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
-    if (data.action === 'getBooked') {
-      return getBookedSlots();
-    }
     var sheet = getSheet();
     sheet.appendRow([
       new Date(),
@@ -113,6 +127,7 @@ function doPost(e) {
     if (SETTINGS.ASSISTANT_EMAIL) {
       sendAssistantNotification(data);
     }
+    syncPublicSheet();
     return ContentService
       .createTextOutput(JSON.stringify({ success: true }))
       .setMimeType(ContentService.MimeType.JSON);
@@ -142,6 +157,7 @@ function checkStatusChanges() {
   var lastRow = sheet.getLastRow();
   if (lastRow <= 1) return;
   var data = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
+  var changed = false;
   for (var i = 0; i < data.length; i++) {
     var row = data[i];
     var status = row[8];
@@ -153,6 +169,7 @@ function checkStatusChanges() {
       };
       sendCustomerConfirmation(booking);
       sheet.getRange(i + 2, 10).setValue(new Date());
+      changed = true;
     }
     if (status === '\u5df2\u53d6\u6d88' && !confirmTime) {
       var booking2 = {
@@ -160,7 +177,11 @@ function checkStatusChanges() {
       };
       sendCancellationNotice(booking2);
       sheet.getRange(i + 2, 10).setValue(new Date());
+      changed = true;
     }
+  }
+  if (changed) {
+    syncPublicSheet();
   }
 }
 
@@ -190,6 +211,6 @@ function sendCancellationNotice(booking) {
 }
 
 function testDoGet() {
-  var result = getBookedSlots();
-  Logger.log(result.getContent());
+  syncPublicSheet();
+  Logger.log('Public sheet synced');
 }
