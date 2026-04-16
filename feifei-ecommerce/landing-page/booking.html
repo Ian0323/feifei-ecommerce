@@ -361,9 +361,11 @@
                         }
                     }
 
+                    var status = (cells[2] && (cells[2].v || cells[2].f)) || '';
+
                     if (date && time) {
-                        if (!newBooked[date]) newBooked[date] = [];
-                        newBooked[date].push(time);
+                        if (!newBooked[date]) newBooked[date] = {};
+                        newBooked[date][time] = status;
                     }
                 }
                 bookedSlots = newBooked;
@@ -483,15 +485,16 @@
         const container = document.getElementById('time-slots');
         document.getElementById('selected-date-display').textContent = formatDateDisplay(selectedDate);
 
-        const dateBooked = bookedSlots[selectedDate] || [];
+        const dateBooked = bookedSlots[selectedDate] || {};
         let html = '';
         CONFIG.TIME_SLOTS.forEach(time => {
-            const isBooked = dateBooked.includes(time);
+            const status = dateBooked[time] || null;
             const isSelected = selectedTime === time;
-            if (isBooked) {
+            if (status) {
+                const label = status === '\u4e0d\u958b\u653e' ? '\u4e0d\u958b\u653e' : '\u5df2\u9810\u7d04';
                 html += `<button disabled
                     class="slot-btn booked rounded-xl border border-ink/10 py-4 text-sm font-medium">
-                    ${time}（已預約）</button>`;
+                    ${time}（${label}）</button>`;
             } else {
                 html += `<button onclick="selectTime('${time}')"
                     class="slot-btn rounded-xl border border-ink/10 bg-white py-4 text-sm font-medium transition hover:border-plum/30 hover:bg-plum/5

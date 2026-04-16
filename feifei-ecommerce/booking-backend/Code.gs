@@ -5,7 +5,10 @@ var SETTINGS = {
   PUBLIC_SHEET_NAME: '\u6642\u6bb5\u72c0\u614b',
   ASSISTANT_EMAIL: 'iankuo1999@gmail.com',
   BRAND_NAME: '\u975e\u975e768',
-  SERVICE_PRICE: 'NT$3,800'
+  SERVICE_PRICE: 'NT$3,800',
+  CALENDAR_ID: '',
+  TIME_SLOTS: ['10:00', '11:00', '14:00', '15:00', '16:00'],
+  MAX_ADVANCE_DAYS: 30
 };
 
 function getSheet() {
@@ -57,6 +60,54 @@ function initPublicSheet() {
   Logger.log('Public sheet initialized');
 }
 
+function getCalendarBlocks() {
+  var calId = SETTINGS.CALENDAR_ID;
+  var calendar;
+  if (calId) {
+    calendar = CalendarApp.getCalendarById(calId);
+  } else {
+    calendar = CalendarApp.getDefaultCalendar();
+  }
+  if (!calendar) return [];
+
+  var today = new Date();
+  var endDate = new Date(today);
+  endDate.setDate(endDate.getDate() + SETTINGS.MAX_ADVANCE_DAYS);
+  var events = calendar.getEvents(today, endDate);
+  if (events.length === 0) return [];
+
+  var blocks = [];
+  for (var d = 0; d <= SETTINGS.MAX_ADVANCE_DAYS; d++) {
+    var date = new Date(today);
+    date.setDate(date.getDate() + d);
+    var dateStr = formatDateKey(date);
+
+    for (var s = 0; s < SETTINGS.TIME_SLOTS.length; s++) {
+      var parts = SETTINGS.TIME_SLOTS[s].split(':');
+      var slotStart = new Date(date);
+      slotStart.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
+      var slotEnd = new Date(slotStart);
+      slotEnd.setHours(slotStart.getHours() + 1, 0, 0, 0);
+
+      for (var e = 0; e < events.length; e++) {
+        var ev = events[e];
+        if (ev.isAllDayEvent()) {
+          var evDate = formatDateKey(ev.getStartTime());
+          var evEndDate = formatDateKey(ev.getEndTime());
+          if (dateStr >= evDate && dateStr < evEndDate) {
+            blocks.push([dateStr, SETTINGS.TIME_SLOTS[s], '\u4e0d\u958b\u653e']);
+            break;
+          }
+        } else if (ev.getStartTime() < slotEnd && ev.getEndTime() > slotStart) {
+          blocks.push([dateStr, SETTINGS.TIME_SLOTS[s], '\u4e0d\u958b\u653e']);
+          break;
+        }
+      }
+    }
+  }
+  return blocks;
+}
+
 function syncPublicSheet() {
   if (!SETTINGS.PUBLIC_SHEET_ID) return;
   var source = getSheet();
@@ -69,21 +120,38 @@ function syncPublicSheet() {
     target.getRange(2, 1, targetLastRow - 1, 3).clearContent();
   }
 
-  if (lastRow <= 1) return;
-
-  var data = source.getRange(2, 1, lastRow - 1, 10).getValues();
   var publicRows = [];
-  for (var i = 0; i < data.length; i++) {
-    var row = data[i];
-    var status = row[8];
-    if (status === '\u5f85\u78ba\u8a8d' || status === '\u5df2\u78ba\u8a8d') {
-      publicRows.push([
-        formatDateKey(row[1]),
-        formatTimeKey(row[2]),
-        status
-      ]);
+
+  if (lastRow > 1) {
+    var data = source.getRange(2, 1, lastRow - 1, 10).getValues();
+    for (var i = 0; i < data.length; i++) {
+      var row = data[i];
+      var status = row[8];
+      if (status === '\u5f85\u78ba\u8a8d' || status === '\u5df2\u78ba\u8a8d') {
+        publicRows.push([
+          formatDateKey(row[1]),
+          formatTimeKey(row[2]),
+          status
+        ]);
+      }
     }
   }
+
+  var calBlocks = getCalendarBlocks();
+  for (var j = 0; j < calBlocks.length; j++) {
+    var block = calBlocks[j];
+    var isDuplicate = false;
+    for (var k = 0; k < publicRows.length; k++) {
+      if (publicRows[k][0] === block[0] && publicRows[k][1] === block[1]) {
+        isDuplicate = true;
+        break;
+      }
+    }
+    if (!isDuplicate) {
+      publicRows.push(block);
+    }
+  }
+
   if (publicRows.length > 0) {
     target.getRange(2, 1, publicRows.length, 3).setValues(publicRows);
   }
@@ -155,7 +223,10 @@ function sendAssistantNotification(data) {
 function checkStatusChanges() {
   var sheet = getSheet();
   var lastRow = sheet.getLastRow();
-  if (lastRow <= 1) return;
+  if (lastRow <= 1) {
+    syncPublicSheet();
+    return;
+  }
   var data = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
   var changed = false;
   for (var i = 0; i < data.length; i++) {
@@ -180,9 +251,7 @@ function checkStatusChanges() {
       changed = true;
     }
   }
-  if (changed) {
-    syncPublicSheet();
-  }
+  syncPublicSheet();
 }
 
 function sendCustomerConfirmation(booking) {
@@ -210,7 +279,7 @@ function sendCancellationNotice(booking) {
   MailApp.sendEmail(booking.email, subject, body);
 }
 
-function testDoGet() {
+function testSync() {
   syncPublicSheet();
-  Logger.log('Public sheet synced');
+  Logger.log('Public sheet synced (with calendar blocks)');
 }
