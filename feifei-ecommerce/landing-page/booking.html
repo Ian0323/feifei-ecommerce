@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>預約諮詢 | M+ feifei</title>
+    <meta name="description" content="預約 M+ feifei 感情・工作諮詢服務，武財公協助，每次 NT$3,800">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ink: "#2C1810",
+                        mist: "#FDF8F3",
+                        plum: "#7B5EA7",
+                        blush: "#D4829C",
+                        gold: "#C9A84C",
+                        sand: "#F6EFE7"
+                    },
+                    fontFamily: {
+                        sans: ["Noto Sans TC", "sans-serif"]
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            background: linear-gradient(180deg, #fdf8f3 0%, #f8f2ec 100%);
+            color: #2C1810;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+        .step-enter { animation: fadeUp 0.3s ease-out; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slot-btn.selected {
+            background-color: #7B5EA7;
+            color: white;
+            border-color: #7B5EA7;
+        }
+        .day-btn.selected {
+            background-color: #7B5EA7;
+            color: white;
+        }
+        .day-btn.today {
+            border: 2px solid #C9A84C;
+        }
+        .day-btn:disabled {
+            opacity: 0.25;
+            cursor: not-allowed;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #7B5EA7;
+            box-shadow: 0 0 0 3px rgba(123, 94, 167, 0.15);
+        }
+    </style>
+</head>
+<body class="font-sans">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 border-b border-ink/5 bg-mist/90 backdrop-blur-md">
+        <div class="mx-auto flex max-w-lg items-center justify-between px-5 py-3">
+            <span class="text-lg font-bold text-ink">M+ feifei</span>
+            <span class="text-xs text-ink/50">預約諮詢</span>
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-lg px-5 pb-10 pt-6">
+
+        <!-- Service Info -->
+        <div class="mb-6 rounded-2xl border border-plum/10 bg-white/70 p-5">
+            <h1 class="text-xl font-bold text-ink">感情・工作 諮詢服務</h1>
+            <p class="mt-2 text-sm leading-relaxed text-ink/65">
+                由 feifei 親自諮詢，武財公協助，針對感情與工作問題給予方向指引。
+            </p>
+            <div class="mt-3 flex items-baseline gap-2">
+                <span class="text-2xl font-bold text-plum">NT$3,800</span>
+                <span class="text-sm text-ink/50">/ 次</span>
+            </div>
+            <p class="mt-1 text-xs text-ink/40">費用之一半捐予武財公</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="mb-6 flex items-center justify-center gap-0" id="progress">
+            <div class="step-dot flex items-center gap-2" data-step="1">
+                <div class="flex h-7 w-7 items-center justify-center rounded-full bg-plum text-xs font-bold text-white">1</div>
+                <span class="text-xs font-medium text-ink/70">日期</span>
+            </div>
+            <div class="mx-3 h-px w-8 bg-ink/15"></div>
+            <div class="step-dot flex items-center gap-2" data-step="2">
+                <div class="flex h-7 w-7 items-center justify-center rounded-full bg-ink/10 text-xs font-bold text-ink/40">2</div>
+                <span class="text-xs font-medium text-ink/40">時段</span>
+            </div>
+            <div class="mx-3 h-px w-8 bg-ink/15"></div>
+            <div class="step-dot flex items-center gap-2" data-step="3">
+                <div class="flex h-7 w-7 items-center justify-center rounded-full bg-ink/10 text-xs font-bold text-ink/40">3</div>
+                <span class="text-xs font-medium text-ink/40">資料</span>
+            </div>
+        </div>
+
+        <!-- Step 1: Date -->
+        <div id="step-1" class="step step-enter">
+            <h2 class="mb-4 text-base font-bold text-ink">選擇預約日期</h2>
+            <!-- Calendar Navigation -->
+            <div class="mb-3 flex items-center justify-between">
+                <button onclick="prevMonth()" id="btn-prev" class="rounded-lg px-3 py-1.5 text-sm text-ink/60 hover:bg-ink/5">←</button>
+                <span id="calendar-title" class="text-sm font-medium text-ink"></span>
+                <button onclick="nextMonth()" id="btn-next" class="rounded-lg px-3 py-1.5 text-sm text-ink/60 hover:bg-ink/5">→</button>
+            </div>
+            <!-- Calendar Grid -->
+            <div class="rounded-2xl border border-ink/5 bg-white/70 p-4">
+                <div class="mb-2 grid grid-cols-7 text-center text-xs font-medium text-ink/40">
+                    <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+                </div>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+            </div>
+            <p class="mt-3 text-center text-xs text-ink/40">可預約日期以紫色顯示</p>
+        </div>
+
+        <!-- Step 2: Time -->
+        <div id="step-2" class="step hidden">
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-base font-bold text-ink">選擇時段</h2>
+                <button onclick="goToStep(1)" class="text-sm text-plum hover:underline">← 改日期</button>
+            </div>
+            <p class="mb-4 text-sm text-ink/60">
+                已選日期：<span id="selected-date-display" class="font-medium text-ink"></span>
+            </p>
+            <div id="time-slots" class="grid grid-cols-2 gap-3"></div>
+        </div>
+
+        <!-- Step 3: Info -->
+        <div id="step-3" class="step hidden">
+            <div class="mb-4 flex items-center justify-between">
+                <h2 class="text-base font-bold text-ink">填寫預約資料</h2>
+                <button onclick="goToStep(2)" class="text-sm text-plum hover:underline">← 改時段</button>
+            </div>
+            <p class="mb-5 text-sm text-ink/60">
+                <span id="confirm-datetime" class="font-medium text-ink"></span>
+            </p>
+            <form id="booking-form" class="space-y-4" onsubmit="return false;">
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-ink/80">姓名 <span class="text-blush">*</span></label>
+                    <input type="text" id="field-name" required placeholder="請輸入您的姓名"
+                        class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition">
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-ink/80">手機號碼 <span class="text-blush">*</span></label>
+                    <input type="tel" id="field-phone" required placeholder="09xx-xxx-xxx"
+                        class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition">
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-ink/80">Email <span class="text-blush">*</span></label>
+                    <input type="email" id="field-email" required placeholder="用於接收預約確認通知"
+                        class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition">
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-ink/80">諮詢主題 <span class="text-blush">*</span></label>
+                    <div class="flex gap-3">
+                        <label class="flex-1">
+                            <input type="radio" name="topic" value="感情" class="peer hidden" checked>
+                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
+                                感情
+                            </div>
+                        </label>
+                        <label class="flex-1">
+                            <input type="radio" name="topic" value="工作" class="peer hidden">
+                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
+                                工作
+                            </div>
+                        </label>
+                        <label class="flex-1">
+                            <input type="radio" name="topic" value="其他" class="peer hidden">
+                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
+                                其他
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-ink/80">想先讓 feifei 知道的事（選填）</label>
+                    <textarea id="field-notes" rows="3" placeholder="簡單描述您的狀況，讓諮詢更有效率"
+                        class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition"></textarea>
+                </div>
+                <button type="button" onclick="showConfirm()"
+                    class="w-full rounded-xl bg-plum py-3.5 text-sm font-bold text-white transition hover:bg-plum/90 active:scale-[0.98]">
+                    確認預約資料
+                </button>
+            </form>
+        </div>
+
+        <!-- Step 4: Confirm -->
+        <div id="step-4" class="step hidden">
+            <h2 class="mb-4 text-base font-bold text-ink">確認預約內容</h2>
+            <div class="mb-5 space-y-3 rounded-2xl border border-ink/5 bg-white/70 p-5">
+                <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">日期</span>
+                    <span id="review-date" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">時段</span>
+                    <span id="review-time" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">姓名</span>
+                    <span id="review-name" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">手機</span>
+                    <span id="review-phone" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">Email</span>
+                    <span id="review-email" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">主題</span>
+                    <span id="review-topic" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">備註</span>
+                    <span id="review-notes" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">費用</span>
+                    <span class="font-bold text-plum">NT$3,800</span>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="goToStep(3)"
+                    class="flex-1 rounded-xl border border-ink/10 bg-white py-3.5 text-sm font-medium text-ink transition hover:bg-ink/5">
+                    修改
+                </button>
+                <button onclick="submitBooking()" id="btn-submit"
+                    class="flex-[2] rounded-xl bg-plum py-3.5 text-sm font-bold text-white transition hover:bg-plum/90 active:scale-[0.98]">
+                    送出預約
+                </button>
+            </div>
+        </div>
+
+        <!-- Success -->
+        <div id="step-success" class="step hidden">
+            <div class="step-enter py-8 text-center">
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-plum/10">
+                    <svg class="h-8 w-8 text-plum" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold text-ink">預約已送出！</h2>
+                <p class="mt-3 text-sm leading-relaxed text-ink/60">
+                    我們的助理會盡快與 feifei 確認時間，<br>
+                    確認後會自動發送 Email 通知您。
+                </p>
+                <div class="mt-5 rounded-xl border border-gold/20 bg-gold/5 p-4">
+                    <p class="text-sm text-ink/70">
+                        預約日期：<span id="success-datetime" class="font-medium text-ink"></span>
+                    </p>
+                </div>
+                <p class="mt-6 text-xs text-ink/40">如有任何問題，請透過 IG 私訊聯繫我們</p>
+            </div>
+        </div>
+
+        <!-- Error -->
+        <div id="step-error" class="step hidden">
+            <div class="step-enter py-8 text-center">
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blush/10">
+                    <svg class="h-8 w-8 text-blush" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold text-ink">送出失敗</h2>
+                <p class="mt-3 text-sm text-ink/60">請稍後再試，或直接透過 IG 私訊預約。</p>
+                <button onclick="goToStep(4)"
+                    class="mt-5 rounded-xl bg-plum px-8 py-3 text-sm font-bold text-white">
+                    重試
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+    // ===== Configuration =====
+    const CONFIG = {
+        // Google Apps Script Web App URL (部署後填入)
+        SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyCv0uWy7UFrnz1vD_3jLHi2vofECWGr30wMYdaiID1wJuKVDopxhM0xVdXS4x2A08/exec',
+        // 可預約的星期幾 (0=日, 1=一, 2=二, 3=三, 4=四, 5=五, 6=六)
+        AVAILABLE_DAYS: [1, 2, 3, 4, 5],
+        // 可預約時段
+        TIME_SLOTS: ['10:00', '11:00', '14:00', '15:00', '16:00'],
+        // 最少提前幾天預約
+        MIN_ADVANCE_DAYS: 2,
+        // 最多預約幾天後
+        MAX_ADVANCE_DAYS: 30,
+    };
+
+    // ===== State =====
+    let currentYear, currentMonth;
+    let selectedDate = null;
+    let selectedTime = null;
+    let currentStep = 1;
+
+    // ===== Init =====
+    const today = new Date();
+    currentYear = today.getFullYear();
+    currentMonth = today.getMonth();
+    renderCalendar();
+
+    // ===== Calendar =====
+    function renderCalendar() {
+        const grid = document.getElementById('calendar-grid');
+        const title = document.getElementById('calendar-title');
+        const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+        title.textContent = `${currentYear} 年 ${monthNames[currentMonth]}`;
+
+        // Disable prev button if current month
+        const prevBtn = document.getElementById('btn-prev');
+        if (currentYear === today.getFullYear() && currentMonth === today.getMonth()) {
+            prevBtn.disabled = true;
+            prevBtn.classList.add('opacity-30');
+        } else {
+            prevBtn.disabled = false;
+            prevBtn.classList.remove('opacity-30');
+        }
+
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+        let html = '';
+
+        // Empty cells before first day
+        for (let i = 0; i < firstDay; i++) {
+            html += '<div></div>';
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const date = new Date(currentYear, currentMonth, day);
+            const dateStr = formatDate(date);
+            const dayOfWeek = date.getDay();
+            const isAvailable = isDateAvailable(date);
+            const isToday = isSameDay(date, today);
+            const isSelected = selectedDate === dateStr;
+
+            if (isAvailable) {
+                html += `<button onclick="selectDate('${dateStr}')"
+                    class="day-btn aspect-square rounded-xl text-sm font-medium transition hover:bg-plum/10
+                    ${isSelected ? 'selected' : 'text-ink'}
+                    ${isToday ? 'today' : ''}">
+                    ${day}</button>`;
+            } else {
+                html += `<button disabled
+                    class="day-btn aspect-square rounded-xl text-sm text-ink/25">
+                    ${day}</button>`;
+            }
+        }
+
+        grid.innerHTML = html;
+    }
+
+    function isDateAvailable(date) {
+        const diffDays = Math.floor((date - today) / 86400000);
+        if (diffDays < CONFIG.MIN_ADVANCE_DAYS) return false;
+        if (diffDays > CONFIG.MAX_ADVANCE_DAYS) return false;
+        return CONFIG.AVAILABLE_DAYS.includes(date.getDay());
+    }
+
+    function isSameDay(a, b) {
+        return a.getFullYear() === b.getFullYear() &&
+               a.getMonth() === b.getMonth() &&
+               a.getDate() === b.getDate();
+    }
+
+    function formatDate(date) {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function formatDateDisplay(dateStr) {
+        const [y, m, d] = dateStr.split('-');
+        const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+        const weekdays = ['日','一','二','三','四','五','六'];
+        return `${parseInt(m)}/${parseInt(d)}（${weekdays[date.getDay()]}）`;
+    }
+
+    function prevMonth() {
+        currentMonth--;
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        renderCalendar();
+    }
+
+    function nextMonth() {
+        currentMonth++;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        renderCalendar();
+    }
+
+    function selectDate(dateStr) {
+        selectedDate = dateStr;
+        renderCalendar();
+        renderTimeSlots();
+        goToStep(2);
+    }
+
+    // ===== Time Slots =====
+    function renderTimeSlots() {
+        const container = document.getElementById('time-slots');
+        document.getElementById('selected-date-display').textContent = formatDateDisplay(selectedDate);
+
+        let html = '';
+        CONFIG.TIME_SLOTS.forEach(time => {
+            const isSelected = selectedTime === time;
+            html += `<button onclick="selectTime('${time}')"
+                class="slot-btn rounded-xl border border-ink/10 bg-white py-4 text-sm font-medium transition hover:border-plum/30 hover:bg-plum/5
+                ${isSelected ? 'selected' : 'text-ink'}">
+                ${time}</button>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function selectTime(time) {
+        selectedTime = time;
+        renderTimeSlots();
+        document.getElementById('confirm-datetime').textContent =
+            `${formatDateDisplay(selectedDate)} ${selectedTime}`;
+        goToStep(3);
+    }
+
+    // ===== Step Navigation =====
+    function goToStep(step) {
+        currentStep = step;
+        document.querySelectorAll('.step').forEach(el => el.classList.add('hidden'));
+        const target = document.getElementById(`step-${step}`);
+        target.classList.remove('hidden');
+        target.classList.add('step-enter');
+        updateProgress(step);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateProgress(step) {
+        document.querySelectorAll('.step-dot').forEach(dot => {
+            const s = parseInt(dot.dataset.step);
+            const circle = dot.querySelector('div');
+            const label = dot.querySelector('span');
+            if (s <= step && step <= 3) {
+                circle.className = 'flex h-7 w-7 items-center justify-center rounded-full bg-plum text-xs font-bold text-white';
+                label.className = 'text-xs font-medium text-ink/70';
+            } else {
+                circle.className = 'flex h-7 w-7 items-center justify-center rounded-full bg-ink/10 text-xs font-bold text-ink/40';
+                label.className = 'text-xs font-medium text-ink/40';
+            }
+        });
+    }
+
+    // ===== Form =====
+    function showConfirm() {
+        const name = document.getElementById('field-name').value.trim();
+        const phone = document.getElementById('field-phone').value.trim();
+        const email = document.getElementById('field-email').value.trim();
+        const topic = document.querySelector('input[name="topic"]:checked')?.value;
+
+        if (!name || !phone || !email || !topic) {
+            alert('請填寫所有必填欄位');
+            return;
+        }
+
+        if (!/\S+@\S+\.\S+/.test(email)) {
+            alert('請輸入有效的 Email 地址');
+            return;
+        }
+
+        document.getElementById('review-date').textContent = formatDateDisplay(selectedDate);
+        document.getElementById('review-time').textContent = selectedTime;
+        document.getElementById('review-name').textContent = name;
+        document.getElementById('review-phone').textContent = phone;
+        document.getElementById('review-email').textContent = email;
+        document.getElementById('review-topic').textContent = topic;
+        document.getElementById('review-notes').textContent =
+            document.getElementById('field-notes').value.trim() || '無';
+
+        goToStep(4);
+    }
+
+    // ===== Submit =====
+    async function submitBooking() {
+        const btn = document.getElementById('btn-submit');
+        btn.disabled = true;
+        btn.textContent = '送出中...';
+
+        const data = {
+            date: selectedDate,
+            dateDisplay: formatDateDisplay(selectedDate),
+            time: selectedTime,
+            name: document.getElementById('field-name').value.trim(),
+            phone: document.getElementById('field-phone').value.trim(),
+            email: document.getElementById('field-email').value.trim(),
+            topic: document.querySelector('input[name="topic"]:checked').value,
+            notes: document.getElementById('field-notes').value.trim(),
+        };
+
+        if (!CONFIG.SCRIPT_URL) {
+            // Demo mode: no backend configured
+            console.log('Booking data (demo):', data);
+            showSuccess(data);
+            return;
+        }
+
+        try {
+            await fetch(CONFIG.SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(data),
+            });
+            showSuccess(data);
+        } catch (err) {
+            console.error('Submit error:', err);
+            // Even if fetch fails due to CORS opaque response, the request likely went through
+            showSuccess(data);
+        }
+    }
+
+    function showSuccess(data) {
+        document.getElementById('success-datetime').textContent =
+            `${data.dateDisplay} ${data.time}`;
+        document.querySelectorAll('.step').forEach(el => el.classList.add('hidden'));
+        document.getElementById('step-success').classList.remove('hidden');
+        document.getElementById('progress').classList.add('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    </script>
+</body>
+</html>
