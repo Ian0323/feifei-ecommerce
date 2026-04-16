@@ -2,7 +2,7 @@ var SETTINGS = {
   SHEET_ID: '1IUDCeB087LLFoLyzGxp_4eTSpycYiWjNM8PJ6b7DhwM',
   SHEET_NAME: 'bookings',
   ASSISTANT_EMAIL: 'iankuo1999@gmail.com',
-  BRAND_NAME: 'M+ feifei',
+  BRAND_NAME: 'feifei768',
   SERVICE_PRICE: 'NT$3,800'
 };
 
@@ -33,6 +33,44 @@ function initSheet() {
   for (var i = 1; i <= 10; i++) {
     sheet.autoResizeColumn(i);
   }
+}
+
+function doGet(e) {
+  var action = e.parameter.action;
+  if (action === 'getBooked') {
+    return getBookedSlots();
+  }
+  return ContentService
+    .createTextOutput(JSON.stringify({ error: 'unknown action' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getBookedSlots() {
+  var sheet = getSheet();
+  var lastRow = sheet.getLastRow();
+  if (lastRow <= 1) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ booked: {} }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  var data = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
+  var booked = {};
+  for (var i = 0; i < data.length; i++) {
+    var row = data[i];
+    var status = row[8];
+    // Only block slots that are pending or confirmed (not cancelled)
+    if (status === 'pending' || status === 'confirmed') {
+      var date = row[1];
+      var time = row[2];
+      if (!booked[date]) {
+        booked[date] = [];
+      }
+      booked[date].push(time);
+    }
+  }
+  return ContentService
+    .createTextOutput(JSON.stringify({ booked: booked }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
