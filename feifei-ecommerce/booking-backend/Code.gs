@@ -6,15 +6,24 @@ var SETTINGS = {
   ASSISTANT_EMAIL: 'iankuo1999@gmail.com',
   BRAND_NAME: '\u975e\u975e768',
   SERVICE_PRICE: 'NT$3,800',
-  CALENDAR_ID: '',
+  CALENDAR_ID: '1cb0aeeafa55fb75407aa932bb3b1d84e322a7bab04e54099d432b2cc9bcd976@group.calendar.google.com',
   TIME_SLOTS: ['10:00', '11:00', '14:00', '15:00', '16:00'],
   AVAILABLE_DAYS: [1, 2, 3, 4, 5], // 週一到五
   MIN_ADVANCE_DAYS: 2,
   MAX_ADVANCE_DAYS: 30,
   VALID_TOPICS: ['\u611f\u60c5', '\u5de5\u4f5c', '\u5176\u4ed6'],
   MAX_FIELD_LENGTH: 500,
-  RATE_LIMIT_SECONDS: 60 // 同一 email 最短間隔
+  RATE_LIMIT_SECONDS: 60, // 同一 email 最短間隔
+  LIFF_ID: '2009821980-46y6BEMh',
+  LINE_API_URL: 'https://api.line.me/v2/bot/message/push'
 };
+
+// Channel Access Token 從 Script Properties 讀取（避免硬編碼到原始碼）
+// 設定方式：Apps Script Project Settings → Script Properties → Add
+// Key: LINE_CHANNEL_ACCESS_TOKEN
+function getLineToken() {
+  return PropertiesService.getScriptProperties().getProperty('LINE_CHANNEL_ACCESS_TOKEN');
+}
 
 function getSheet() {
   var ss = SpreadsheetApp.openById(SETTINGS.SHEET_ID);
@@ -27,11 +36,11 @@ function initSheet() {
   if (!sheet) {
     sheet = ss.insertSheet(SETTINGS.SHEET_NAME);
   }
-  sheet.getRange(1, 1, 1, 10).setValues([[
+  sheet.getRange(1, 1, 1, 11).setValues([[
     '\u63d0\u4ea4\u6642\u9593', '\u9810\u7d04\u65e5\u671f', '\u9810\u7d04\u6642\u6bb5', '\u59d3\u540d', '\u96fb\u8a71',
-    'Email', '\u8aee\u8a62\u4e3b\u984c', '\u5099\u8a3b', '\u72c0\u614b', '\u78ba\u8a8d\u6642\u9593'
+    'Email', '\u8aee\u8a62\u4e3b\u984c', '\u5099\u8a3b', '\u72c0\u614b', '\u78ba\u8a8d\u6642\u9593', 'LINE UID'
   ]]);
-  var header = sheet.getRange(1, 1, 1, 10);
+  var header = sheet.getRange(1, 1, 1, 11);
   header.setFontWeight('bold');
   header.setBackground('#7B5EA7');
   header.setFontColor('#FFFFFF');
@@ -40,9 +49,27 @@ function initSheet() {
     .setAllowInvalid(false)
     .build();
   sheet.getRange(2, 9, 100, 1).setDataValidation(rule);
-  for (var i = 1; i <= 10; i++) {
+  for (var i = 1; i <= 11; i++) {
     sheet.autoResizeColumn(i);
   }
+}
+
+// 已存在的 Sheet 補上 LINE UID 欄位（不影響既有資料）
+// 首次啟用 LINE 整合時執行一次即可
+function migrateSheetAddLineUid() {
+  var sheet = getSheet();
+  var currentWidth = sheet.getLastColumn();
+  if (currentWidth >= 11) {
+    Logger.log('Sheet already has LINE UID column, skipping');
+    return;
+  }
+  sheet.getRange(1, 11).setValue('LINE UID');
+  var header = sheet.getRange(1, 11);
+  header.setFontWeight('bold');
+  header.setBackground('#7B5EA7');
+  header.setFontColor('#FFFFFF');
+  sheet.autoResizeColumn(11);
+  Logger.log('LINE UID column added');
 }
 
 function initPublicSheet() {
@@ -343,6 +370,7 @@ function doPost(e) {
       }
 
       // 5. 寫入（文字經過清理）
+      var lineUid = typeof data.lineUid === 'string' ? data.lineUid.substring(0, 50) : '';
       sheet.appendRow([
         new Date(),
         data.date,
@@ -353,7 +381,8 @@ function doPost(e) {
         data.topic,
         sanitizeText(data.notes || '', SETTINGS.MAX_FIELD_LENGTH),
         '\u5f85\u78ba\u8a8d',
-        ''
+        '',
+        lineUid
       ]);
     } finally {
       lock.releaseLock();
@@ -362,6 +391,9 @@ function doPost(e) {
     // 6. 鎖外執行非關鍵操作
     if (SETTINGS.ASSISTANT_EMAIL) {
       sendAssistantNotification(data);
+    }
+    if (data.lineUid) {
+      sendLineBookingReceived(data);
     }
     syncPublicSheet();
 
@@ -379,17 +411,41 @@ function doPost(e) {
 
 function sendAssistantNotification(data) {
   var displayDate = data.dateDisplay || data.date;
+  var name = sanitizeText(data.name, 50);
+  var notes = sanitizeText(data.notes || '\u7121', 200);
   var subject = '[\u65b0\u9810\u7d04] ' + sanitizeText(data.name, 20) + ' - ' + displayDate + ' ' + data.time;
-  var body = SETTINGS.BRAND_NAME + ' \u65b0\u9810\u7d04\uff1a\n\n'
-    + '\u59d3\u540d\uff1a' + sanitizeText(data.name, 50) + '\n'
+
+  var plainBody = SETTINGS.BRAND_NAME + ' \u65b0\u9810\u7d04\uff1a\n\n'
+    + '\u59d3\u540d\uff1a' + name + '\n'
     + '\u96fb\u8a71\uff1a' + data.phone + '\n'
     + 'Email\uff1a' + data.email + '\n'
     + '\u65e5\u671f\uff1a' + displayDate + '\n'
     + '\u6642\u6bb5\uff1a' + data.time + '\n'
     + '\u4e3b\u984c\uff1a' + data.topic + '\n'
-    + '\u5099\u8a3b\uff1a' + sanitizeText(data.notes || '\u7121', 200) + '\n\n'
+    + '\u5099\u8a3b\uff1a' + notes + '\n\n'
     + '\u8acb\u5230 Google Sheet \u5c07\u72c0\u614b\u6539\u70ba\u300c\u5df2\u78ba\u8a8d\u300d\uff0c\u7cfb\u7d71\u6703\u81ea\u52d5\u901a\u77e5\u5ba2\u6236\u3002';
-  MailApp.sendEmail(SETTINGS.ASSISTANT_EMAIL, subject, body);
+
+  var content = ''
+    + '<p style="margin:0 0 6px;font-size:13px;color:#7B5EA7;font-weight:700;letter-spacing:1px;">\u65b0\u9810\u7d04\u901a\u77e5</p>'
+    + '<p style="margin:0 0 20px;font-size:20px;color:#2C1810;font-weight:700;">' + name + '</p>'
+    + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FDF8F3;border-radius:12px;padding:16px 20px;margin-bottom:20px;">'
+    + infoRow('\u65e5\u671f', displayDate)
+    + infoRow('\u6642\u6bb5', data.time)
+    + infoRow('\u4e3b\u984c', data.topic)
+    + infoRow('\u96fb\u8a71', data.phone)
+    + infoRow('Email', data.email)
+    + infoRow('\u5099\u8a3b', notes)
+    + '</table>'
+    + '<p style="margin:0;font-size:13px;color:#2C1810;opacity:0.6;line-height:1.6;">'
+    + '\u8acb\u5230 Google Sheet \u5c07\u72c0\u614b\u6539\u70ba\u300c\u5df2\u78ba\u8a8d\u300d\uff0c\u7cfb\u7d71\u6703\u81ea\u52d5\u901a\u77e5\u5ba2\u6236\u3002'
+    + '</p>';
+
+  MailApp.sendEmail({
+    to: SETTINGS.ASSISTANT_EMAIL,
+    subject: subject,
+    body: plainBody,
+    htmlBody: brandEmailTemplate(content)
+  });
 }
 
 function checkStatusChanges() {
@@ -399,11 +455,13 @@ function checkStatusChanges() {
     syncPublicSheet();
     return;
   }
-  var data = sheet.getRange(2, 1, lastRow - 1, 10).getValues();
+  var lastCol = Math.max(sheet.getLastColumn(), 11);
+  var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
   for (var i = 0; i < data.length; i++) {
     var row = data[i];
     var status = row[8];
     var confirmTime = row[9];
+    var lineUid = row[10] || '';
 
     if (status === '\u5df2\u78ba\u8a8d' && !confirmTime) {
       var booking = {
@@ -412,9 +470,11 @@ function checkStatusChanges() {
         name: row[3],
         phone: row[4],
         email: row[5],
-        topic: row[6]
+        topic: row[6],
+        lineUid: lineUid
       };
       sendCustomerConfirmation(booking);
+      if (lineUid) sendLineBookingConfirmed(booking);
       sheet.getRange(i + 2, 10).setValue(new Date());
     }
 
@@ -426,9 +486,11 @@ function checkStatusChanges() {
           date: formatDateKey(row[1]),
           time: formatTimeKey(row[2]),
           name: row[3],
-          email: row[5]
+          email: row[5],
+          lineUid: lineUid
         };
         sendCancellationNotice(booking2);
+        if (lineUid) sendLineBookingCancelled(booking2);
         sheet.getRange(i + 2, 10).setValue('\u53d6\u6d88\u5df2\u901a\u77e5 ' + new Date().toLocaleString());
       }
     }
@@ -436,36 +498,184 @@ function checkStatusChanges() {
   syncPublicSheet();
 }
 
+function brandEmailTemplate(content) {
+  return '<!DOCTYPE html>'
+    + '<html><head><meta charset="utf-8"></head>'
+    + '<body style="margin:0;padding:0;background-color:#FDF8F3;font-family:\'Noto Sans TC\',Arial,sans-serif;">'
+    + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FDF8F3;padding:32px 16px;">'
+    + '<tr><td align="center">'
+    + '<table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background-color:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(44,24,16,0.06);">'
+    // Header
+    + '<tr><td style="background-color:#7B5EA7;padding:24px 32px;text-align:center;">'
+    + '<h1 style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:1px;">' + SETTINGS.BRAND_NAME + '</h1>'
+    + '<p style="margin:6px 0 0;font-size:12px;color:rgba(255,255,255,0.7);">\u7642\u80b2\u578b\u554f\u4e8b</p>'
+    + '</td></tr>'
+    // Body
+    + '<tr><td style="padding:32px;">'
+    + content
+    + '</td></tr>'
+    // Footer
+    + '<tr><td style="padding:20px 32px;background-color:#F6EFE7;text-align:center;">'
+    + '<p style="margin:0;font-size:12px;color:#2C1810;opacity:0.45;">\u5982\u6709\u4efb\u4f55\u554f\u984c\uff0c\u8acb\u900f\u904e LINE \u806f\u7e6b\u6211\u5011</p>'
+    + '<p style="margin:6px 0 0;font-size:12px;color:#7B5EA7;font-weight:500;">' + SETTINGS.BRAND_NAME + '</p>'
+    + '</td></tr>'
+    + '</table>'
+    + '</td></tr></table>'
+    + '</body></html>';
+}
+
+function infoRow(label, value) {
+  return '<tr>'
+    + '<td style="padding:8px 0;font-size:14px;color:#2C1810;opacity:0.5;width:70px;vertical-align:top;">' + label + '</td>'
+    + '<td style="padding:8px 0;font-size:14px;color:#2C1810;font-weight:500;">' + value + '</td>'
+    + '</tr>';
+}
+
 function sendCustomerConfirmation(booking) {
   var dateStr = formatDateKey(booking.date);
   var timeStr = formatTimeKey(booking.time);
   var subject = '[\u9810\u7d04\u78ba\u8a8d] ' + SETTINGS.BRAND_NAME + ' - ' + dateStr + ' ' + timeStr;
-  var body = booking.name + ' \u60a8\u597d\uff0c\n\n'
-    + '\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u78ba\u8a8d\uff01\n\n'
-    + '\u65e5\u671f\uff1a' + dateStr + '\n'
-    + '\u6642\u6bb5\uff1a' + timeStr + '\n'
-    + '\u4e3b\u984c\uff1a' + booking.topic + '\n'
-    + '\u8cbb\u7528\uff1a' + SETTINGS.SERVICE_PRICE + '\n\n'
-    + '\u8aee\u8a62\u65b9\u5f0f\u5c07\u7531\u52a9\u7406\u53e6\u884c\u901a\u77e5\u3002\n'
-    + '\u5982\u9700\u66f4\u6539\u6216\u53d6\u6d88\uff0c\u8acb\u63d0\u524d\u806f\u7e6b\u6211\u5011\u3002\n\n'
-    + SETTINGS.BRAND_NAME;
-  MailApp.sendEmail(booking.email, subject, body);
+
+  var content = ''
+    + '<p style="margin:0 0 8px;font-size:16px;color:#2C1810;">' + booking.name + ' \u60a8\u597d\uff0c</p>'
+    + '<p style="margin:0 0 24px;font-size:15px;color:#2C1810;line-height:1.6;">\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2<span style="color:#7B5EA7;font-weight:700;">\u78ba\u8a8d</span>\uff01\u4ee5\u4e0b\u662f\u60a8\u7684\u9810\u7d04\u8cc7\u8a0a\uff1a</p>'
+    // Info card
+    + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FDF8F3;border-radius:12px;padding:16px 20px;margin-bottom:24px;">'
+    + infoRow('\u65e5\u671f', dateStr)
+    + infoRow('\u6642\u6bb5', timeStr)
+    + infoRow('\u4e3b\u984c', booking.topic)
+    + infoRow('\u8cbb\u7528', '<span style="color:#7B5EA7;font-weight:700;">' + SETTINGS.SERVICE_PRICE + '</span>')
+    + '</table>'
+    + '<p style="margin:0;font-size:13px;color:#2C1810;opacity:0.6;line-height:1.6;">'
+    + '\u8aee\u8a62\u65b9\u5f0f\u5c07\u7531\u52a9\u7406\u53e6\u884c\u901a\u77e5\u3002<br>'
+    + '\u5982\u9700\u66f4\u6539\u6216\u53d6\u6d88\uff0c\u8acb\u63d0\u524d\u806f\u7e6b\u6211\u5011\u3002'
+    + '</p>';
+
+  var plainBody = booking.name + ' \u60a8\u597d\uff0c\n\n\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u78ba\u8a8d\uff01\n\n\u65e5\u671f\uff1a' + dateStr + '\n\u6642\u6bb5\uff1a' + timeStr + '\n\u4e3b\u984c\uff1a' + booking.topic + '\n\u8cbb\u7528\uff1a' + SETTINGS.SERVICE_PRICE + '\n\n' + SETTINGS.BRAND_NAME;
+
+  MailApp.sendEmail({
+    to: booking.email,
+    subject: subject,
+    body: plainBody,
+    htmlBody: brandEmailTemplate(content)
+  });
 }
 
 function sendCancellationNotice(booking) {
   var dateStr = formatDateKey(booking.date);
   var timeStr = formatTimeKey(booking.time);
   var subject = '[\u9810\u7d04\u53d6\u6d88] ' + SETTINGS.BRAND_NAME + ' - ' + dateStr + ' ' + timeStr;
-  var body = booking.name + ' \u60a8\u597d\uff0c\n\n'
-    + '\u5f88\u62b1\u6b49\uff0c\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u56e0\u6642\u9593\u7121\u6cd5\u914d\u5408\uff0c\u5df2\u53d6\u6d88\u3002\n\n'
-    + '\u539f\u8a02\u65e5\u671f\uff1a' + dateStr + '\n'
-    + '\u539f\u8a02\u6642\u6bb5\uff1a' + timeStr + '\n\n'
-    + '\u6b61\u8fce\u91cd\u65b0\u9810\u7d04\u5176\u4ed6\u6642\u6bb5\uff0c\u9020\u6210\u4e0d\u4fbf\u8acb\u898b\u8ad2\u3002\n\n'
-    + SETTINGS.BRAND_NAME;
-  MailApp.sendEmail(booking.email, subject, body);
+
+  var content = ''
+    + '<p style="margin:0 0 8px;font-size:16px;color:#2C1810;">' + booking.name + ' \u60a8\u597d\uff0c</p>'
+    + '<p style="margin:0 0 24px;font-size:15px;color:#2C1810;line-height:1.6;">\u5f88\u62b1\u6b49\uff0c\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u56e0\u6642\u9593\u7121\u6cd5\u914d\u5408\uff0c\u5df2<span style="color:#D4829C;font-weight:700;">\u53d6\u6d88</span>\u3002</p>'
+    // Info card
+    + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FDF8F3;border-radius:12px;padding:16px 20px;margin-bottom:24px;">'
+    + infoRow('\u539f\u8a02\u65e5\u671f', dateStr)
+    + infoRow('\u539f\u8a02\u6642\u6bb5', timeStr)
+    + '</table>'
+    + '<p style="margin:0;font-size:13px;color:#2C1810;opacity:0.6;line-height:1.6;">'
+    + '\u6b61\u8fce\u91cd\u65b0\u9810\u7d04\u5176\u4ed6\u6642\u6bb5\uff0c\u9020\u6210\u4e0d\u4fbf\u8acb\u898b\u8ad2\u3002'
+    + '</p>';
+
+  var plainBody = booking.name + ' \u60a8\u597d\uff0c\n\n\u5f88\u62b1\u6b49\uff0c\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u53d6\u6d88\u3002\n\n\u539f\u8a02\u65e5\u671f\uff1a' + dateStr + '\n\u539f\u8a02\u6642\u6bb5\uff1a' + timeStr + '\n\n' + SETTINGS.BRAND_NAME;
+
+  MailApp.sendEmail({
+    to: booking.email,
+    subject: subject,
+    body: plainBody,
+    htmlBody: brandEmailTemplate(content)
+  });
 }
 
 function testSync() {
   syncPublicSheet();
   Logger.log('Public sheet synced (with calendar blocks)');
+}
+
+// ===== LINE 推播 =====
+
+function sendLinePush(uid, messages) {
+  var token = getLineToken();
+  if (!token) {
+    Logger.log('LINE token not configured in Script Properties');
+    return;
+  }
+  if (!uid) return;
+  try {
+    var response = UrlFetchApp.fetch(SETTINGS.LINE_API_URL, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { 'Authorization': 'Bearer ' + token },
+      payload: JSON.stringify({ to: uid, messages: messages }),
+      muteHttpExceptions: true
+    });
+    var code = response.getResponseCode();
+    if (code !== 200) {
+      Logger.log('LINE push failed ' + code + ': ' + response.getContentText());
+    }
+  } catch (e) {
+    Logger.log('LINE push error: ' + e.message);
+  }
+}
+
+function sendLineBookingReceived(data) {
+  var dateDisplay = data.dateDisplay || data.date;
+  var text = '✨ ' + SETTINGS.BRAND_NAME + ' 療育型問事\n\n'
+    + '已收到您的預約申請：\n'
+    + '📅 ' + dateDisplay + '  ' + data.time + '\n'
+    + '主題：' + data.topic + '\n'
+    + '費用：' + SETTINGS.SERVICE_PRICE + '\n\n'
+    + '助理會盡快與非非確認時間，確認後會再通知您 🙏';
+  sendLinePush(data.lineUid, [{ type: 'text', text: text }]);
+}
+
+function sendLineBookingConfirmed(booking) {
+  var dateStr = formatDateKey(booking.date);
+  var timeStr = formatTimeKey(booking.time);
+  var text = '🌸 ' + SETTINGS.BRAND_NAME + ' 療育型問事\n\n'
+    + (booking.name || '您') + ' 您好，\n'
+    + '您的諮詢預約已確認！\n\n'
+    + '📅 日期：' + dateStr + '\n'
+    + '🕒 時段：' + timeStr + '\n'
+    + '主題：' + booking.topic + '\n'
+    + '費用：' + SETTINGS.SERVICE_PRICE + '\n\n'
+    + '諮詢方式將由助理另行通知。\n'
+    + '如需更改或取消，請提前聯繫我們 🙏';
+  sendLinePush(booking.lineUid, [{ type: 'text', text: text }]);
+}
+
+function sendLineBookingCancelled(booking) {
+  var dateStr = formatDateKey(booking.date);
+  var timeStr = formatTimeKey(booking.time);
+  var text = SETTINGS.BRAND_NAME + ' 療育型問事\n\n'
+    + (booking.name || '您') + ' 您好，\n'
+    + '很抱歉，您的諮詢預約因時間無法配合，已取消。\n\n'
+    + '原訂日期：' + dateStr + ' ' + timeStr + '\n\n'
+    + '歡迎重新預約其他時段，造成不便敬請見諒 🙏';
+  sendLinePush(booking.lineUid, [{ type: 'text', text: text }]);
+}
+
+// 測試：檢查 token 設定是否正確（不會真的發訊息）
+function testLineToken() {
+  var token = getLineToken();
+  if (!token) {
+    Logger.log('❌ LINE_CHANNEL_ACCESS_TOKEN 未設定，請到 Project Settings → Script Properties 加入');
+    return;
+  }
+  try {
+    var response = UrlFetchApp.fetch('https://api.line.me/v2/bot/info', {
+      method: 'get',
+      headers: { 'Authorization': 'Bearer ' + token },
+      muteHttpExceptions: true
+    });
+    var code = response.getResponseCode();
+    if (code === 200) {
+      Logger.log('✅ Token 有效，Bot info: ' + response.getContentText());
+    } else {
+      Logger.log('❌ Token 無效 (' + code + '): ' + response.getContentText());
+    }
+  } catch (e) {
+    Logger.log('❌ Token 測試失敗: ' + e.message);
+  }
 }

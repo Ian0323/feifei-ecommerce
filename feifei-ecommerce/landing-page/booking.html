@@ -6,6 +6,7 @@
     <title>預約諮詢 | 非非768 療育型問事</title>
     <meta name="description" content="預約非非768 療育型問事，感情・工作諮詢服務，武財公協助，每次 NT$3,800">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
@@ -275,7 +276,7 @@
                         預約日期：<span id="success-datetime" class="font-medium text-ink"></span>
                     </p>
                 </div>
-                <p class="mt-6 text-xs text-ink/40">如有任何問題，請透過 IG 私訊聯繫我們</p>
+                <p class="mt-6 text-xs text-ink/40">如有任何問題，請透過 LINE 聯繫我們</p>
             </div>
         </div>
 
@@ -288,7 +289,7 @@
                     </svg>
                 </div>
                 <h2 class="text-xl font-bold text-ink">送出失敗</h2>
-                <p class="mt-3 text-sm text-ink/60">請稍後再試，或直接透過 IG 私訊預約。</p>
+                <p class="mt-3 text-sm text-ink/60">請稍後再試，或直接透過 LINE 預約。</p>
                 <button onclick="retrySubmit()"
                     class="mt-5 rounded-xl bg-plum px-8 py-3 text-sm font-bold text-white">
                     重試
@@ -303,6 +304,8 @@
     const CONFIG = {
         // Google Apps Script Web App URL (部署後填入)
         SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyIm5XPUyfR__N66-59kjUY1vyM8uY3RDeQzlIYj5gepuu7CBTHkOxO3HVU-eoKDlxC/exec',
+        // LIFF ID — 從 LINE 內開啟時用來抓客戶 UID 做推播
+        LIFF_ID: '2009821980-46y6BEMh',
         // 可預約的星期幾 (0=日, 1=一, 2=二, 3=三, 4=四, 5=五, 6=六)
         AVAILABLE_DAYS: [1, 2, 3, 4, 5],
         // 可預約時段
@@ -312,6 +315,22 @@
         // 最多預約幾天後
         MAX_ADVANCE_DAYS: 30,
     };
+
+    // ===== LIFF =====
+    // 從 LINE 進來時自動抓 UID，一般瀏覽器開啟則降級為 null（仍可預約，只是不推 LINE）
+    let lineUid = null;
+    (async function initLiff() {
+        if (typeof liff === 'undefined' || !CONFIG.LIFF_ID) return;
+        try {
+            await liff.init({ liffId: CONFIG.LIFF_ID });
+            if (liff.isLoggedIn()) {
+                const profile = await liff.getProfile();
+                lineUid = profile.userId;
+            }
+        } catch (err) {
+            console.log('LIFF init skipped:', err && err.message);
+        }
+    })();
 
     // ===== State =====
     let currentYear, currentMonth;
@@ -627,6 +646,7 @@
             email: document.getElementById('field-email').value.trim(),
             topic: document.querySelector('input[name="topic"]:checked').value,
             notes: document.getElementById('field-notes').value.trim(),
+            lineUid: lineUid || '',
         };
 
         if (!CONFIG.SCRIPT_URL) {
