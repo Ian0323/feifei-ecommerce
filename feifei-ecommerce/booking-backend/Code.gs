@@ -315,11 +315,27 @@ function isSlotTaken(sheet, date, time) {
   return false;
 }
 
+// ===== 版本檢查（方便確認部署是否更新）=====
+// 用瀏覽器打開 Web App URL 會看到這個回應
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({
+      version: 'LINE-v1-2026-04-17',
+      hasLinePush: typeof sendLinePush === 'function',
+      hasLineReceived: typeof sendLineBookingReceived === 'function',
+      tokenSet: !!getLineToken(),
+      liffId: SETTINGS.LIFF_ID,
+      now: new Date().toISOString()
+    }, null, 2))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 // ===== 主要 POST 處理 =====
 
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
+    Logger.log('doPost received: keys=[' + Object.keys(data).join(',') + '], lineUid=' + (data.lineUid ? (data.lineUid.substring(0,8) + '...') : 'EMPTY'));
 
     // 1. 輸入驗證
     var validationErrors = validateBookingData(data);
@@ -654,6 +670,26 @@ function sendLineBookingCancelled(booking) {
     + '原訂日期：' + dateStr + ' ' + timeStr + '\n\n'
     + '歡迎重新預約其他時段，造成不便敬請見諒 🙏';
   sendLinePush(booking.lineUid, [{ type: 'text', text: text }]);
+}
+
+// 測試：直接推一則 LINE 訊息給你自己（完全不碰 Web App 部署）
+// 用法：編輯下面 YOUR_UID，貼上你的 LINE UID（從預約頁右上角 debug 顯示抓，開頭是 U）
+// 然後在 Apps Script 編輯器直接 Run testDirectLinePush
+// 如果這個能收到，代表 Code.gs + Token 都正常，問題單純在 Web App 部署沒更新
+function testDirectLinePush() {
+  var YOUR_UID = 'Uxxxxxxxxxxxxxxxxxxxx';  // ← 改成你的真實 UID
+  if (YOUR_UID.indexOf('Uxxx') === 0) {
+    Logger.log('❌ 請先編輯函式，填入你的真實 LINE UID');
+    return;
+  }
+  sendLineBookingReceived({
+    date: '2026-05-15',
+    dateDisplay: '5/15（五）',
+    time: '10:00',
+    topic: '感情',
+    lineUid: YOUR_UID
+  });
+  Logger.log('✓ Push 已發送，請檢查你的 LINE 有沒有收到「已收到您的預約申請」訊息');
 }
 
 // 測試：檢查 token 設定是否正確（不會真的發訊息）
