@@ -74,7 +74,6 @@
     <header class="sticky top-0 z-50 border-b border-ink/5 bg-mist/90 backdrop-blur-md">
         <div class="mx-auto flex max-w-lg items-center justify-between px-5 py-3">
             <span class="text-lg font-bold text-ink">非非768 療育型問事</span>
-            <span id="liff-debug" class="text-[10px] text-ink/40">LIFF: 載入中…</span>
         </div>
     </header>
 
@@ -319,30 +318,17 @@
     // ===== LIFF =====
     // 從 LINE 進來時自動抓 UID，一般瀏覽器開啟則降級為 null（仍可預約，只是不推 LINE）
     let lineUid = null;
-    let liffDebug = 'init...';
-    function renderLiffDebug() {
-        var el = document.getElementById('liff-debug');
-        if (el) el.textContent = 'LIFF: ' + liffDebug;
-    }
     (async function initLiff() {
-        if (typeof liff === 'undefined') { liffDebug = 'SDK 未載入'; renderLiffDebug(); return; }
-        if (!CONFIG.LIFF_ID) { liffDebug = '未設 LIFF_ID'; renderLiffDebug(); return; }
+        if (typeof liff === 'undefined' || !CONFIG.LIFF_ID) return;
         try {
             await liff.init({ liffId: CONFIG.LIFF_ID });
-            var inClient = liff.isInClient && liff.isInClient();
             if (liff.isLoggedIn()) {
                 const profile = await liff.getProfile();
                 lineUid = profile.userId;
-                liffDebug = inClient ? '✓ 已連接 LINE (' + lineUid.substring(0,8) + '...)'
-                                     : '✓ 已登入 (' + lineUid.substring(0,8) + '...)';
-            } else {
-                liffDebug = '未登入 LINE（請從 LINE 內開啟）';
             }
         } catch (err) {
-            liffDebug = '初始化失敗: ' + (err && err.message || 'unknown');
             console.log('LIFF init error:', err);
         }
-        renderLiffDebug();
     })();
 
     // ===== State =====
@@ -407,6 +393,7 @@
                 }
                 bookedSlots = newBooked;
                 slotsLoaded = true;
+                renderCalendar();
                 if (currentStep === 2 && selectedDate) {
                     renderTimeSlots();
                 }
@@ -464,15 +451,20 @@
             const dateStr = formatDate(date);
             const dayOfWeek = date.getDay();
             const isAvailable = isDateAvailable(date);
+            const isFull = isAvailable && isDateFullyBooked(dateStr);
             const isToday = isSameDay(date, today);
             const isSelected = selectedDate === dateStr;
 
-            if (isAvailable) {
+            if (isAvailable && !isFull) {
                 html += `<button onclick="selectDate('${dateStr}')"
                     class="day-btn aspect-square rounded-xl text-sm font-medium transition hover:bg-plum/10
                     ${isSelected ? 'selected' : 'text-ink'}
                     ${isToday ? 'today' : ''}">
                     ${day}</button>`;
+            } else if (isFull) {
+                html += `<button disabled
+                    class="day-btn aspect-square rounded-xl text-xs text-ink/30 flex flex-col items-center justify-center leading-tight">
+                    <span>${day}</span><span class="text-[9px]">滿</span></button>`;
             } else {
                 html += `<button disabled
                     class="day-btn aspect-square rounded-xl text-sm text-ink/25">
@@ -488,6 +480,13 @@
         if (diffDays < CONFIG.MIN_ADVANCE_DAYS) return false;
         if (diffDays > CONFIG.MAX_ADVANCE_DAYS) return false;
         return CONFIG.AVAILABLE_DAYS.includes(date.getDay());
+    }
+
+    function isDateFullyBooked(dateStr) {
+        if (!slotsLoaded) return false;
+        const dateBooked = bookedSlots[dateStr];
+        if (!dateBooked) return false;
+        return CONFIG.TIME_SLOTS.every(time => dateBooked[time]);
     }
 
     function isSameDay(a, b) {

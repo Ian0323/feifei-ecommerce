@@ -44,13 +44,18 @@ last-updated: 2026-04-16
 - [ ] LINE Bot 按鈕串接預約頁面連結
 - [ ] 確認預約諮詢的可預約時段是否需要調整（目前：週一到週五 10/11/14/15/16 點）
 - [ ] 確認業主是否要用自己的 Google Calendar（目前用 Ian 的預設日曆）
+- [ ] 跟業主 review 系統成本結構文件（`docs/business/system-cost-structure.md`）
 
 ## Session 交接摘要
 
 **最後更新**：2026-04-16
-**進度**：預約諮詢系統已完成並上線（booking.html + Apps Script + Sheet + Calendar 同步）
+**進度**：
+- 預約諮詢系統已完成並上線（booking.html + Apps Script + Sheet + Calendar 同步）
+- LINE Bot 對話 Log 自動化已完成（message-logger.js + 匯出/清洗腳本 + persona 分析 prompt）
 **未同步**：官網文案和 products.json 尚未更新為新定價/新定位
 **下次 session 建議**：
-1. 跟業主 demo 預約系統，確認時段/流程是否需調整
-2. 設定 LINE Bot 按鈕串接預約連結
-3. 處理「確認 feifei 意願」→ 決定規模化方向
+1. LINE Bot 部署上線後開始累積對話數據（需 100+ 則才有分析價值）
+2. 累積 2-4 週後跑 `npm run logs:clean` → persona 分析
+3. 跟業主 demo 預約系統，確認時段/流程是否需調整
+4. 設定 LINE Bot 按鈕串接預約連結
+5. 處理「確認 feifei 意願」→ 決定規模化方向

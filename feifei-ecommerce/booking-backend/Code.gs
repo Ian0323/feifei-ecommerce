@@ -335,7 +335,6 @@ function doGet(e) {
 function doPost(e) {
   try {
     var data = JSON.parse(e.postData.contents);
-    Logger.log('doPost received: keys=[' + Object.keys(data).join(',') + '], lineUid=' + (data.lineUid ? (data.lineUid.substring(0,8) + '...') : 'EMPTY'));
 
     // 1. 輸入驗證
     var validationErrors = validateBookingData(data);
