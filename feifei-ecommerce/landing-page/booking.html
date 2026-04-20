@@ -337,6 +337,7 @@
     let selectedTime = null;
     let currentStep = 1;
     let bookedSlots = {}; // { '2026-04-22': ['10:00', '14:00'], ... }
+    let slotsLoaded = false;
 
     // ===== Init =====
     const today = new Date();
@@ -347,7 +348,6 @@
     fetchBookedSlots();
 
     // ===== Fetch Booked Slots (via public Google Sheet, no customer data) =====
-    let slotsLoaded = false;
 
     function fetchBookedSlots() {
         var sheetId = '1mWyyA9N3bHsbCGZWg_FbQGinbev1sKG-gquh60Qtc-E';
