@@ -79,17 +79,47 @@
 
     <main class="mx-auto max-w-lg px-5 pb-10 pt-6">
 
+        <!-- 預約須知（條款） -->
+        <div class="mb-5 rounded-2xl border-2 border-blush/40 bg-blush/5 p-5">
+            <div class="mb-3 flex items-center gap-2">
+                <span class="text-xl">⚠️</span>
+                <h2 class="text-base font-bold text-blush">預約須知</h2>
+            </div>
+            <ol class="space-y-2 text-sm leading-relaxed text-ink/80">
+                <li class="flex gap-2">
+                    <span class="font-bold text-blush">1.</span>
+                    <span>家族近四個月內若有<span class="font-bold text-blush">喪事或重大事故</span>，請延後四個月後再行預約諮詢，以免影響諮詢效果。</span>
+                </li>
+                <li class="flex gap-2">
+                    <span class="font-bold text-blush">2.</span>
+                    <span>預約成功後請依下方諮詢方式完成匯款，並回填帳號末五碼以利核對。</span>
+                </li>
+            </ol>
+            <label class="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border-2 border-blush/40 bg-white p-3.5 transition hover:bg-blush/5">
+                <input type="checkbox" id="field-agree" class="mt-0.5 h-5 w-5 flex-shrink-0 cursor-pointer accent-blush">
+                <span class="text-sm font-medium leading-relaxed text-ink">
+                    我已閱讀上述預約須知，並確認家族近四個月內<span class="font-bold text-blush">無喪事或重大事故</span>
+                </span>
+            </label>
+            <p class="mt-2 text-center text-xs text-ink/45">未勾選將無法送出預約</p>
+        </div>
+
         <!-- Service Info -->
         <div class="mb-6 rounded-2xl border border-plum/10 bg-white/70 p-5">
             <h1 class="text-xl font-bold text-ink">感情・工作 諮詢服務</h1>
             <p class="mt-2 text-sm leading-relaxed text-ink/65">
                 由非非親自諮詢，武財公協助，針對感情與工作問題給予方向指引。
             </p>
-            <div class="mt-3 flex items-baseline gap-2">
+            <ul class="mt-3 space-y-1.5 text-sm text-ink/75">
+                <li class="flex gap-2"><span class="text-plum">•</span><span>武財公會開文點出最近的問題</span></li>
+                <li class="flex gap-2"><span class="text-plum">•</span><span>您再提想問的問題</span></li>
+                <li class="flex gap-2"><span class="text-plum">•</span><span>武財公會指引要參拜的神明及準備的貢品</span></li>
+            </ul>
+            <div class="mt-4 flex items-baseline gap-2">
                 <span class="text-2xl font-bold text-plum">NT$3,800</span>
                 <span class="text-sm text-ink/50">/ 次</span>
             </div>
-            <p class="mt-1 text-xs text-ink/40">費用之一半捐予武財公</p>
+            <p class="mt-1 text-xs text-ink/50">付款方式依「視訊 / 現場」不同，詳見下方填寫表單</p>
         </div>
 
         <!-- Progress Steps -->
@@ -127,6 +157,7 @@
                 <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
             </div>
             <p class="mt-3 text-center text-xs text-ink/40">可預約日期以紫色顯示</p>
+            <p class="mt-1 text-center text-xs text-blush">當天預約請直接私訊官方 LINE</p>
         </div>
 
         <!-- Step 2: Time -->
@@ -167,6 +198,36 @@
                         class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition">
                 </div>
                 <div>
+                    <label class="mb-1 block text-sm font-medium text-ink/80">生年月日 <span class="text-blush">*</span></label>
+                    <div class="mb-2 flex gap-3">
+                        <label class="flex-1">
+                            <input type="radio" name="birthCalendar" value="國曆" class="peer hidden" checked>
+                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-2.5 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
+                                國曆
+                            </div>
+                        </label>
+                        <label class="flex-1">
+                            <input type="radio" name="birthCalendar" value="民國" class="peer hidden">
+                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-2.5 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
+                                民國
+                            </div>
+                        </label>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <input type="number" id="field-birth-year" required placeholder="年" min="1" max="2100" inputmode="numeric"
+                            class="rounded-xl border border-ink/10 bg-white px-3 py-3 text-sm transition">
+                        <input type="number" id="field-birth-month" required placeholder="月" min="1" max="12" inputmode="numeric"
+                            class="rounded-xl border border-ink/10 bg-white px-3 py-3 text-sm transition">
+                        <input type="number" id="field-birth-day" required placeholder="日" min="1" max="31" inputmode="numeric"
+                            class="rounded-xl border border-ink/10 bg-white px-3 py-3 text-sm transition">
+                    </div>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-ink/80">IG 帳號 <span class="text-blush">*</span></label>
+                    <input type="text" id="field-ig" required placeholder="例：feifei.768（不用加 @）" maxlength="50"
+                        class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition">
+                </div>
+                <div>
                     <label class="mb-1 block text-sm font-medium text-ink/80">諮詢主題 <span class="text-blush">*</span></label>
                     <div class="flex gap-3">
                         <label class="flex-1">
@@ -190,9 +251,62 @@
                     </div>
                 </div>
                 <div>
+                    <label class="mb-1 block text-sm font-medium text-ink/80">諮詢方式 <span class="text-blush">*</span></label>
+                    <div class="flex gap-3">
+                        <label class="flex-1">
+                            <input type="radio" name="consultMode" value="視訊" class="peer hidden" checked onchange="updatePaymentInfo()">
+                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
+                                視訊
+                            </div>
+                        </label>
+                        <label class="flex-1">
+                            <input type="radio" name="consultMode" value="現場" class="peer hidden" onchange="updatePaymentInfo()">
+                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
+                                現場
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- 視訊匯款資訊 -->
+                    <div id="payment-info-video" class="mt-3 rounded-xl border border-plum/15 bg-plum/5 p-4 text-sm">
+                        <p class="font-bold text-plum">📱 視訊諮詢</p>
+                        <p class="mt-2 text-ink/75">請匯款全額 <span class="font-bold text-ink">NT$3,800</span> 至：</p>
+                        <div class="mt-2 rounded-lg bg-white p-3 leading-relaxed">
+                            <div class="text-ink/60 text-xs">銀行</div>
+                            <div class="text-ink font-medium">國泰世華（013）</div>
+                            <div class="mt-1.5 text-ink/60 text-xs">帳號</div>
+                            <div class="text-ink font-medium tracking-wider select-all">239035012705</div>
+                        </div>
+                        <p class="mt-2 text-xs text-ink/60">完成匯款後，請在下方填入帳號末五碼以利核對</p>
+                    </div>
+
+                    <!-- 現場匯款資訊 -->
+                    <div id="payment-info-onsite" class="mt-3 hidden rounded-xl border border-gold/30 bg-gold/5 p-4 text-sm">
+                        <p class="font-bold text-ink">📍 諮詢地點</p>
+                        <p class="mt-1 text-ink/75 select-all">台中市西屯區朝富路 213 號</p>
+                        <div class="my-3 h-px bg-gold/20"></div>
+                        <p class="font-bold text-plum">😎 現場諮詢</p>
+                        <p class="mt-2 text-ink/75">請先匯款 <span class="font-bold text-ink">NT$2,800</span> 至：</p>
+                        <div class="mt-2 rounded-lg bg-white p-3 leading-relaxed">
+                            <div class="text-ink/60 text-xs">銀行</div>
+                            <div class="text-ink font-medium">國泰世華（013）</div>
+                            <div class="mt-1.5 text-ink/60 text-xs">帳號</div>
+                            <div class="text-ink font-medium tracking-wider select-all">239035012705</div>
+                        </div>
+                        <p class="mt-2 text-xs text-ink/60">完成匯款後，請在下方填入帳號末五碼以利核對</p>
+                        <p class="mt-2 text-xs text-ink/75">尾款 <span class="font-medium text-ink">NT$1,000</span> 當天諮詢後請用紅包袋裝交給小幫手 🙏</p>
+                    </div>
+                </div>
+                <div>
                     <label class="mb-1 block text-sm font-medium text-ink/80">想先讓非非知道的事（選填）</label>
                     <textarea id="field-notes" rows="3" placeholder="簡單描述您的狀況，讓諮詢更有效率"
                         class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition"></textarea>
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-ink/80">匯款末五碼 <span class="text-blush">*</span></label>
+                    <input type="text" id="field-payment" required placeholder="例：12345" inputmode="numeric" pattern="[0-9]{5}" maxlength="5"
+                        class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition tracking-widest">
+                    <p class="mt-1 text-xs text-ink/50">請填寫匯出帳戶末五碼，方便對帳。</p>
                 </div>
                 <button type="button" onclick="showConfirm()"
                     class="w-full rounded-xl bg-plum py-3.5 text-sm font-bold text-white transition hover:bg-plum/90 active:scale-[0.98]">
@@ -216,6 +330,11 @@
                 </div>
                 <div class="h-px bg-ink/5"></div>
                 <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">諮詢方式</span>
+                    <span id="review-consult-mode" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
                     <span class="text-ink/50">姓名</span>
                     <span id="review-name" class="font-medium text-ink"></span>
                 </div>
@@ -231,6 +350,16 @@
                 </div>
                 <div class="h-px bg-ink/5"></div>
                 <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">生年月日</span>
+                    <span id="review-birth" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">IG 帳號</span>
+                    <span id="review-ig" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
                     <span class="text-ink/50">主題</span>
                     <span id="review-topic" class="font-medium text-ink"></span>
                 </div>
@@ -238,6 +367,11 @@
                 <div class="flex justify-between text-sm">
                     <span class="text-ink/50">備註</span>
                     <span id="review-notes" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">匯款末五碼</span>
+                    <span id="review-payment" class="font-medium text-ink"></span>
                 </div>
                 <div class="h-px bg-ink/5"></div>
                 <div class="flex justify-between text-sm">
@@ -309,8 +443,8 @@
         AVAILABLE_DAYS: [1, 2, 3, 4, 5],
         // 可預約時段
         TIME_SLOTS: ['10:00', '11:00', '14:00', '15:00', '16:00'],
-        // 最少提前幾天預約
-        MIN_ADVANCE_DAYS: 2,
+        // 最少提前幾天預約（1 = 明天起；當天請改私訊官方 LINE）
+        MIN_ADVANCE_DAYS: 1,
         // 最多預約幾天後
         MAX_ADVANCE_DAYS: 30,
     };
@@ -605,14 +739,60 @@
     }
 
     // ===== Form =====
+    function updatePaymentInfo() {
+        const mode = document.querySelector('input[name="consultMode"]:checked')?.value;
+        const video = document.getElementById('payment-info-video');
+        const onsite = document.getElementById('payment-info-onsite');
+        if (!video || !onsite) return;
+        video.classList.toggle('hidden', mode !== '視訊');
+        onsite.classList.toggle('hidden', mode !== '現場');
+    }
+
+    function buildBirthDisplay() {
+        const calendar = document.querySelector('input[name="birthCalendar"]:checked')?.value;
+        const y = document.getElementById('field-birth-year').value.trim();
+        const m = document.getElementById('field-birth-month').value.trim();
+        const d = document.getElementById('field-birth-day').value.trim();
+        if (!calendar || !y || !m || !d) return null;
+        const yNum = parseInt(y, 10), mNum = parseInt(m, 10), dNum = parseInt(d, 10);
+        if (!Number.isFinite(yNum) || !Number.isFinite(mNum) || !Number.isFinite(dNum)) return null;
+        if (mNum < 1 || mNum > 12 || dNum < 1 || dNum > 31) return null;
+        if (calendar === '民國' && (yNum < 1 || yNum > 200)) return null;
+        if (calendar === '國曆' && (yNum < 1900 || yNum > new Date().getFullYear())) return null;
+        return {
+            calendar: calendar,
+            date: yNum + '/' + String(mNum).padStart(2, '0') + '/' + String(dNum).padStart(2, '0'),
+            display: calendar + ' ' + yNum + '/' + String(mNum).padStart(2, '0') + '/' + String(dNum).padStart(2, '0')
+        };
+    }
+
     function showConfirm() {
         const name = document.getElementById('field-name').value.trim();
         const phone = document.getElementById('field-phone').value.trim();
         const email = document.getElementById('field-email').value.trim();
         const topic = document.querySelector('input[name="topic"]:checked')?.value;
+        const consultMode = document.querySelector('input[name="consultMode"]:checked')?.value;
+        const igAccount = document.getElementById('field-ig').value.trim().replace(/^@/, '');
+        const paymentLast5 = document.getElementById('field-payment').value.trim();
+        const agreed = document.getElementById('field-agree').checked;
+        const birth = buildBirthDisplay();
 
-        if (!name || !phone || !email || !topic) {
+        if (!agreed) {
+            alert('請至頁面頂部閱讀「預約須知」並勾選確認');
+            const agreeBox = document.getElementById('field-agree');
+            agreeBox.closest('label').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            agreeBox.closest('label').classList.add('ring-4', 'ring-blush/40');
+            setTimeout(() => agreeBox.closest('label').classList.remove('ring-4', 'ring-blush/40'), 2000);
+            return;
+        }
+
+        if (!name || !phone || !email || !topic || !consultMode || !igAccount || !paymentLast5) {
             alert('請填寫所有必填欄位');
+            return;
+        }
+
+        if (!birth) {
+            alert('請填寫正確的生年月日（國曆或民國 + 年/月/日）');
             return;
         }
 
@@ -626,12 +806,21 @@
             return;
         }
 
+        if (!/^\d{5}$/.test(paymentLast5)) {
+            alert('匯款末五碼應為 5 位數字');
+            return;
+        }
+
         document.getElementById('review-date').textContent = formatDateDisplay(selectedDate);
         document.getElementById('review-time').textContent = selectedTime;
+        document.getElementById('review-consult-mode').textContent = consultMode;
         document.getElementById('review-name').textContent = name;
         document.getElementById('review-phone').textContent = phone;
         document.getElementById('review-email').textContent = email;
+        document.getElementById('review-birth').textContent = birth.display;
+        document.getElementById('review-ig').textContent = '@' + igAccount;
         document.getElementById('review-topic').textContent = topic;
+        document.getElementById('review-payment').textContent = paymentLast5;
         document.getElementById('review-notes').textContent =
             document.getElementById('field-notes').value.trim() || '無';
 
@@ -649,6 +838,7 @@
         btn.disabled = true;
         btn.textContent = '送出中...';
 
+        const birth = buildBirthDisplay();
         const data = {
             date: selectedDate,
             dateDisplay: formatDateDisplay(selectedDate),
@@ -657,6 +847,11 @@
             phone: document.getElementById('field-phone').value.trim(),
             email: document.getElementById('field-email').value.trim(),
             topic: document.querySelector('input[name="topic"]:checked').value,
+            consultMode: document.querySelector('input[name="consultMode"]:checked').value,
+            birthCalendar: birth ? birth.calendar : '',
+            birthDate: birth ? birth.date : '',
+            igAccount: document.getElementById('field-ig').value.trim().replace(/^@/, ''),
+            paymentLast5: document.getElementById('field-payment').value.trim(),
             notes: document.getElementById('field-notes').value.trim(),
             lineUid: lineUid || '',
         };

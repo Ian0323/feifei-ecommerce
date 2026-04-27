@@ -3,15 +3,17 @@ var SETTINGS = {
   SHEET_NAME: '\u9810\u7d04\u7d00\u9304',
   PUBLIC_SHEET_ID: '1mWyyA9N3bHsbCGZWg_FbQGinbev1sKG-gquh60Qtc-E',
   PUBLIC_SHEET_NAME: '\u6642\u6bb5\u72c0\u614b',
-  ASSISTANT_EMAIL: 'iankuo1999@gmail.com',
+  ASSISTANT_EMAIL: 'mumuhappy88katrina@gmail.com',
   BRAND_NAME: '\u975e\u975e768',
   SERVICE_PRICE: 'NT$3,800',
   CALENDAR_ID: '1cb0aeeafa55fb75407aa932bb3b1d84e322a7bab04e54099d432b2cc9bcd976@group.calendar.google.com',
   TIME_SLOTS: ['10:00', '11:00', '14:00', '15:00', '16:00'],
   AVAILABLE_DAYS: [1, 2, 3, 4, 5], // 週一到五
-  MIN_ADVANCE_DAYS: 2,
+  MIN_ADVANCE_DAYS: 1, // \u660e\u5929\u8d77\u53ef\u9810\u7d04\uff1b\u7576\u5929\u8acb\u79c1\u8a0a\u5b98\u65b9 LINE
   MAX_ADVANCE_DAYS: 30,
   VALID_TOPICS: ['\u611f\u60c5', '\u5de5\u4f5c', '\u5176\u4ed6'],
+  VALID_CONSULT_MODES: ['\u8996\u8a0a', '\u73fe\u5834'],
+  VALID_BIRTH_CALENDARS: ['\u570b\u66c6', '\u6c11\u570b'],
   MAX_FIELD_LENGTH: 500,
   RATE_LIMIT_SECONDS: 60, // 同一 email 最短間隔
   LIFF_ID: '2009821980-46y6BEMh',
@@ -36,11 +38,12 @@ function initSheet() {
   if (!sheet) {
     sheet = ss.insertSheet(SETTINGS.SHEET_NAME);
   }
-  sheet.getRange(1, 1, 1, 11).setValues([[
+  sheet.getRange(1, 1, 1, 15).setValues([[
     '\u63d0\u4ea4\u6642\u9593', '\u9810\u7d04\u65e5\u671f', '\u9810\u7d04\u6642\u6bb5', '\u59d3\u540d', '\u96fb\u8a71',
-    'Email', '\u8aee\u8a62\u4e3b\u984c', '\u5099\u8a3b', '\u72c0\u614b', '\u78ba\u8a8d\u6642\u9593', 'LINE UID'
+    'Email', '\u8aee\u8a62\u4e3b\u984c', '\u5099\u8a3b', '\u72c0\u614b', '\u78ba\u8a8d\u6642\u9593', 'LINE UID',
+    '\u751f\u5e74\u6708\u65e5', 'IG \u5e33\u865f', '\u532f\u6b3e\u672b\u4e94\u78bc', '\u8aee\u8a62\u65b9\u5f0f'
   ]]);
-  var header = sheet.getRange(1, 1, 1, 11);
+  var header = sheet.getRange(1, 1, 1, 15);
   header.setFontWeight('bold');
   header.setBackground('#7B5EA7');
   header.setFontColor('#FFFFFF');
@@ -49,7 +52,7 @@ function initSheet() {
     .setAllowInvalid(false)
     .build();
   sheet.getRange(2, 9, 100, 1).setDataValidation(rule);
-  for (var i = 1; i <= 11; i++) {
+  for (var i = 1; i <= 15; i++) {
     sheet.autoResizeColumn(i);
   }
 }
@@ -70,6 +73,27 @@ function migrateSheetAddLineUid() {
   header.setFontColor('#FFFFFF');
   sheet.autoResizeColumn(11);
   Logger.log('LINE UID column added');
+}
+
+// 已存在的 Sheet 補上 4 個新欄位（生年月日 / IG 帳號 / 匯款末五碼 / 諮詢方式）
+// 部署後請手動執行一次：在 Apps Script 編輯器選 migrateSheetAddBookingFields → Run
+function migrateSheetAddBookingFields() {
+  var sheet = getSheet();
+  var currentWidth = sheet.getLastColumn();
+  if (currentWidth >= 15) {
+    Logger.log('Sheet already has new booking fields, skipping');
+    return;
+  }
+  var newHeaders = [['生年月日', 'IG 帳號', '匯款末五碼', '諮詢方式']];
+  sheet.getRange(1, 12, 1, 4).setValues(newHeaders);
+  var header = sheet.getRange(1, 12, 1, 4);
+  header.setFontWeight('bold');
+  header.setBackground('#7B5EA7');
+  header.setFontColor('#FFFFFF');
+  for (var i = 12; i <= 15; i++) {
+    sheet.autoResizeColumn(i);
+  }
+  Logger.log('Booking fields migration complete (生年月日 / IG 帳號 / 匯款末五碼 / 諮詢方式)');
 }
 
 function initPublicSheet() {
@@ -251,6 +275,11 @@ function validateBookingData(data) {
   if (!data.phone) errors.push('缺少電話');
   if (!data.email) errors.push('缺少 Email');
   if (!data.topic) errors.push('缺少主題');
+  if (!data.consultMode) errors.push('缺少諮詢方式');
+  if (!data.birthCalendar) errors.push('缺少生年月日曆法');
+  if (!data.birthDate) errors.push('缺少生年月日');
+  if (!data.igAccount) errors.push('缺少 IG 帳號');
+  if (!data.paymentLast5) errors.push('缺少匯款末五碼');
   if (errors.length > 0) return errors;
 
   // 日期格式 YYYY-MM-DD
@@ -276,6 +305,21 @@ function validateBookingData(data) {
 
   // 主題是否有效
   if (SETTINGS.VALID_TOPICS.indexOf(data.topic) === -1) errors.push('無效的主題');
+
+  // 諮詢方式是否有效
+  if (SETTINGS.VALID_CONSULT_MODES.indexOf(data.consultMode) === -1) errors.push('無效的諮詢方式');
+
+  // 生年月日曆法是否有效
+  if (SETTINGS.VALID_BIRTH_CALENDARS.indexOf(data.birthCalendar) === -1) errors.push('無效的曆法');
+
+  // 生年月日格式 yyyy/mm/dd（前端組合好送過來）
+  if (!/^\d{1,4}\/\d{1,2}\/\d{1,2}$/.test(data.birthDate)) errors.push('生年月日格式無效');
+
+  // 匯款末五碼：5 位數字
+  if (!/^\d{5}$/.test(data.paymentLast5)) errors.push('匯款末五碼應為 5 位數字');
+
+  // IG 帳號長度限制
+  if (typeof data.igAccount !== 'string' || data.igAccount.length > 50) errors.push('IG 帳號格式無效');
 
   // Email 基本格式
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(data.email)) errors.push('Email 格式無效');
@@ -320,7 +364,7 @@ function isSlotTaken(sheet, date, time) {
 function doGet(e) {
   return ContentService
     .createTextOutput(JSON.stringify({
-      version: 'LINE-v1-2026-04-17',
+      version: 'BOOKING-v2-2026-04-27',
       hasLinePush: typeof sendLinePush === 'function',
       hasLineReceived: typeof sendLineBookingReceived === 'function',
       tokenSet: !!getLineToken(),
@@ -386,6 +430,7 @@ function doPost(e) {
 
       // 5. 寫入（文字經過清理）
       var lineUid = typeof data.lineUid === 'string' ? data.lineUid.substring(0, 50) : '';
+      var birthDisplay = data.birthCalendar + ' ' + data.birthDate;
       sheet.appendRow([
         new Date(),
         data.date,
@@ -397,7 +442,11 @@ function doPost(e) {
         sanitizeText(data.notes || '', SETTINGS.MAX_FIELD_LENGTH),
         '\u5f85\u78ba\u8a8d',
         '',
-        lineUid
+        lineUid,
+        sanitizeText(birthDisplay, 30),
+        sanitizeText(data.igAccount, 50),
+        data.paymentLast5,
+        data.consultMode
       ]);
     } finally {
       lock.releaseLock();
@@ -430,13 +479,22 @@ function sendAssistantNotification(data) {
   var notes = sanitizeText(data.notes || '\u7121', 200);
   var subject = '[\u65b0\u9810\u7d04] ' + sanitizeText(data.name, 20) + ' - ' + displayDate + ' ' + data.time;
 
+  var igAccount = sanitizeText(data.igAccount || '', 50);
+  var birthDisplay = (data.birthCalendar || '') + ' ' + (data.birthDate || '');
+  var consultMode = data.consultMode || '';
+  var paymentLast5 = data.paymentLast5 || '';
+
   var plainBody = SETTINGS.BRAND_NAME + ' \u65b0\u9810\u7d04\uff1a\n\n'
     + '\u59d3\u540d\uff1a' + name + '\n'
     + '\u96fb\u8a71\uff1a' + data.phone + '\n'
     + 'Email\uff1a' + data.email + '\n'
+    + '\u751f\u5e74\u6708\u65e5\uff1a' + birthDisplay + '\n'
+    + 'IG \u5e33\u865f\uff1a' + igAccount + '\n'
     + '\u65e5\u671f\uff1a' + displayDate + '\n'
     + '\u6642\u6bb5\uff1a' + data.time + '\n'
+    + '\u8aee\u8a62\u65b9\u5f0f\uff1a' + consultMode + '\n'
     + '\u4e3b\u984c\uff1a' + data.topic + '\n'
+    + '\u532f\u6b3e\u672b\u4e94\u78bc\uff1a' + paymentLast5 + '\n'
     + '\u5099\u8a3b\uff1a' + notes + '\n\n'
     + '\u8acb\u5230 Google Sheet \u5c07\u72c0\u614b\u6539\u70ba\u300c\u5df2\u78ba\u8a8d\u300d\uff0c\u7cfb\u7d71\u6703\u81ea\u52d5\u901a\u77e5\u5ba2\u6236\u3002';
 
@@ -446,9 +504,13 @@ function sendAssistantNotification(data) {
     + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FDF8F3;border-radius:12px;padding:16px 20px;margin-bottom:20px;">'
     + infoRow('\u65e5\u671f', displayDate)
     + infoRow('\u6642\u6bb5', data.time)
+    + infoRow('\u8aee\u8a62\u65b9\u5f0f', consultMode)
     + infoRow('\u4e3b\u984c', data.topic)
+    + infoRow('\u751f\u5e74\u6708\u65e5', birthDisplay)
+    + infoRow('IG \u5e33\u865f', igAccount)
     + infoRow('\u96fb\u8a71', data.phone)
     + infoRow('Email', data.email)
+    + infoRow('\u532f\u6b3e\u672b\u4e94\u78bc', paymentLast5)
     + infoRow('\u5099\u8a3b', notes)
     + '</table>'
     + '<p style="margin:0;font-size:13px;color:#2C1810;opacity:0.6;line-height:1.6;">'
