@@ -479,6 +479,12 @@
     today.setHours(0, 0, 0, 0); // 正規化到午夜，避免邊界日期計算偏差
     currentYear = today.getFullYear();
     currentMonth = today.getMonth();
+    // 若當月已無可預約日（例：月底開頁面，最早可預約日落在下個月），自動跳到下個月
+    let __advanceSafety = 0;
+    while (!monthHasAvailability(currentYear, currentMonth) && __advanceSafety++ < 12) {
+        currentMonth++;
+        if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    }
     renderCalendar();
     fetchBookedSlots();
 
@@ -561,9 +567,11 @@
         const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
         title.textContent = `${currentYear} 年 ${monthNames[currentMonth]}`;
 
-        // Disable prev button if current month
+        // Disable prev button if previous month has no available date
         const prevBtn = document.getElementById('btn-prev');
-        if (currentYear === today.getFullYear() && currentMonth === today.getMonth()) {
+        const prevM = currentMonth === 0 ? 11 : currentMonth - 1;
+        const prevY = currentMonth === 0 ? currentYear - 1 : currentYear;
+        if (!monthHasAvailability(prevY, prevM)) {
             prevBtn.disabled = true;
             prevBtn.classList.add('opacity-30');
         } else {
@@ -615,6 +623,14 @@
         if (diffDays < CONFIG.MIN_ADVANCE_DAYS) return false;
         if (diffDays > CONFIG.MAX_ADVANCE_DAYS) return false;
         return CONFIG.AVAILABLE_DAYS.includes(date.getDay());
+    }
+
+    function monthHasAvailability(year, month) {
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) {
+            if (isDateAvailable(new Date(year, month, d))) return true;
+        }
+        return false;
     }
 
     function getSlotsForDateStr(dateStr) {
