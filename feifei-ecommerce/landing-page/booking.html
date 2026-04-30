@@ -197,23 +197,10 @@
                         class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition">
                 </div>
                 <div>
-                    <label class="mb-1 block text-sm font-medium text-ink/80">生年月日 <span class="text-blush">*</span></label>
-                    <div class="mb-2 flex gap-3">
-                        <label class="flex-1">
-                            <input type="radio" name="birthCalendar" value="國曆" class="peer hidden" checked>
-                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-2.5 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
-                                國曆
-                            </div>
-                        </label>
-                        <label class="flex-1">
-                            <input type="radio" name="birthCalendar" value="民國" class="peer hidden">
-                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-2.5 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
-                                民國
-                            </div>
-                        </label>
-                    </div>
+                    <label class="mb-1 block text-sm font-medium text-ink/80">生年月日（民國） <span class="text-blush">*</span></label>
+                    <p class="mb-2 text-xs text-ink/50">請以民國紀年填寫（例：80 年 5 月 12 日）</p>
                     <div class="grid grid-cols-3 gap-2">
-                        <input type="number" id="field-birth-year" required placeholder="年" min="1" max="2100" inputmode="numeric"
+                        <input type="number" id="field-birth-year" required placeholder="民國年" min="1" max="200" inputmode="numeric"
                             class="rounded-xl border border-ink/10 bg-white px-3 py-3 text-sm transition">
                         <input type="number" id="field-birth-month" required placeholder="月" min="1" max="12" inputmode="numeric"
                             class="rounded-xl border border-ink/10 bg-white px-3 py-3 text-sm transition">
@@ -788,20 +775,19 @@
     }
 
     function buildBirthDisplay() {
-        const calendar = document.querySelector('input[name="birthCalendar"]:checked')?.value;
         const y = document.getElementById('field-birth-year').value.trim();
         const m = document.getElementById('field-birth-month').value.trim();
         const d = document.getElementById('field-birth-day').value.trim();
-        if (!calendar || !y || !m || !d) return null;
+        if (!y || !m || !d) return null;
         const yNum = parseInt(y, 10), mNum = parseInt(m, 10), dNum = parseInt(d, 10);
         if (!Number.isFinite(yNum) || !Number.isFinite(mNum) || !Number.isFinite(dNum)) return null;
         if (mNum < 1 || mNum > 12 || dNum < 1 || dNum > 31) return null;
-        if (calendar === '民國' && (yNum < 1 || yNum > 200)) return null;
-        if (calendar === '國曆' && (yNum < 1900 || yNum > new Date().getFullYear())) return null;
+        if (yNum < 1 || yNum > 200) return null;
+        const dateStr = yNum + '/' + String(mNum).padStart(2, '0') + '/' + String(dNum).padStart(2, '0');
         return {
-            calendar: calendar,
-            date: yNum + '/' + String(mNum).padStart(2, '0') + '/' + String(dNum).padStart(2, '0'),
-            display: calendar + ' ' + yNum + '/' + String(mNum).padStart(2, '0') + '/' + String(dNum).padStart(2, '0')
+            calendar: '民國',
+            date: dateStr,
+            display: '民國 ' + dateStr
         };
     }
 
@@ -831,7 +817,7 @@
         }
 
         if (!birth) {
-            alert('請填寫正確的生年月日（國曆或民國 + 年/月/日）');
+            alert('請填寫正確的生年月日（民國年 + 月/日）');
             return;
         }
 
