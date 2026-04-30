@@ -373,7 +373,7 @@ function isSlotTaken(sheet, date, time) {
 function doGet(e) {
   return ContentService
     .createTextOutput(JSON.stringify({
-      version: 'BOOKING-v2-2026-04-27',
+      version: 'BOOKING-v3-2026-04-30-resilient-notify',
       hasLinePush: typeof sendLinePush === 'function',
       hasLineReceived: typeof sendLineBookingReceived === 'function',
       tokenSet: !!getLineToken(),
@@ -461,17 +461,36 @@ function doPost(e) {
       lock.releaseLock();
     }
 
-    // 6. 鎖外執行非關鍵操作
+    // 6. 鎖外執行非關鍵操作 — 任一失敗都不影響預約成功狀態
+    //    （資料已寫入 Sheet，通知/同步可後續手動補；避免客戶看到失敗卻其實已預約）
+    var warnings = [];
     if (SETTINGS.ASSISTANT_EMAIL) {
-      sendAssistantNotification(data);
+      try {
+        sendAssistantNotification(data);
+      } catch (e) {
+        warnings.push('assistant_email_failed');
+        Logger.log('sendAssistantNotification error: ' + e.message);
+      }
     }
     if (data.lineUid) {
-      sendLineBookingReceived(data);
+      try {
+        sendLineBookingReceived(data);
+      } catch (e) {
+        warnings.push('line_push_failed');
+        Logger.log('sendLineBookingReceived error: ' + e.message);
+      }
     }
-    syncPublicSheet();
+    try {
+      syncPublicSheet();
+    } catch (e) {
+      warnings.push('sync_public_sheet_failed');
+      Logger.log('syncPublicSheet error: ' + e.message);
+    }
 
+    var result = { success: true };
+    if (warnings.length > 0) result.warnings = warnings;
     return ContentService
-      .createTextOutput(JSON.stringify({ success: true }))
+      .createTextOutput(JSON.stringify(result))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService
