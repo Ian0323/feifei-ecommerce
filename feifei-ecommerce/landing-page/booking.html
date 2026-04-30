@@ -80,7 +80,7 @@
     <main class="mx-auto max-w-lg px-5 pb-10 pt-6">
 
         <!-- 預約須知（條款） -->
-        <div class="mb-5 rounded-2xl border-2 border-plum/40 bg-plum/5 p-5">
+        <div id="terms-block" class="mb-5 rounded-2xl border-2 border-plum/40 bg-plum/5 p-5">
             <div class="mb-3 flex items-center gap-2">
                 <span class="text-xl">⚠️</span>
                 <h2 class="text-base font-bold text-plum">預約須知</h2>
@@ -680,6 +680,16 @@
     }
 
     function selectDate(dateStr) {
+        // 進入步驟 2 後預約須知會收起，所以同意框必須在這裡先擋下
+        const agreeBox = document.getElementById('field-agree');
+        if (!agreeBox.checked) {
+            const label = agreeBox.closest('label');
+            label.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            label.classList.add('ring-4', 'ring-plum/40');
+            setTimeout(() => label.classList.remove('ring-4', 'ring-plum/40'), 2000);
+            alert('請先勾選「我已閱讀預約須知」再選日期');
+            return;
+        }
         selectedDate = dateStr;
         selectedTime = null; // 清除舊時段選擇
         renderCalendar();
@@ -739,12 +749,17 @@
     // ===== Step Navigation =====
     function goToStep(step) {
         currentStep = step;
+        // 進入後續步驟後就把「預約須知」收起，之後即使返回 step 1 也不再顯示
+        if (step >= 2) {
+            document.getElementById('terms-block')?.classList.add('hidden');
+        }
         document.querySelectorAll('.step').forEach(el => el.classList.add('hidden'));
         const target = document.getElementById(`step-${step}`);
         target.classList.remove('hidden');
         target.classList.add('step-enter');
         updateProgress(step);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // 滑到該步驟容器頂部，而不是整個頁面最頂（避免每次都看到須知/服務介紹）
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function updateProgress(step) {
@@ -928,9 +943,11 @@
         btn.disabled = false;
         btn.textContent = '送出預約';
         document.querySelectorAll('.step').forEach(el => el.classList.add('hidden'));
-        document.getElementById('step-error').classList.remove('hidden');
+        const target = document.getElementById('step-error');
+        target.classList.remove('hidden');
         document.getElementById('progress').classList.add('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('terms-block')?.classList.add('hidden');
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function retrySubmit() {
@@ -943,9 +960,11 @@
         document.getElementById('success-datetime').textContent =
             `${data.dateDisplay} ${data.time}`;
         document.querySelectorAll('.step').forEach(el => el.classList.add('hidden'));
-        document.getElementById('step-success').classList.remove('hidden');
+        const target = document.getElementById('step-success');
+        target.classList.remove('hidden');
         document.getElementById('progress').classList.add('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('terms-block')?.classList.add('hidden');
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     </script>
 </body>
