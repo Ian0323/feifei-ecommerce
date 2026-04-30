@@ -4,6 +4,10 @@ var SETTINGS = {
   PUBLIC_SHEET_ID: '1mWyyA9N3bHsbCGZWg_FbQGinbev1sKG-gquh60Qtc-E',
   PUBLIC_SHEET_NAME: '\u6642\u6bb5\u72c0\u614b',
   ASSISTANT_EMAIL: 'mumuhappy88katrina@gmail.com',
+  // \u5bc4\u4ef6\u4eba\u5225\u540d\uff08\u8981\u5148\u5728 Apps Script \u64c1\u6709\u8005\u5e33\u865f\u7684 Gmail \u2192 \u8a2d\u5b9a \u2192 \u5e33\u6236\u548c\u532f\u5165 \u2192 Send mail as \u52a0\u5165\u4e26\u9a57\u8b49\uff09
+  // \u672a\u9a57\u8b49\u6703 throw\uff0c\u5916\u5c64 catch \u6703\u8a18\u9304\u70ba email_failed warning
+  SENDER_EMAIL: 'mumuhappy88katrina@gmail.com',
+  SENDER_NAME: '\u975e\u975e768 \u52a9\u7406',
   BRAND_NAME: '\u975e\u975e768',
   SERVICE_PRICE: 'NT$3,800',
   CALENDAR_ID: '1cb0aeeafa55fb75407aa932bb3b1d84e322a7bab04e54099d432b2cc9bcd976@group.calendar.google.com',
@@ -373,7 +377,7 @@ function isSlotTaken(sheet, date, time) {
 function doGet(e) {
   return ContentService
     .createTextOutput(JSON.stringify({
-      version: 'BOOKING-v3-2026-04-30-resilient-notify',
+      version: 'BOOKING-v4-2026-04-30-gmail-alias',
       hasLinePush: typeof sendLinePush === 'function',
       hasLineReceived: typeof sendLineBookingReceived === 'function',
       tokenSet: !!getLineToken(),
@@ -501,6 +505,27 @@ function doPost(e) {
 
 // ===== Email 通知 =====
 
+// 統一寄件入口：用 GmailApp + 驗證過的 alias 寄信，這樣 From 顯示為品牌助理而非 Apps Script 擁有者
+// SENDER_EMAIL 必須是「Send mail as」已驗證的 alias，否則 GmailApp.sendEmail 會 throw
+function sendBrandEmail(opts) {
+  var fromAddr = SETTINGS.SENDER_EMAIL;
+  if (fromAddr) {
+    GmailApp.sendEmail(opts.to, opts.subject, opts.body, {
+      from: fromAddr,
+      name: SETTINGS.SENDER_NAME || SETTINGS.BRAND_NAME,
+      htmlBody: opts.htmlBody
+    });
+  } else {
+    // 沒設定 alias 就降級用 MailApp（From 是 Apps Script 擁有者）
+    MailApp.sendEmail({
+      to: opts.to,
+      subject: opts.subject,
+      body: opts.body,
+      htmlBody: opts.htmlBody
+    });
+  }
+}
+
 function sendAssistantNotification(data) {
   var displayDate = data.dateDisplay || data.date;
   var name = sanitizeText(data.name, 50);
@@ -545,7 +570,7 @@ function sendAssistantNotification(data) {
     + '\u8acb\u5230 Google Sheet \u5c07\u72c0\u614b\u6539\u70ba\u300c\u5df2\u78ba\u8a8d\u300d\uff0c\u7cfb\u7d71\u6703\u81ea\u52d5\u901a\u77e5\u5ba2\u6236\u3002'
     + '</p>';
 
-  MailApp.sendEmail({
+  sendBrandEmail({
     to: SETTINGS.ASSISTANT_EMAIL,
     subject: subject,
     body: plainBody,
@@ -658,7 +683,7 @@ function sendCustomerConfirmation(booking) {
 
   var plainBody = booking.name + ' \u60a8\u597d\uff0c\n\n\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u78ba\u8a8d\uff01\n\n\u65e5\u671f\uff1a' + dateStr + '\n\u6642\u6bb5\uff1a' + timeStr + '\n\u4e3b\u984c\uff1a' + booking.topic + '\n\u8cbb\u7528\uff1a' + SETTINGS.SERVICE_PRICE + '\n\n' + SETTINGS.BRAND_NAME;
 
-  MailApp.sendEmail({
+  sendBrandEmail({
     to: booking.email,
     subject: subject,
     body: plainBody,
@@ -685,7 +710,7 @@ function sendCancellationNotice(booking) {
 
   var plainBody = booking.name + ' \u60a8\u597d\uff0c\n\n\u5f88\u62b1\u6b49\uff0c\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u53d6\u6d88\u3002\n\n\u539f\u8a02\u65e5\u671f\uff1a' + dateStr + '\n\u539f\u8a02\u6642\u6bb5\uff1a' + timeStr + '\n\n' + SETTINGS.BRAND_NAME;
 
-  MailApp.sendEmail({
+  sendBrandEmail({
     to: booking.email,
     subject: subject,
     body: plainBody,
