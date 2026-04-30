@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>非非768 預約系統 — 測試清單</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", "Segoe UI", sans-serif;
+    color: #1f2937;
+    line-height: 1.65;
+    font-size: 11pt;
+    margin: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .header {
+    border-bottom: 3px solid #1B3A57;
+    padding-bottom: 10px;
+    margin-bottom: 18px;
+  }
+  .header h1 {
+    margin: 0 0 4px 0;
+    font-size: 20pt;
+    color: #1B3A57;
+  }
+  .header .subtitle {
+    margin: 0;
+    color: #6b7280;
+    font-size: 10pt;
+  }
+  h2 {
+    font-size: 13pt;
+    color: #1B3A57;
+    border-left: 5px solid #1B3A57;
+    padding: 4px 10px;
+    background: #eef3f8;
+    margin: 18px 0 10px 0;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 11pt;
+    color: #374151;
+    margin: 12px 0 6px 0;
+    page-break-after: avoid;
+  }
+  ul {
+    list-style: none;
+    padding-left: 4px;
+    margin: 6px 0;
+  }
+  ul li {
+    position: relative;
+    padding-left: 28px;
+    margin: 5px 0;
+    page-break-inside: avoid;
+  }
+  ul li::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border: 1.6px solid #1B3A57;
+    border-radius: 3px;
+    background: #fff;
+  }
+  ul li ul {
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+  ul li ul li {
+    padding-left: 26px;
+    color: #4b5563;
+    font-size: 10.5pt;
+  }
+  ul li ul li::before {
+    border-color: #6b7280;
+    width: 12px;
+    height: 12px;
+  }
+  .note {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 8px 12px;
+    margin: 8px 0;
+    font-size: 10pt;
+    border-radius: 4px;
+  }
+  .device-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+  }
+  .url-box {
+    font-family: "Consolas", "Courier New", monospace;
+    background: #f3f4f6;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    font-size: 10pt;
+    word-break: break-all;
+    display: inline-block;
+    margin: 2px 0;
+  }
+  .report-format {
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 10pt;
+    white-space: pre-wrap;
+    margin: 8px 0;
+  }
+  .footer {
+    margin-top: 24px;
+    padding-top: 10px;
+    border-top: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 9pt;
+    text-align: center;
+  }
+  strong { color: #1B3A57; }
+  em { color: #b45309; font-style: normal; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>非非768 預約系統 — 測試清單</h1>
+  <p class="subtitle">請依以下項目逐一測試，於空白方框打勾。如遇問題請截圖回報。</p>
+</div>
+
+<h2>一、測試裝置（建議至少各一台）</h2>
+<div class="device-grid">
+  <ul>
+    <li>iPhone（用 LINE 內建瀏覽器開）</li>
+    <li>iPhone（用 Safari 開）</li>
+    <li>Android 手機（用 LINE 內建瀏覽器開）</li>
+  </ul>
+  <ul>
+    <li>Android 手機（用 Chrome 開）</li>
+    <li>電腦桌機（Chrome / Edge）</li>
+  </ul>
+</div>
+
+<h2>二、入口連結（兩個都要測）</h2>
+<ul>
+  <li><strong>LIFF 連結</strong>：<span class="url-box">https://liff.line.me/2009821980-46y6BEMh</span></li>
+  <li><strong>直連網址</strong>：<span class="url-box">（請填入 GitHub Pages 的 booking.html 網址）</span></li>
+</ul>
+<div class="note">兩個都要驗證：能順利打開，且功能正常。</div>
+
+<h2>三、頁面開啟檢查</h2>
+<ul>
+  <li>頁面能正常顯示，沒有破版、亂碼、跑版</li>
+  <li>最上方有「預約須知」深藍色框 + 同意勾選框</li>
+  <li>中間顯示「感情・工作 諮詢服務 NT$3,800」</li>
+  <li>下方有日曆，<em>今天日期是 5/X 時應顯示 5 月</em></li>
+</ul>
+
+<h2>四、預約須知與同意框</h2>
+<ul>
+  <li><strong>沒勾選同意就點日期</strong> → 跳出 alert「請先勾選『我已閱讀預約須知』」，且勾選框會閃高亮</li>
+  <li>勾選後再點日期 → 順利進到時段選擇</li>
+  <li>進到時段（步驟 2）後，<em>預約須知整塊收起來不再顯示</em></li>
+  <li>按「← 改日期」回到步驟 1，<em>預約須知仍維持收起狀態</em>（不會再跑出來）</li>
+</ul>
+
+<h2>五、日曆功能</h2>
+<ul>
+  <li>灰色（不可點）的日期：週六、週日</li>
+  <li>顯示「滿」字樣的日期：當日 7 個時段全被預約（這項較難測，可略過）</li>
+  <li>「← 上個月」按鈕 → 在當月開啟時應該是灰色不可點</li>
+  <li>「下個月 →」按鈕 → 點擊可切到下個月</li>
+  <li>每次切換步驟（1↔2↔3） → <em>不會跳回頁面最頂端</em>，而是滑到該步驟區塊</li>
+</ul>
+
+<h2>六、時段選擇</h2>
+<ul>
+  <li>一般日（週一～五）顯示 6 個時段：09:00、10:00、11:00、14:00、15:00、16:00</li>
+  <li><strong>週二</strong>多顯示一個 17:00（共 7 個時段）</li>
+  <li>已被預約的時段：灰色不可點</li>
+  <li>點「← 改日期」可回到日曆</li>
+</ul>
+
+<h2>七、填寫資料表單</h2>
+<p style="font-size:10.5pt;color:#4b5563;margin:0 0 6px 0;">各欄位逐一測試錯誤輸入會被擋下：</p>
+<ul>
+  <li><strong>手機號碼</strong>：填「12345」應跳「請輸入有效的手機號碼」</li>
+  <li><strong>Email</strong>：填「abc」（無 @）應跳「請輸入有效的 Email」</li>
+  <li><strong>生年月日</strong>：
+    <ul>
+      <li>只剩「民國」，不再有國曆切換選項</li>
+      <li>年份 placeholder 顯示「民國年」</li>
+      <li>三格都填正確（例：80 / 5 / 12）→ 通過</li>
+      <li>任一格留空 → 應該擋下</li>
+    </ul>
+  </li>
+  <li><strong>IG 帳號</strong>：必填，留空擋下</li>
+  <li><strong>諮詢主題</strong>：感情 / 工作 / 其他</li>
+  <li><strong>諮詢方式</strong>：
+    <ul>
+      <li>選「視訊」→ 顯示視訊匯款資訊</li>
+      <li>選「現場」→ 顯示現場付款方式</li>
+    </ul>
+  </li>
+  <li><strong>匯款末五碼</strong>：必填</li>
+</ul>
+
+<h2>八、送出預約</h2>
+<ul>
+  <li>全部填正確 → 跳出確認資訊（可再次檢查）</li>
+  <li>確認送出 → 顯示「預約成功」頁面，並顯示日期 + 時段</li>
+  <li><strong>馬上重新整理頁面</strong> → 看時段是否變灰（代表後台已寫入）</li>
+</ul>
+
+<h2>九、通知收件確認（這項要等收到通知再回報）</h2>
+<ul>
+  <li>填寫的 Email 信箱有收到預約確認信</li>
+  <li>如果是從 LINE 連結進來的 → LINE 有收到 feifei 推播訊息</li>
+  <li>如果是用直連網址（沒登入 LINE）→ LINE 不會推，但 Email 要有</li>
+</ul>
+
+<h2>十、錯誤情境</h2>
+<ul>
+  <li>同一個 Email 在 60 秒內連送兩次 → 第二次應被擋下</li>
+  <li>故意把網路關掉再送出 → 應該顯示錯誤頁，可重試</li>
+</ul>
+
+<h2>助理回報格式</h2>
+<p style="font-size:10.5pt;color:#4b5563;margin:0 0 6px 0;">請依以下格式回報每一項：</p>
+<div class="report-format">[項目名稱] ✅ 通過 / ❌ 失敗
+裝置：iPhone 14 / Safari
+（若失敗）截圖 + 錯誤訊息：xxx</div>
+
+<div class="footer">
+  非非768 預約系統測試清單　·　如有問題請聯絡 Ian
+</div>
+
+</body>
+</html>

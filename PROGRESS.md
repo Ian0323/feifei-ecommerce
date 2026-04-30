@@ -1,9 +1,9 @@
 # 非非選品｜進度追蹤
 
-> **最後更新**: 2026-04-16
+> **最後更新**: 2026-04-30
 > **定位**: 個人品牌帶貨（宗教 IP 方向待驗證），長期經營
 > **合作模式**: Ian（行銷策略長）+ feifei（品牌主理人），長期抽成合作
-> **官網**: https://ian0323.github.io/feifei-ecommerce/
+> **官網**: https://myfeifei768.com.tw（自訂網域已上線；舊網址 ian0323.github.io 已停用）
 > **Repo**: https://github.com/Ian0323/feifei-ecommerce
 
 ---
@@ -67,8 +67,26 @@
 | 已預約時段自動 block | ✅ | 前端從公開 Sheet 讀取，已預約的時段不可選 |
 | 客戶個資保護 | ✅ | 私人 Sheet 存完整資料，公開 Sheet 只有日期+時段+狀態 |
 | Google Calendar 同步 | ✅ | 業主在日曆 block 時間 → 自動顯示「不開放」 |
-| 品牌名稱 | ✅ | 改為「非非768 療育型問事」 |
+| 品牌名稱 | ✅ | 改為「非非768 療癒系問事」 |
 | GitHub Pages 部署 | ✅ | 自動部署，LINE 可直接連結 |
+
+## Sprint 1.9 🟢 — 預約頁優化 + 網域上線 + 配色（2026-04-30）
+
+| 項目 | 狀態 | 備註 |
+|------|------|------|
+| 時段擴充：09:00（每天）+ 17:00（僅週二） | ✅ 程式 + ✅ 部署 | booking.html + Code.gs，`getSlotsForDate` |
+| 錯字修正：療育型 → 療癒系問事 | ✅ | booking.html + Code.gs + PROGRESS.md |
+| 服務介紹改寫 | ✅ | 「由武財公開文，非非傳達旨意」+ 供品/土地公 |
+| 自訂網域 myfeifei768.com.tw | ✅ 上線 | CNAME 檔已加，DNS / GH Pages 業主已搞定 |
+| booking.html 改配色：紫粉 → 深藍 | ✅ | 主色 `#1B3A57` 深普魯士藍、警示 `#A0524D` 陶土紅 |
+| 月底自動跳下個月 | ✅ 程式 | `monthHasAvailability()` 初始化時自動 advance；上一月按鈕同步 disable |
+| 預約須知一次性引導 | ✅ 程式 | step ≥ 2 收起須知，後續返回也不再顯示；scrollIntoView 取代 scrollTo(top:0) |
+| 民國紀年單一輸入 | ✅ | 移除國曆切換 radio，前後端固定 `民國`；後端 `VALID_BIRTH_CALENDARS = ['民國']` |
+| doPost 通知容錯 | ✅ 程式 + ✅ 部署 | Email/LINE/syncSheet 任一失敗不影響預約成功狀態（warnings 陣列回傳） |
+| Email 寄件人改 alias | ✅ 程式 | `sendBrandEmail()` 走 GmailApp + alias，From = mumuhappy88katrina（待業主端 Gmail Send mail as 驗證 + 重新部署） |
+| LIFF Endpoint URL 修正 | ✅ 業主已改 | LINE Console: `myfeifei768.com.tw/booking.html`，修好「外人打不開連結」問題 |
+| 助理測試清單 PDF | ✅ | `docs/booking-test-checklist.html` + `.pdf`（直連網址欄位待業主補上） |
+| Apps Script 重新部署 | ✅ | 部署到 v3-resilient-notify；v4-gmail-alias 已 push 到 GitHub，待業主再部署 |
 
 **架構說明：**
 - 預約頁面：`feifei-ecommerce/landing-page/booking.html`
@@ -76,7 +94,8 @@
 - 私人 Sheet（預約紀錄）：`1IUDCeB087LLFoLyzGxp_4eTSpycYiWjNM8PJ6b7DhwM`
 - 公開 Sheet（時段狀態）：`1mWyyA9N3bHsbCGZWg_FbQGinbev1sKG-gquh60Qtc-E`
 - Apps Script 部署 URL：`AKfycbyIm5XPUyfR__N66-59kjUY1vyM8uY3RDeQzlIYj5gepuu7CBTHkOxO3HVU-eoKDlxC`
-- 正式網址：`https://ian0323.github.io/feifei-ecommerce/booking.html`
+- 正式網址：`https://myfeifei768.com.tw/booking.html`（自訂網域已上線）
+- 後端版本字串：`BOOKING-v4-2026-04-30-gmail-alias`（push 完成，待業主重新部署 Apps Script）
 
 **預約流程：**
 ```
@@ -152,6 +171,10 @@
 - [x] keyword_handler 導購
 - [x] 內部廣播 API
 - [x] 本地測試通過
+- [x] 對話 Log 自動化（SQLite，message-logger.js）
+- [x] 匯出腳本（scripts/export-logs.js，支援時間篩選 + 匿名化）
+- [x] 清洗腳本（scripts/clean-for-persona.js，去噪/去重/對話串/用戶摘要）
+- [x] Persona 分析 prompt 範本（scripts/analyze-persona.md）
 
 ---
 
@@ -166,9 +189,17 @@
 | 2026-03-14 | 宗教 IP 定位「待驗證」 | 找不到成功案例，需 IG A/B 測試 |
 | 2026-03-14 | 農曆行事曆等功能延後 | 需先驗證宗教內容互動率 |
 | 2026-03-14 | 合作模式改為長期抽成 | 業主需求變更 |
-| 2026-04-16 | 品牌名稱改為「非非768 療育型問事」 | 業主需求 |
+| 2026-04-16 | 品牌名稱改為「非非768 療癒系問事」 | 業主需求 |
 | 2026-04-16 | 預約諮詢系統獨立於主站 | 從 LINE 按鈕連結，不與現有頁面整合 |
 | 2026-04-16 | 客戶個資用獨立私人 Sheet 保護 | 公開 Sheet 只放時段狀態 |
+| 2026-04-30 | booking 頁配色改為冷藍系（深普魯士藍 #1B3A57 + 陶土紅警示） | 業主直接要求；NT$3,800 諮詢服務適合冷色傳達專業/信任，跟產品頁暖色分流 |
+| 2026-04-30 | 預約時段擴充：每天加 09:00、週二多 17:00 | 業主需求 |
+| 2026-04-30 | 自訂網域 myfeifei768.com.tw 註冊 | 業主於 HiNet 完成註冊 |
+| 2026-04-30 | doPost 通知改容錯（warnings） | 之前 MailApp/LINE/syncSheet throw 會讓 sheet 已寫入但回傳失敗，客戶看到失敗→重試又被 SLOT_TAKEN 擋下；改為三段各自 try/catch |
+| 2026-04-30 | Email 寄件人改用 GmailApp + alias | 客戶看到的 From 從 iankuo1999 改為「非非768 助理 \<mumuhappy88katrina>」，但 Apps Script 擁有權留在 Ian（為了維護） |
+| 2026-04-30 | 預約須知改一次性引導 | 跨步驟切換不再每次都看到須知；scrollIntoView 取代 scrollTo(top:0) 避免每次都被推回頁首 |
+| 2026-04-30 | 月底自動跳下個月 | 4/30 開頁面時 4 月已無可預約日（MIN_ADVANCE_DAYS=1），改為 init 時 advance 至有可預約日的月份 |
+| 2026-04-30 | 生年月日改民國單選 | 客戶體驗簡化，移除國曆切換 radio |
 | 2026-03-14 | 金流必須即時付款 | 業主不想透過 LINE 處理訂單 |
 | 2026-03-14 | LINE 定位為社群，不處理訂單 | 業主明確要求 |
 | 2026-03-09 | 童裝保留 SHOPLINE（不動） | 與百貨物料綁定 |
@@ -179,6 +210,9 @@
 
 | 日期 | 變更內容 |
 |------|---------|
+| 2026-04-30 | Sprint 1.9 第二批：月底自動跳月、預約須知一次性引導、scrollIntoView、民國紀年統一、doPost 通知容錯、GmailApp alias 寄件人、LIFF Endpoint URL 修好、助理測試 PDF |
+| 2026-04-30 | Sprint 1.9 啟動：預約時段擴充（09:00 / 週二 17:00）、療育→療癒錯字修正、服務介紹改寫、自訂網域 CNAME 加入、booking.html 配色改藍系 |
+| 2026-04-16 | LINE Bot 對話 Log 自動化 + Persona 分析 Pipeline：message-logger.js（SQLite）+ 匯出/清洗腳本 + 分析 prompt 範本 |
 | 2026-04-16 | 預約諮詢系統上線：booking.html + Apps Script 後端 + Google Sheet 管理 + Calendar 同步 + 已預約時段 block + 客戶個資分離 |
 | 2026-03-21 | Claude App 策略建議整合：5 個多入口落地頁、products.json 擴充、plan.md 策略更新、Midjourney prompts 存檔 |
 | 2026-03-14 | plan.md 改為數據驅動版（商業模式分析 + 市場數據 + 功能驗證機制） |
