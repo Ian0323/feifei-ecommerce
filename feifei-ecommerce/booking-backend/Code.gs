@@ -7,7 +7,8 @@ var SETTINGS = {
   BRAND_NAME: '\u975e\u975e768',
   SERVICE_PRICE: 'NT$3,800',
   CALENDAR_ID: '1cb0aeeafa55fb75407aa932bb3b1d84e322a7bab04e54099d432b2cc9bcd976@group.calendar.google.com',
-  TIME_SLOTS: ['10:00', '11:00', '14:00', '15:00', '16:00'],
+  TIME_SLOTS: ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'],
+  TUESDAY_EXTRA_SLOTS: ['17:00'], // 僅週二開放的延長時段
   AVAILABLE_DAYS: [1, 2, 3, 4, 5], // 週一到五
   MIN_ADVANCE_DAYS: 1, // \u660e\u5929\u8d77\u53ef\u9810\u7d04\uff1b\u7576\u5929\u8acb\u79c1\u8a0a\u5b98\u65b9 LINE
   MAX_ADVANCE_DAYS: 30,
@@ -137,9 +138,10 @@ function getCalendarBlocks() {
     var date = new Date(today);
     date.setDate(date.getDate() + d);
     var dateStr = formatDateKey(date);
+    var daySlots = getSlotsForDate(date);
 
-    for (var s = 0; s < SETTINGS.TIME_SLOTS.length; s++) {
-      var parts = SETTINGS.TIME_SLOTS[s].split(':');
+    for (var s = 0; s < daySlots.length; s++) {
+      var parts = daySlots[s].split(':');
       var slotStart = new Date(date);
       slotStart.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
       var slotEnd = new Date(slotStart.getTime() + 60 * 60 * 1000); // +1hr 用毫秒避免 setHours 跨日問題
@@ -150,17 +152,24 @@ function getCalendarBlocks() {
           var evDate = formatDateKey(ev.getStartTime());
           var evEndDate = formatDateKey(ev.getEndTime());
           if (dateStr >= evDate && dateStr < evEndDate) {
-            blocks.push([dateStr, SETTINGS.TIME_SLOTS[s], '\u4e0d\u958b\u653e']);
+            blocks.push([dateStr, daySlots[s], '\u4e0d\u958b\u653e']);
             break;
           }
         } else if (ev.getStartTime() < slotEnd && ev.getEndTime() > slotStart) {
-          blocks.push([dateStr, SETTINGS.TIME_SLOTS[s], '\u4e0d\u958b\u653e']);
+          blocks.push([dateStr, daySlots[s], '\u4e0d\u958b\u653e']);
           break;
         }
       }
     }
   }
   return blocks;
+}
+
+// 取得該日期可預約的時段（一般時段 + 週二延長時段）
+function getSlotsForDate(date) {
+  var d = (date instanceof Date) ? date : new Date(date + 'T00:00:00');
+  var extra = (d.getDay() === 2 && SETTINGS.TUESDAY_EXTRA_SLOTS) ? SETTINGS.TUESDAY_EXTRA_SLOTS : [];
+  return SETTINGS.TIME_SLOTS.concat(extra);
 }
 
 function syncPublicSheet() {
@@ -300,8 +309,8 @@ function validateBookingData(data) {
   var dayOfWeek = bookDate.getDay();
   if (SETTINGS.AVAILABLE_DAYS.indexOf(dayOfWeek) === -1) errors.push('該日不開放預約');
 
-  // 時段是否有效
-  if (SETTINGS.TIME_SLOTS.indexOf(data.time) === -1) errors.push('無效的時段');
+  // 時段是否有效（含週二延長時段）
+  if (getSlotsForDate(bookDate).indexOf(data.time) === -1) errors.push('無效的時段');
 
   // 主題是否有效
   if (SETTINGS.VALID_TOPICS.indexOf(data.topic) === -1) errors.push('無效的主題');
@@ -698,7 +707,7 @@ function sendLinePush(uid, messages) {
 
 function sendLineBookingReceived(data) {
   var dateDisplay = data.dateDisplay || data.date;
-  var text = '✨ ' + SETTINGS.BRAND_NAME + ' 療育型問事\n\n'
+  var text = '✨ ' + SETTINGS.BRAND_NAME + ' 療癒系問事\n\n'
     + '已收到您的預約申請：\n'
     + '📅 ' + dateDisplay + '  ' + data.time + '\n'
     + '主題：' + data.topic + '\n'
@@ -710,7 +719,7 @@ function sendLineBookingReceived(data) {
 function sendLineBookingConfirmed(booking) {
   var dateStr = formatDateKey(booking.date);
   var timeStr = formatTimeKey(booking.time);
-  var text = '🌸 ' + SETTINGS.BRAND_NAME + ' 療育型問事\n\n'
+  var text = '🌸 ' + SETTINGS.BRAND_NAME + ' 療癒系問事\n\n'
     + (booking.name || '您') + ' 您好，\n'
     + '您的諮詢預約已確認！\n\n'
     + '📅 日期：' + dateStr + '\n'
@@ -725,7 +734,7 @@ function sendLineBookingConfirmed(booking) {
 function sendLineBookingCancelled(booking) {
   var dateStr = formatDateKey(booking.date);
   var timeStr = formatTimeKey(booking.time);
-  var text = SETTINGS.BRAND_NAME + ' 療育型問事\n\n'
+  var text = SETTINGS.BRAND_NAME + ' 療癒系問事\n\n'
     + (booking.name || '您') + ' 您好，\n'
     + '很抱歉，您的諮詢預約因時間無法配合，已取消。\n\n'
     + '原訂日期：' + dateStr + ' ' + timeStr + '\n\n'
