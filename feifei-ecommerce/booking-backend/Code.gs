@@ -16,7 +16,6 @@ var SETTINGS = {
   AVAILABLE_DAYS: [1, 2, 3, 4, 5], // 週一到五
   MIN_ADVANCE_DAYS: 1, // \u660e\u5929\u8d77\u53ef\u9810\u7d04\uff1b\u7576\u5929\u8acb\u79c1\u8a0a\u5b98\u65b9 LINE
   MAX_ADVANCE_DAYS: 30,
-  VALID_TOPICS: ['\u611f\u60c5', '\u5de5\u4f5c', '\u5176\u4ed6'],
   VALID_CONSULT_MODES: ['\u8996\u8a0a', '\u73fe\u5834'],
   VALID_BIRTH_CALENDARS: ['\u6c11\u570b'],
   MAX_FIELD_LENGTH: 500,
@@ -43,12 +42,12 @@ function initSheet() {
   if (!sheet) {
     sheet = ss.insertSheet(SETTINGS.SHEET_NAME);
   }
-  sheet.getRange(1, 1, 1, 15).setValues([[
+  sheet.getRange(1, 1, 1, 14).setValues([[
     '\u63d0\u4ea4\u6642\u9593', '\u9810\u7d04\u65e5\u671f', '\u9810\u7d04\u6642\u6bb5', '\u59d3\u540d', '\u96fb\u8a71',
-    'Email', '\u8aee\u8a62\u4e3b\u984c', '\u5099\u8a3b', '\u72c0\u614b', '\u78ba\u8a8d\u6642\u9593', 'LINE UID',
+    'Email', '\u5099\u8a3b', '\u72c0\u614b', '\u78ba\u8a8d\u6642\u9593', 'LINE UID',
     '\u751f\u5e74\u6708\u65e5', 'IG \u5e33\u865f', '\u532f\u6b3e\u672b\u4e94\u78bc', '\u8aee\u8a62\u65b9\u5f0f'
   ]]);
-  var header = sheet.getRange(1, 1, 1, 15);
+  var header = sheet.getRange(1, 1, 1, 14);
   header.setFontWeight('bold');
   header.setBackground('#7B5EA7');
   header.setFontColor('#FFFFFF');
@@ -56,8 +55,8 @@ function initSheet() {
     .requireValueInList(['\u5f85\u78ba\u8a8d', '\u5df2\u78ba\u8a8d', '\u5df2\u53d6\u6d88', '\u5df2\u5b8c\u6210'])
     .setAllowInvalid(false)
     .build();
-  sheet.getRange(2, 9, 100, 1).setDataValidation(rule);
-  for (var i = 1; i <= 15; i++) {
+  sheet.getRange(2, 8, 100, 1).setDataValidation(rule);
+  for (var i = 1; i <= 14; i++) {
     sheet.autoResizeColumn(i);
   }
 }
@@ -85,17 +84,17 @@ function migrateSheetAddLineUid() {
 function migrateSheetAddBookingFields() {
   var sheet = getSheet();
   var currentWidth = sheet.getLastColumn();
-  if (currentWidth >= 15) {
+  if (currentWidth >= 14) {
     Logger.log('Sheet already has new booking fields, skipping');
     return;
   }
   var newHeaders = [['生年月日', 'IG 帳號', '匯款末五碼', '諮詢方式']];
-  sheet.getRange(1, 12, 1, 4).setValues(newHeaders);
-  var header = sheet.getRange(1, 12, 1, 4);
+  sheet.getRange(1, 11, 1, 4).setValues(newHeaders);
+  var header = sheet.getRange(1, 11, 1, 4);
   header.setFontWeight('bold');
   header.setBackground('#7B5EA7');
   header.setFontColor('#FFFFFF');
-  for (var i = 12; i <= 15; i++) {
+  for (var i = 11; i <= 14; i++) {
     sheet.autoResizeColumn(i);
   }
   Logger.log('Booking fields migration complete (生年月日 / IG 帳號 / 匯款末五碼 / 諮詢方式)');
@@ -199,10 +198,10 @@ function syncPublicSheet() {
     var publicRows = [];
 
     if (lastRow > 1) {
-      var data = source.getRange(2, 1, lastRow - 1, 10).getValues();
+      var data = source.getRange(2, 1, lastRow - 1, 9).getValues();
       for (var i = 0; i < data.length; i++) {
         var row = data[i];
-        var status = row[8];
+        var status = row[7];
         if (status === '\u5f85\u78ba\u8a8d' || status === '\u5df2\u78ba\u8a8d') {
           publicRows.push([
             formatDateKey(row[1]),
@@ -287,7 +286,6 @@ function validateBookingData(data) {
   if (!data.name) errors.push('缺少姓名');
   if (!data.phone) errors.push('缺少電話');
   if (!data.email) errors.push('缺少 Email');
-  if (!data.topic) errors.push('缺少主題');
   if (!data.consultMode) errors.push('缺少諮詢方式');
   if (!data.birthCalendar) errors.push('缺少生年月日曆法');
   if (!data.birthDate) errors.push('缺少生年月日');
@@ -315,9 +313,6 @@ function validateBookingData(data) {
 
   // 時段是否有效（含週二延長時段）
   if (getSlotsForDate(bookDate).indexOf(data.time) === -1) errors.push('無效的時段');
-
-  // 主題是否有效
-  if (SETTINGS.VALID_TOPICS.indexOf(data.topic) === -1) errors.push('無效的主題');
 
   // 諮詢方式是否有效
   if (SETTINGS.VALID_CONSULT_MODES.indexOf(data.consultMode) === -1) errors.push('無效的諮詢方式');
@@ -359,11 +354,11 @@ function isRateLimited(email) {
 function isSlotTaken(sheet, date, time) {
   var lastRow = sheet.getLastRow();
   if (lastRow <= 1) return false;
-  var data = sheet.getRange(2, 2, lastRow - 1, 8).getValues(); // columns B-I
+  var data = sheet.getRange(2, 2, lastRow - 1, 7).getValues(); // columns B-H
   for (var i = 0; i < data.length; i++) {
     var rowDate = formatDateKey(data[i][0]);
     var rowTime = formatTimeKey(data[i][1]);
-    var rowStatus = data[i][7]; // column I = 狀態
+    var rowStatus = data[i][6]; // column H = 狀態
     if (rowDate === date && rowTime === time &&
         (rowStatus === '\u5f85\u78ba\u8a8d' || rowStatus === '\u5df2\u78ba\u8a8d')) {
       return true;
@@ -377,7 +372,7 @@ function isSlotTaken(sheet, date, time) {
 function doGet(e) {
   return ContentService
     .createTextOutput(JSON.stringify({
-      version: 'BOOKING-v4-2026-04-30-gmail-alias',
+      version: 'BOOKING-v5-2026-05-02-remove-topic',
       hasLinePush: typeof sendLinePush === 'function',
       hasLineReceived: typeof sendLineBookingReceived === 'function',
       tokenSet: !!getLineToken(),
@@ -451,7 +446,6 @@ function doPost(e) {
         sanitizeText(data.name, 50),
         data.phone.replace(/[-\s]/g, ''),
         data.email.trim(),
-        data.topic,
         sanitizeText(data.notes || '', SETTINGS.MAX_FIELD_LENGTH),
         '\u5f85\u78ba\u8a8d',
         '',
@@ -546,7 +540,6 @@ function sendAssistantNotification(data) {
     + '\u65e5\u671f\uff1a' + displayDate + '\n'
     + '\u6642\u6bb5\uff1a' + data.time + '\n'
     + '\u8aee\u8a62\u65b9\u5f0f\uff1a' + consultMode + '\n'
-    + '\u4e3b\u984c\uff1a' + data.topic + '\n'
     + '\u532f\u6b3e\u672b\u4e94\u78bc\uff1a' + paymentLast5 + '\n'
     + '\u5099\u8a3b\uff1a' + notes + '\n\n'
     + '\u8acb\u5230 Google Sheet \u5c07\u72c0\u614b\u6539\u70ba\u300c\u5df2\u78ba\u8a8d\u300d\uff0c\u7cfb\u7d71\u6703\u81ea\u52d5\u901a\u77e5\u5ba2\u6236\u3002';
@@ -558,7 +551,6 @@ function sendAssistantNotification(data) {
     + infoRow('\u65e5\u671f', displayDate)
     + infoRow('\u6642\u6bb5', data.time)
     + infoRow('\u8aee\u8a62\u65b9\u5f0f', consultMode)
-    + infoRow('\u4e3b\u984c', data.topic)
     + infoRow('\u751f\u5e74\u6708\u65e5', birthDisplay)
     + infoRow('IG \u5e33\u865f', igAccount)
     + infoRow('\u96fb\u8a71', data.phone)
@@ -585,13 +577,13 @@ function checkStatusChanges() {
     syncPublicSheet();
     return;
   }
-  var lastCol = Math.max(sheet.getLastColumn(), 11);
+  var lastCol = Math.max(sheet.getLastColumn(), 10);
   var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
   for (var i = 0; i < data.length; i++) {
     var row = data[i];
-    var status = row[8];
-    var confirmTime = row[9];
-    var lineUid = row[10] || '';
+    var status = row[7];
+    var confirmTime = row[8];
+    var lineUid = row[9] || '';
 
     if (status === '\u5df2\u78ba\u8a8d' && !confirmTime) {
       var booking = {
@@ -600,12 +592,11 @@ function checkStatusChanges() {
         name: row[3],
         phone: row[4],
         email: row[5],
-        topic: row[6],
         lineUid: lineUid
       };
       sendCustomerConfirmation(booking);
       if (lineUid) sendLineBookingConfirmed(booking);
-      sheet.getRange(i + 2, 10).setValue(new Date());
+      sheet.getRange(i + 2, 9).setValue(new Date());
     }
 
     // 取消：用特殊標記區分已確認過的，避免 confirmTime 擋住取消通知
@@ -621,7 +612,7 @@ function checkStatusChanges() {
         };
         sendCancellationNotice(booking2);
         if (lineUid) sendLineBookingCancelled(booking2);
-        sheet.getRange(i + 2, 10).setValue('\u53d6\u6d88\u5df2\u901a\u77e5 ' + new Date().toLocaleString());
+        sheet.getRange(i + 2, 9).setValue('\u53d6\u6d88\u5df2\u901a\u77e5 ' + new Date().toLocaleString());
       }
     }
   }
@@ -673,7 +664,6 @@ function sendCustomerConfirmation(booking) {
     + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FDF8F3;border-radius:12px;padding:16px 20px;margin-bottom:24px;">'
     + infoRow('\u65e5\u671f', dateStr)
     + infoRow('\u6642\u6bb5', timeStr)
-    + infoRow('\u4e3b\u984c', booking.topic)
     + infoRow('\u8cbb\u7528', '<span style="color:#7B5EA7;font-weight:700;">' + SETTINGS.SERVICE_PRICE + '</span>')
     + '</table>'
     + '<p style="margin:0;font-size:13px;color:#2C1810;opacity:0.6;line-height:1.6;">'
@@ -681,7 +671,7 @@ function sendCustomerConfirmation(booking) {
     + '\u5982\u9700\u66f4\u6539\u6216\u53d6\u6d88\uff0c\u8acb\u63d0\u524d\u806f\u7e6b\u6211\u5011\u3002'
     + '</p>';
 
-  var plainBody = booking.name + ' \u60a8\u597d\uff0c\n\n\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u78ba\u8a8d\uff01\n\n\u65e5\u671f\uff1a' + dateStr + '\n\u6642\u6bb5\uff1a' + timeStr + '\n\u4e3b\u984c\uff1a' + booking.topic + '\n\u8cbb\u7528\uff1a' + SETTINGS.SERVICE_PRICE + '\n\n' + SETTINGS.BRAND_NAME;
+  var plainBody = booking.name + ' \u60a8\u597d\uff0c\n\n\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u78ba\u8a8d\uff01\n\n\u65e5\u671f\uff1a' + dateStr + '\n\u6642\u6bb5\uff1a' + timeStr + '\n\u8cbb\u7528\uff1a' + SETTINGS.SERVICE_PRICE + '\n\n' + SETTINGS.BRAND_NAME;
 
   sendBrandEmail({
     to: booking.email,
@@ -754,7 +744,6 @@ function sendLineBookingReceived(data) {
   var text = '✨ ' + SETTINGS.BRAND_NAME + ' 療癒系問事\n\n'
     + '已收到您的預約申請：\n'
     + '📅 ' + dateDisplay + '  ' + data.time + '\n'
-    + '主題：' + data.topic + '\n'
     + '費用：' + SETTINGS.SERVICE_PRICE + '\n\n'
     + '助理會盡快與非非確認時間，確認後會再通知您 🙏';
   sendLinePush(data.lineUid, [{ type: 'text', text: text }]);
@@ -768,7 +757,6 @@ function sendLineBookingConfirmed(booking) {
     + '您的諮詢預約已確認！\n\n'
     + '📅 日期：' + dateStr + '\n'
     + '🕒 時段：' + timeStr + '\n'
-    + '主題：' + booking.topic + '\n'
     + '費用：' + SETTINGS.SERVICE_PRICE + '\n\n'
     + '諮詢方式將由助理另行通知。\n'
     + '如需更改或取消，請提前聯繫我們 🙏';
@@ -800,7 +788,6 @@ function testDirectLinePush() {
     date: '2026-05-15',
     dateDisplay: '5/15（五）',
     time: '10:00',
-    topic: '感情',
     lineUid: YOUR_UID
   });
   Logger.log('✓ Push 已發送，請檢查你的 LINE 有沒有收到「已收到您的預約申請」訊息');

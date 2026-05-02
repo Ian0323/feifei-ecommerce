@@ -214,29 +214,6 @@
                         class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition">
                 </div>
                 <div>
-                    <label class="mb-1 block text-sm font-medium text-ink/80">諮詢主題 <span class="text-blush">*</span></label>
-                    <div class="flex gap-3">
-                        <label class="flex-1">
-                            <input type="radio" name="topic" value="感情" class="peer hidden" checked>
-                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
-                                感情
-                            </div>
-                        </label>
-                        <label class="flex-1">
-                            <input type="radio" name="topic" value="工作" class="peer hidden">
-                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
-                                工作
-                            </div>
-                        </label>
-                        <label class="flex-1">
-                            <input type="radio" name="topic" value="其他" class="peer hidden">
-                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
-                                其他
-                            </div>
-                        </label>
-                    </div>
-                </div>
-                <div>
                     <label class="mb-1 block text-sm font-medium text-ink/80">諮詢方式 <span class="text-blush">*</span></label>
                     <div class="flex gap-3">
                         <label class="flex-1">
@@ -343,11 +320,6 @@
                 <div class="flex justify-between text-sm">
                     <span class="text-ink/50">IG 帳號</span>
                     <span id="review-ig" class="font-medium text-ink"></span>
-                </div>
-                <div class="h-px bg-ink/5"></div>
-                <div class="flex justify-between text-sm">
-                    <span class="text-ink/50">主題</span>
-                    <span id="review-topic" class="font-medium text-ink"></span>
                 </div>
                 <div class="h-px bg-ink/5"></div>
                 <div class="flex justify-between text-sm">
@@ -795,7 +767,6 @@
         const name = document.getElementById('field-name').value.trim();
         const phone = document.getElementById('field-phone').value.trim();
         const email = document.getElementById('field-email').value.trim();
-        const topic = document.querySelector('input[name="topic"]:checked')?.value;
         const consultMode = document.querySelector('input[name="consultMode"]:checked')?.value;
         const igAccount = document.getElementById('field-ig').value.trim().replace(/^@/, '');
         const paymentLast5 = document.getElementById('field-payment').value.trim();
@@ -811,7 +782,7 @@
             return;
         }
 
-        if (!name || !phone || !email || !topic || !consultMode || !igAccount || !paymentLast5) {
+        if (!name || !phone || !email || !consultMode || !igAccount || !paymentLast5) {
             alert('請填寫所有必填欄位');
             return;
         }
@@ -844,7 +815,6 @@
         document.getElementById('review-email').textContent = email;
         document.getElementById('review-birth').textContent = birth.display;
         document.getElementById('review-ig').textContent = '@' + igAccount;
-        document.getElementById('review-topic').textContent = topic;
         document.getElementById('review-payment').textContent = paymentLast5;
         document.getElementById('review-notes').textContent =
             document.getElementById('field-notes').value.trim() || '無';
@@ -871,7 +841,6 @@
             name: document.getElementById('field-name').value.trim(),
             phone: document.getElementById('field-phone').value.trim(),
             email: document.getElementById('field-email').value.trim(),
-            topic: document.querySelector('input[name="topic"]:checked').value,
             consultMode: document.querySelector('input[name="consultMode"]:checked').value,
             birthCalendar: birth ? birth.calendar : '',
             birthDate: birth ? birth.date : '',

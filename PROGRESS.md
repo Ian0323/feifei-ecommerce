@@ -1,6 +1,6 @@
 # 非非選品｜進度追蹤
 
-> **最後更新**: 2026-04-30
+> **最後更新**: 2026-05-02
 > **定位**: 個人品牌帶貨（宗教 IP 方向待驗證），長期經營
 > **合作模式**: Ian（行銷策略長）+ feifei（品牌主理人），長期抽成合作
 > **官網**: https://myfeifei768.com.tw（自訂網域已上線；舊網址 ian0323.github.io 已停用）
@@ -95,7 +95,7 @@
 - 公開 Sheet（時段狀態）：`1mWyyA9N3bHsbCGZWg_FbQGinbev1sKG-gquh60Qtc-E`
 - Apps Script 部署 URL：`AKfycbyIm5XPUyfR__N66-59kjUY1vyM8uY3RDeQzlIYj5gepuu7CBTHkOxO3HVU-eoKDlxC`
 - 正式網址：`https://myfeifei768.com.tw/booking.html`（自訂網域已上線）
-- 後端版本字串：`BOOKING-v4-2026-04-30-gmail-alias`（push 完成，待業主重新部署 Apps Script）
+- 後端版本字串：`BOOKING-v5-2026-05-02-remove-topic`（push 完成，待業主重新部署 Apps Script；此版同時包含 v4 alias 改寫 + v5 移除主題）
 
 **預約流程：**
 ```
@@ -107,6 +107,32 @@
 
 **業主 block 時段方式：**
 - 在 Google Calendar 建事件（單一時段 / 整天 / 多天）→ 自動同步為「不開放」
+
+---
+
+## Sprint 1.10 🟢 — 移除預約主題欄位（2026-05-02）
+
+業主要求拔掉「諮詢主題」（感情/工作/其他）這個選項。前端表單、後端驗證、Sheet 欄位、email/LINE 通知文案全面清空。
+
+| 項目 | 狀態 | 備註 |
+|------|------|------|
+| 前端 booking.html 移除諮詢主題 radio | ✅ 程式 | 表單區塊、確認頁顯示列、JS 驗證/送出資料 6 處全清 |
+| 後端 Code.gs 移除 topic 驗證 | ✅ 程式 | `VALID_TOPICS` 整段刪除、必填檢查、無效值檢查 |
+| Sheet schema 從 15 欄縮成 14 欄 | ✅ 程式 | 拔掉第 7 欄「諮詢主題」；`appendRow` / `isSlotTaken` / `syncPublicSheet` / `checkStatusChanges` 的索引和讀取範圍全部位移 |
+| Email 通知拿掉「主題」 | ✅ 程式 | `sendAssistantNotification`、`sendCustomerConfirmation` 的 plain body + HTML infoRow |
+| LINE 推播拿掉「主題」 | ✅ 程式 | `sendLineBookingReceived`、`sendLineBookingConfirmed`、`testDirectLinePush` |
+| `initSheet` / `migrateSheetAddBookingFields` 同步調整 | ✅ 程式 | 表頭 14 欄、validation rule 從第 9 欄移到第 8 欄、後續欄位從 12-15 移到 11-14 |
+| 後端版本字串 | ✅ | `BOOKING-v5-2026-05-02-remove-topic` |
+| Google Sheet 清空舊測試資料 | ⬜ 待業主 | 業主確認過去資料都是測試 |
+| Apps Script 重新部署 | ⬜ 待業主 | 部署前先在編輯器執行 `initSheet` 重設 14 欄表頭；此次部署同時帶上 v4 的 alias 寄件人 |
+| 端到端測試 | ⬜ 部署後 | 跑一次完整預約 → 檢查 Sheet 14 欄正確 + email/LINE 文案無「主題」 |
+
+**部署順序（重要，不要顛倒）：**
+1. 業主清空 Sheet 第 2 行起的測試資料
+2. Apps Script 編輯器貼上新 `Code.gs` → 執行一次 `initSheet`（重設 14 欄表頭）→ 部署新版
+3. 用瀏覽器打開 Web App URL，確認 `version: BOOKING-v5-2026-05-02-remove-topic`
+4. `booking.html` commit + push → GitHub Pages 自動部署
+5. 端到端測試一次
 
 ---
 
@@ -196,6 +222,7 @@
 | 2026-04-30 | 預約時段擴充：每天加 09:00、週二多 17:00 | 業主需求 |
 | 2026-04-30 | 自訂網域 myfeifei768.com.tw 註冊 | 業主於 HiNet 完成註冊 |
 | 2026-04-30 | doPost 通知改容錯（warnings） | 之前 MailApp/LINE/syncSheet throw 會讓 sheet 已寫入但回傳失敗，客戶看到失敗→重試又被 SLOT_TAKEN 擋下；改為三段各自 try/catch |
+| 2026-05-02 | 移除預約諮詢主題欄位（感情/工作/其他） | 業主要求拔掉。簡化客戶填表流程；Sheet schema 同步從 15 欄縮成 14 欄（業主確認過去資料都是測試，可清空重來） |
 | 2026-04-30 | Email 寄件人改用 GmailApp + alias | 客戶看到的 From 從 iankuo1999 改為「非非768 助理 \<mumuhappy88katrina>」，但 Apps Script 擁有權留在 Ian（為了維護） |
 | 2026-04-30 | 預約須知改一次性引導 | 跨步驟切換不再每次都看到須知；scrollIntoView 取代 scrollTo(top:0) 避免每次都被推回頁首 |
 | 2026-04-30 | 月底自動跳下個月 | 4/30 開頁面時 4 月已無可預約日（MIN_ADVANCE_DAYS=1），改為 init 時 advance 至有可預約日的月份 |
@@ -210,6 +237,7 @@
 
 | 日期 | 變更內容 |
 |------|---------|
+| 2026-05-02 | Sprint 1.10：移除預約諮詢主題欄位（前端 + 後端 + Sheet schema 縮減為 14 欄 + email/LINE 文案） |
 | 2026-04-30 | Sprint 1.9 第二批：月底自動跳月、預約須知一次性引導、scrollIntoView、民國紀年統一、doPost 通知容錯、GmailApp alias 寄件人、LIFF Endpoint URL 修好、助理測試 PDF |
 | 2026-04-30 | Sprint 1.9 啟動：預約時段擴充（09:00 / 週二 17:00）、療育→療癒錯字修正、服務介紹改寫、自訂網域 CNAME 加入、booking.html 配色改藍系 |
 | 2026-04-16 | LINE Bot 對話 Log 自動化 + Persona 分析 Pipeline：message-logger.js（SQLite）+ 匯出/清洗腳本 + 分析 prompt 範本 |
