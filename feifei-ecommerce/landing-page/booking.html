@@ -169,6 +169,7 @@
                 已選日期：<span id="selected-date-display" class="font-medium text-ink"></span>
             </p>
             <div id="time-slots" class="grid grid-cols-2 gap-3"></div>
+            <p class="mt-4 text-center text-xs text-blush">需要其他時段？請直接私訊官方 LINE</p>
         </div>
 
         <!-- Step 3: Info -->
@@ -212,6 +213,12 @@
                     <label class="mb-1 block text-sm font-medium text-ink/80">IG 帳號 <span class="text-blush">*</span></label>
                     <input type="text" id="field-ig" required placeholder="例：feifei.768（不用加 @）" maxlength="50"
                         class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition">
+                </div>
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-ink/80">LINE 顯示名稱 <span class="text-blush">*</span></label>
+                    <input type="text" id="field-line-name" required placeholder="助理會用此名稱在 LINE 找到您" maxlength="50"
+                        class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition">
+                    <p class="mt-1 text-xs text-ink/50">請填寫您 LINE 上目前顯示的暱稱</p>
                 </div>
                 <div>
                     <label class="mb-1 block text-sm font-medium text-ink/80">諮詢方式 <span class="text-blush">*</span></label>
@@ -323,6 +330,11 @@
                 </div>
                 <div class="h-px bg-ink/5"></div>
                 <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">LINE 名稱</span>
+                    <span id="review-line-name" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between text-sm">
                     <span class="text-ink/50">備註</span>
                     <span id="review-notes" class="font-medium text-ink"></span>
                 </div>
@@ -400,9 +412,9 @@
         // 可預約的星期幾 (0=日, 1=一, 2=二, 3=三, 4=四, 5=五, 6=六)
         AVAILABLE_DAYS: [1, 2, 3, 4, 5],
         // 一般時段
-        TIME_SLOTS: ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'],
+        TIME_SLOTS: ['10:30', '11:30', '14:00', '15:00', '16:00'],
         // 僅週二開放的延長時段
-        TUESDAY_EXTRA_SLOTS: ['17:00'],
+        TUESDAY_EXTRA_SLOTS: ['18:00'],
         // 最少提前幾天預約（1 = 明天起；當天請改私訊官方 LINE）
         MIN_ADVANCE_DAYS: 1,
         // 最多預約幾天後
@@ -419,6 +431,11 @@
             if (liff.isLoggedIn()) {
                 const profile = await liff.getProfile();
                 lineUid = profile.userId;
+                // 自動帶入 LINE 顯示名稱（客人仍可手動修改）
+                const lineNameField = document.getElementById('field-line-name');
+                if (lineNameField && profile.displayName && !lineNameField.value) {
+                    lineNameField.value = profile.displayName;
+                }
             }
         } catch (err) {
             console.log('LIFF init error:', err);
@@ -769,6 +786,7 @@
         const email = document.getElementById('field-email').value.trim();
         const consultMode = document.querySelector('input[name="consultMode"]:checked')?.value;
         const igAccount = document.getElementById('field-ig').value.trim().replace(/^@/, '');
+        const lineName = document.getElementById('field-line-name').value.trim();
         const paymentLast5 = document.getElementById('field-payment').value.trim();
         const agreed = document.getElementById('field-agree').checked;
         const birth = buildBirthDisplay();
@@ -782,7 +800,7 @@
             return;
         }
 
-        if (!name || !phone || !email || !consultMode || !igAccount || !paymentLast5) {
+        if (!name || !phone || !email || !consultMode || !igAccount || !lineName || !paymentLast5) {
             alert('請填寫所有必填欄位');
             return;
         }
@@ -815,6 +833,7 @@
         document.getElementById('review-email').textContent = email;
         document.getElementById('review-birth').textContent = birth.display;
         document.getElementById('review-ig').textContent = '@' + igAccount;
+        document.getElementById('review-line-name').textContent = lineName;
         document.getElementById('review-payment').textContent = paymentLast5;
         document.getElementById('review-notes').textContent =
             document.getElementById('field-notes').value.trim() || '無';
@@ -845,6 +864,7 @@
             birthCalendar: birth ? birth.calendar : '',
             birthDate: birth ? birth.date : '',
             igAccount: document.getElementById('field-ig').value.trim().replace(/^@/, ''),
+            lineName: document.getElementById('field-line-name').value.trim(),
             paymentLast5: document.getElementById('field-payment').value.trim(),
             notes: document.getElementById('field-notes').value.trim(),
             lineUid: lineUid || '',
