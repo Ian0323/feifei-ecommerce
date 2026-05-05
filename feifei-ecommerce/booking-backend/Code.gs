@@ -100,22 +100,19 @@ function migrateSheetAddBookingFields() {
   Logger.log('Booking fields migration complete (生年月日 / IG 帳號 / 匯款末五碼 / 諮詢方式)');
 }
 
-// 已存在的 Sheet 補上 LINE 名稱（第 15 欄）
-// 部署後請手動執行一次：在 Apps Script 編輯器選 migrateSheetAddLineName → Run
+// 為 Sheet 寫入第 15 欄「LINE 名稱」表頭。
+// Idempotent — 不檢查 currentWidth，永遠覆寫 O1。
+// 為什麼不檢查：若先部署後跑 migration，appendRow 已把 last column 推到 15、
+// 但 O1 是空的，舊邏輯會早退讓 header 永遠補不上。
 function migrateSheetAddLineName() {
   var sheet = getSheet();
-  var currentWidth = sheet.getLastColumn();
-  if (currentWidth >= 15) {
-    Logger.log('Sheet already has LINE 名稱 column, skipping');
-    return;
-  }
   sheet.getRange(1, 15).setValue('LINE 名稱');
   var header = sheet.getRange(1, 15);
   header.setFontWeight('bold');
   header.setBackground('#7B5EA7');
   header.setFontColor('#FFFFFF');
   sheet.autoResizeColumn(15);
-  Logger.log('LINE 名稱 migration complete');
+  Logger.log('LINE 名稱 header set (idempotent)');
 }
 
 function initPublicSheet() {
