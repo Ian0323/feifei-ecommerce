@@ -92,7 +92,7 @@
                 </li>
                 <li class="flex gap-2">
                     <span class="font-bold text-plum">2.</span>
-                    <span>預約成功後請依下方諮詢方式完成匯款，並回填帳號末五碼以利核對。</span>
+                    <span>本服務以<span class="font-bold text-plum">線上視訊</span>進行。請依下方匯款資訊完成匯款、回填帳號末五碼，並將<span class="font-bold text-blush">匯款截圖私訊官方 LINE</span>以利核對。</span>
                 </li>
             </ol>
             <label class="mt-4 flex cursor-pointer items-start gap-3 rounded-xl border-2 border-plum/40 bg-white p-3.5 transition hover:bg-plum/5">
@@ -113,6 +113,7 @@
             <ul class="mt-3 space-y-1.5 text-sm text-ink/75">
                 <li class="flex gap-2"><span class="text-plum">•</span><span>武財公會指引參拜的神明及準備的供品</span></li>
                 <li class="flex gap-2"><span class="text-plum">•</span><span>還有合適的土地公</span></li>
+                <li class="flex gap-2"><span class="text-plum">•</span><span>全程以<span class="font-medium text-plum">線上視訊</span>方式進行</span></li>
             </ul>
             <div class="mt-4 flex items-baseline gap-2">
                 <span class="text-2xl font-bold text-plum">NT$3,800</span>
@@ -220,61 +221,40 @@
                     <p class="mt-1 text-xs text-ink/50">請填寫您 LINE 上目前顯示的暱稱</p>
                 </div>
                 <div>
-                    <label class="mb-1 block text-sm font-medium text-ink/80">諮詢方式 <span class="text-blush">*</span></label>
-                    <div class="flex gap-3">
-                        <label class="flex-1">
-                            <input type="radio" name="consultMode" value="視訊" class="peer hidden" checked onchange="updatePaymentInfo()">
-                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
-                                視訊
-                            </div>
-                        </label>
-                        <label class="flex-1">
-                            <input type="radio" name="consultMode" value="現場" class="peer hidden" onchange="updatePaymentInfo()">
-                            <div class="cursor-pointer rounded-xl border border-ink/10 bg-white py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum/5 peer-checked:text-plum peer-checked:font-medium">
-                                現場
-                            </div>
-                        </label>
-                    </div>
-
-                    <!-- 視訊匯款資訊 -->
-                    <div id="payment-info-video" class="mt-3 rounded-xl border border-plum/15 bg-plum/5 p-4 text-sm">
-                        <p class="font-bold text-plum">📱 視訊諮詢</p>
-                        <p class="mt-2 text-ink/75">請匯款全額 <span class="font-bold text-ink">NT$3,800</span> 至：</p>
-                        <div class="mt-2 rounded-lg bg-white p-3 leading-relaxed">
-                            <div class="text-ink/60 text-xs">銀行</div>
-                            <div class="text-ink font-medium">國泰世華（013）</div>
-                            <div class="mt-1.5 text-ink/60 text-xs">帳號</div>
-                            <div class="text-ink font-medium tracking-wider select-all">239035012705</div>
-                        </div>
-                        <p class="mt-2 text-xs text-ink/60">完成匯款後，請在下方填入帳號末五碼以利核對</p>
-                    </div>
-
-                    <!-- 現場匯款資訊 -->
-                    <div id="payment-info-onsite" class="mt-3 hidden rounded-xl border border-gold/30 bg-gold/5 p-4 text-sm">
-                        <p class="font-bold text-ink">📍 諮詢地點</p>
-                        <p class="mt-1 text-ink/75 select-all">台中市西屯區朝富路 213 號</p>
-                        <div class="my-3 h-px bg-gold/20"></div>
-                        <p class="font-bold text-plum">😎 現場諮詢</p>
-                        <p class="mt-2 text-ink/75">請匯款全額 <span class="font-bold text-ink">NT$3,800</span> 至：</p>
-                        <div class="mt-2 rounded-lg bg-white p-3 leading-relaxed">
-                            <div class="text-ink/60 text-xs">銀行</div>
-                            <div class="text-ink font-medium">國泰世華（013）</div>
-                            <div class="mt-1.5 text-ink/60 text-xs">帳號</div>
-                            <div class="text-ink font-medium tracking-wider select-all">239035012705</div>
-                        </div>
-                        <p class="mt-2 text-xs text-ink/60">完成匯款後，請在下方填入帳號末五碼以利核對</p>
-                    </div>
-                </div>
-                <div>
                     <label class="mb-1 block text-sm font-medium text-ink/80">想先讓非非知道的事（選填）</label>
                     <textarea id="field-notes" rows="3" placeholder="簡單描述您的狀況，讓諮詢更有效率"
                         class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition"></textarea>
                 </div>
+
+                <!-- 匯款資訊 -->
+                <div class="rounded-xl border border-plum/15 bg-plum/5 p-4 text-sm">
+                    <p class="font-bold text-plum">📱 線上視訊諮詢</p>
+                    <p class="mt-2 text-ink/75">請匯款全額 <span class="font-bold text-ink">NT$3,800</span> 至：</p>
+                    <div class="mt-2 rounded-lg bg-white p-3 leading-relaxed">
+                        <div class="text-ink/60 text-xs">銀行</div>
+                        <div class="text-ink font-medium">國泰世華（013）</div>
+                        <div class="mt-1.5 text-ink/60 text-xs">帳號</div>
+                        <div class="text-ink font-medium tracking-wider select-all">239035012705</div>
+                    </div>
+                    <p class="mt-2 text-xs text-ink/60">完成匯款後，請在下方填入帳號末五碼，並將匯款截圖私訊官方 LINE</p>
+                </div>
+
                 <div>
                     <label class="mb-1 block text-sm font-medium text-ink/80">匯款末五碼 <span class="text-blush">*</span></label>
                     <input type="text" id="field-payment" required placeholder="例：12345" inputmode="numeric" pattern="[0-9]{5}" maxlength="5"
                         class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition tracking-widest">
                     <p class="mt-1 text-xs text-ink/50">請填寫匯出帳戶末五碼，方便對帳。</p>
+                </div>
+
+                <!-- 匯款截圖確認 -->
+                <div>
+                    <label class="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-plum/40 bg-white p-3.5 transition hover:bg-plum/5">
+                        <input type="checkbox" id="field-proof" class="mt-0.5 h-5 w-5 flex-shrink-0 cursor-pointer accent-plum">
+                        <span class="text-sm font-medium leading-relaxed text-ink">
+                            我已完成匯款，並會將<span class="font-bold text-blush">匯款截圖私訊官方 LINE</span>
+                        </span>
+                    </label>
+                    <p class="mt-2 text-center text-xs text-ink/45">未勾選將無法送出預約</p>
                 </div>
                 <button type="button" onclick="showConfirm()"
                     class="w-full rounded-xl bg-plum py-3.5 text-sm font-bold text-white transition hover:bg-plum/90 active:scale-[0.98]">
@@ -375,6 +355,12 @@
                 <div class="mt-5 rounded-xl border border-gold/20 bg-gold/5 p-4">
                     <p class="text-sm text-ink/70">
                         預約日期：<span id="success-datetime" class="font-medium text-ink"></span>
+                    </p>
+                </div>
+                <div class="mt-4 rounded-xl border-2 border-plum/40 bg-plum/5 p-4 text-left">
+                    <p class="text-sm font-bold text-plum">📸 最後一步：傳匯款截圖</p>
+                    <p class="mt-2 text-sm leading-relaxed text-ink/75">
+                        請將<span class="font-bold text-blush">匯款截圖私訊官方 LINE</span>，助理核對到款項後才會完成預約確認。
                     </p>
                 </div>
                 <p class="mt-6 text-xs text-ink/40">如有任何問題，請透過 LINE 聯繫我們</p>
@@ -752,14 +738,9 @@
     }
 
     // ===== Form =====
-    function updatePaymentInfo() {
-        const mode = document.querySelector('input[name="consultMode"]:checked')?.value;
-        const video = document.getElementById('payment-info-video');
-        const onsite = document.getElementById('payment-info-onsite');
-        if (!video || !onsite) return;
-        video.classList.toggle('hidden', mode !== '視訊');
-        onsite.classList.toggle('hidden', mode !== '現場');
-    }
+    // 只提供線上視訊一種方式（後端 VALID_CONSULT_MODES 仍以「視訊」比對，故值不可改）
+    const CONSULT_MODE = '視訊';
+    const CONSULT_MODE_DISPLAY = '線上視訊';
 
     function buildBirthDisplay() {
         const y = document.getElementById('field-birth-year').value.trim();
@@ -782,11 +763,11 @@
         const name = document.getElementById('field-name').value.trim();
         const phone = document.getElementById('field-phone').value.trim();
         const email = document.getElementById('field-email').value.trim();
-        const consultMode = document.querySelector('input[name="consultMode"]:checked')?.value;
         const igAccount = document.getElementById('field-ig').value.trim().replace(/^@/, '');
         const lineName = document.getElementById('field-line-name').value.trim();
         const paymentLast5 = document.getElementById('field-payment').value.trim();
         const agreed = document.getElementById('field-agree').checked;
+        const proofPromised = document.getElementById('field-proof').checked;
         const birth = buildBirthDisplay();
 
         if (!agreed) {
@@ -798,7 +779,7 @@
             return;
         }
 
-        if (!name || !phone || !email || !consultMode || !igAccount || !lineName || !paymentLast5) {
+        if (!name || !phone || !email || !igAccount || !lineName || !paymentLast5) {
             alert('請填寫所有必填欄位');
             return;
         }
@@ -823,9 +804,19 @@
             return;
         }
 
+        if (!proofPromised) {
+            const proofBox = document.getElementById('field-proof');
+            const label = proofBox.closest('label');
+            label.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            label.classList.add('ring-4', 'ring-plum/40');
+            setTimeout(() => label.classList.remove('ring-4', 'ring-plum/40'), 2000);
+            alert('請勾選「我已完成匯款，並會將匯款截圖私訊官方 LINE」再送出');
+            return;
+        }
+
         document.getElementById('review-date').textContent = formatDateDisplay(selectedDate);
         document.getElementById('review-time').textContent = selectedTime;
-        document.getElementById('review-consult-mode').textContent = consultMode;
+        document.getElementById('review-consult-mode').textContent = CONSULT_MODE_DISPLAY;
         document.getElementById('review-name').textContent = name;
         document.getElementById('review-phone').textContent = phone;
         document.getElementById('review-email').textContent = email;
@@ -844,6 +835,14 @@
 
     async function submitBooking() {
         if (isSubmitting) return;
+
+        // 雙保險：Step 4 是唯一入口，但避免任何路徑繞過匯款截圖確認
+        if (!document.getElementById('field-proof').checked) {
+            alert('請先勾選「我已完成匯款，並會將匯款截圖私訊官方 LINE」');
+            goToStep(3);
+            return;
+        }
+
         isSubmitting = true;
 
         const btn = document.getElementById('btn-submit');
@@ -858,7 +857,7 @@
             name: document.getElementById('field-name').value.trim(),
             phone: document.getElementById('field-phone').value.trim(),
             email: document.getElementById('field-email').value.trim(),
-            consultMode: document.querySelector('input[name="consultMode"]:checked').value,
+            consultMode: CONSULT_MODE,
             birthCalendar: birth ? birth.calendar : '',
             birthDate: birth ? birth.date : '',
             igAccount: document.getElementById('field-ig').value.trim().replace(/^@/, ''),
