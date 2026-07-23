@@ -11,7 +11,7 @@ var SETTINGS = {
   BRAND_NAME: '\u975e\u975e768',
   SERVICE_PRICE: 'NT$3,800',
   CALENDAR_ID: '1cb0aeeafa55fb75407aa932bb3b1d84e322a7bab04e54099d432b2cc9bcd976@group.calendar.google.com',
-  TIME_SLOTS: ['10:30', '11:30', '14:00', '15:00', '16:00'],
+  TIME_SLOTS: ['10:30', '11:30', '14:30', '15:30', '16:30'],
   TUESDAY_EXTRA_SLOTS: ['18:00'], // 僅週二開放的延長時段
   AVAILABLE_DAYS: [1, 2, 3, 4, 5], // 週一到五
   MIN_ADVANCE_DAYS: 1, // \u660e\u5929\u8d77\u53ef\u9810\u7d04\uff1b\u7576\u5929\u8acb\u79c1\u8a0a\u5b98\u65b9 LINE
