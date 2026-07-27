@@ -28,7 +28,9 @@ var SETTINGS = {
   COL_BOOKING_ID: 16,
   COL_CALENDAR_EVENT_ID: 17,
   COL_REMINDER_AT: 18,
-  COL_LINE_FRIEND_STATUS: 19
+  COL_LINE_FRIEND_STATUS: 19,
+  // 背景工作佇列（Script Properties key）
+  PENDING_JOBS_KEY: 'PENDING_BOOKING_JOBS'
 };
 
 // Channel Access Token 從 Script Properties 讀取（避免硬編碼到原始碼）
@@ -551,14 +553,29 @@ function normalizeFriendStatus_(flag) {
 // ===== 版本檢查（方便確認部署是否更新）=====
 // 用瀏覽器打開 Web App URL 會看到這個回應
 function doGet(e) {
+  // 前端成功後會 fire-and-forget 打 ?task=processJobs，在背景消化佇列
+  if (e && e.parameter && e.parameter.task === 'processJobs') {
+    try {
+      var n = processPendingBookingJobs();
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: true, task: 'processJobs', processed: n }))
+        .setMimeType(ContentService.MimeType.JSON);
+    } catch (err) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: false, task: 'processJobs', error: err.message }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
   return ContentService
     .createTextOutput(JSON.stringify({
-      version: 'BOOKING-v7.2-2026-07-27-fast-submit',
+      version: 'BOOKING-v7.3-2026-07-27-async-side-effects',
       hasLinePush: typeof sendLinePush === 'function',
       hasLineReceived: typeof sendLineBookingReceived === 'function',
       hasCalendarCreate: typeof createPendingCalendarEvent === 'function',
       hasTomorrowReminder: typeof sendTomorrowBookingReminders === 'function',
       hasIdTokenVerify: typeof verifyLineIdToken === 'function',
+      hasAsyncJobs: typeof processPendingBookingJobs === 'function',
       tokenSet: !!getLineToken(),
       lineLoginChannelIdSet: !!getLineLoginChannelId(),
       liffId: SETTINGS.LIFF_ID,
@@ -566,6 +583,169 @@ function doGet(e) {
       now: new Date().toISOString()
     }, null, 2))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ===== 背景工作佇列（Calendar / LINE / Email）=====
+// 預約 HTTP 請求只負責寫入；側效進佇列，由 processJobs 或 1 分鐘 Trigger 消化
+
+function enqueueBookingSideEffects_(job) {
+  var props = PropertiesService.getScriptProperties();
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) {
+    Logger.log('enqueueBookingSideEffects_: lock fail, job may drop bookingId=' + (job && job.bookingId));
+    // 最後手段：直接同步跑（仍可能失敗，但不丟預約資料）
+    try { runBookingSideEffects_(job); } catch (e) {
+      Logger.log('enqueue fallback run error: ' + e.message);
+    }
+    return;
+  }
+  try {
+    var jobs = [];
+    try {
+      jobs = JSON.parse(props.getProperty(SETTINGS.PENDING_JOBS_KEY) || '[]');
+    } catch (parseErr) {
+      jobs = [];
+    }
+    if (!Array.isArray(jobs)) jobs = [];
+    jobs.push(job);
+    // 防止 Property 過大
+    if (jobs.length > 40) jobs = jobs.slice(-40);
+    props.setProperty(SETTINGS.PENDING_JOBS_KEY, JSON.stringify(jobs));
+  } finally {
+    try { lock.releaseLock(); } catch (e2) { /* ignore */ }
+  }
+}
+
+/**
+ * 消化佇列。回傳處理筆數。
+ * 由 doGet?task=processJobs 或時間觸發器呼叫。
+ */
+function processPendingBookingJobs() {
+  var props = PropertiesService.getScriptProperties();
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(20000)) {
+    Logger.log('processPendingBookingJobs: busy');
+    return 0;
+  }
+  var jobs = [];
+  try {
+    try {
+      jobs = JSON.parse(props.getProperty(SETTINGS.PENDING_JOBS_KEY) || '[]');
+    } catch (parseErr) {
+      jobs = [];
+    }
+    if (!Array.isArray(jobs) || jobs.length === 0) {
+      return 0;
+    }
+    // 先清空再處理，避免重複；失敗的會重新入列
+    props.setProperty(SETTINGS.PENDING_JOBS_KEY, '[]');
+  } finally {
+    try { lock.releaseLock(); } catch (e3) { /* ignore */ }
+  }
+
+  var processed = 0;
+  var retry = [];
+  for (var i = 0; i < jobs.length; i++) {
+    try {
+      runBookingSideEffects_(jobs[i]);
+      processed++;
+    } catch (err) {
+      Logger.log('processPendingBookingJobs job fail bookingId=' +
+        (jobs[i] && jobs[i].bookingId) + ': ' + err.message);
+      var attempts = (jobs[i] && jobs[i].attempts) ? jobs[i].attempts : 0;
+      if (attempts < 3) {
+        jobs[i].attempts = attempts + 1;
+        retry.push(jobs[i]);
+      }
+    }
+  }
+
+  if (retry.length > 0) {
+    var lock2 = LockService.getScriptLock();
+    if (lock2.tryLock(5000)) {
+      try {
+        var existing = [];
+        try {
+          existing = JSON.parse(props.getProperty(SETTINGS.PENDING_JOBS_KEY) || '[]');
+        } catch (e4) {
+          existing = [];
+        }
+        if (!Array.isArray(existing)) existing = [];
+        props.setProperty(SETTINGS.PENDING_JOBS_KEY, JSON.stringify(existing.concat(retry).slice(-40)));
+      } finally {
+        try { lock2.releaseLock(); } catch (e5) { /* ignore */ }
+      }
+    }
+  }
+  Logger.log('processPendingBookingJobs: processed=' + processed + ' retry=' + retry.length);
+  return processed;
+}
+
+function runBookingSideEffects_(job) {
+  if (!job || !job.bookingId) return;
+
+  // Calendar
+  try {
+    var eventId = createPendingCalendarEvent({
+      bookingId: job.bookingId,
+      date: job.date,
+      time: job.time,
+      name: job.name,
+      phone: job.phone,
+      igAccount: job.igAccount,
+      paymentLast5: job.paymentLast5,
+      status: '\u5f85\u78ba\u8a8d'
+    });
+    if (eventId && job.sheetRow) {
+      getSheet().getRange(job.sheetRow, SETTINGS.COL_CALENDAR_EVENT_ID).setValue(eventId);
+    } else if (!eventId) {
+      Logger.log('runBookingSideEffects_ calendar empty bookingId=' + job.bookingId);
+    }
+  } catch (errCal) {
+    Logger.log('runBookingSideEffects_ calendar error: ' + errCal.message);
+    throw errCal; // 讓外層重試
+  }
+
+  // LINE 已收到
+  if (job.lineUid) {
+    try {
+      sendLineBookingReceived({
+        date: job.date,
+        dateDisplay: job.dateDisplay || job.date,
+        time: job.time,
+        lineUid: job.lineUid,
+        bookingId: job.bookingId
+      });
+    } catch (errLine) {
+      Logger.log('runBookingSideEffects_ line error: ' + errLine.message);
+      // LINE 失敗不整筆重試（避免重複推播風險較低；這裡選擇不 throw）
+    }
+  }
+
+  // 助理 Email
+  if (SETTINGS.ASSISTANT_EMAIL) {
+    try {
+      sendAssistantNotification({
+        date: job.date,
+        dateDisplay: job.dateDisplay || job.date,
+        time: job.time,
+        name: job.name,
+        phone: job.phone,
+        email: job.email,
+        notes: job.notes,
+        igAccount: job.igAccount,
+        lineName: job.lineName,
+        birthCalendar: job.birthCalendar,
+        birthDate: job.birthDate,
+        consultMode: job.consultMode,
+        paymentLast5: job.paymentLast5,
+        bookingId: job.bookingId
+      });
+    } catch (errMail) {
+      Logger.log('runBookingSideEffects_ email error: ' + errMail.message);
+      // Email 失敗不 throw，避免 Calendar 成功後重跑再建第二個事件
+    }
+  }
 }
 
 // ===== 主要 POST 處理 =====
@@ -678,9 +858,8 @@ function doPost(e) {
       try { lock.releaseLock(); } catch (relErr) { /* ignore */ }
     }
 
-    // 6. 鎖外非關鍵操作 — 任一失敗都不影響預約成功
-    //    速度：先擋時段（公開表輕量寫入）→ Calendar → LINE → Email（Email 通常最慢放最後）
-    //    完整公開表+Calendar 掃描改由 checkStatusChanges 背景做，避免客戶乾等 10+ 秒
+    // 6. 關鍵路徑只做「擋時段」；Calendar / LINE / Email 進背景佇列
+    //    客戶幾乎只等：驗證 token + 寫 Sheet（約 1–3 秒）
     var warnings = [];
 
     try {
@@ -690,51 +869,38 @@ function doPost(e) {
       Logger.log('appendPublicBookingSlot_ error: ' + errSync.message);
     }
 
-    // Calendar：建立待確認事件（失敗不回滾預約）
     try {
-      var eventId = createPendingCalendarEvent({
+      enqueueBookingSideEffects_({
         bookingId: bookingId,
+        sheetRow: sheetRow,
         date: data.date,
+        dateDisplay: data.dateDisplay || data.date,
         time: data.time,
         name: data.name,
         phone: data.phone,
+        email: data.email,
+        notes: data.notes || '',
         igAccount: data.igAccount,
+        lineName: data.lineName,
+        birthCalendar: data.birthCalendar,
+        birthDate: data.birthDate,
+        consultMode: data.consultMode,
         paymentLast5: data.paymentLast5,
-        status: '\u5f85\u78ba\u8a8d'
+        lineUid: data.lineUid,
+        attempts: 0
       });
-      if (eventId && sheetRow) {
-        getSheet().getRange(sheetRow, SETTINGS.COL_CALENDAR_EVENT_ID).setValue(eventId);
-      } else if (!eventId) {
-        warnings.push('calendar_event_failed');
-      }
-    } catch (errCal) {
-      warnings.push('calendar_event_failed');
-      Logger.log('createPendingCalendarEvent error bookingId=' + bookingId + ' row=' + sheetRow + ': ' + errCal.message);
-    }
-
-    if (data.lineUid) {
-      try {
-        sendLineBookingReceived(data);
-      } catch (errLine) {
-        warnings.push('line_push_failed');
-        Logger.log('sendLineBookingReceived error: ' + errLine.message);
-      }
-    }
-
-    if (SETTINGS.ASSISTANT_EMAIL) {
-      try {
-        sendAssistantNotification(data);
-      } catch (errNotify) {
-        warnings.push('assistant_email_failed');
-        Logger.log('sendAssistantNotification error: ' + errNotify.message);
-      }
+    } catch (errQ) {
+      warnings.push('side_effects_queue_failed');
+      Logger.log('enqueueBookingSideEffects_ error: ' + errQ.message);
     }
 
     var result = {
       success: true,
       bookingId: bookingId,
       lineConnected: true,
-      warnings: warnings
+      warnings: warnings,
+      // 前端可 fire-and-forget 打 ?task=processJobs
+      processJobsHint: true
     };
     return ContentService
       .createTextOutput(JSON.stringify(result))
@@ -997,6 +1163,13 @@ function sendAssistantNotification(data) {
 }
 
 function checkStatusChanges() {
+  // 順手消化背景佇列（前端 kick 失敗時的備援）
+  try {
+    processPendingBookingJobs();
+  } catch (jobErr) {
+    Logger.log('checkStatusChanges processPendingBookingJobs: ' + jobErr.message);
+  }
+
   var sheet = getSheet();
   var lastRow = sheet.getLastRow();
   if (lastRow <= 1) {
@@ -1391,6 +1564,17 @@ function installBookingTriggers() {
       .inTimezone(SETTINGS.TIMEZONE)
       .create();
     Logger.log('sendTomorrowBookingReminders trigger: 已建立 (daily ~18:00 Asia/Taipei)');
+  }
+
+  // 背景消化預約側效（前端 kick 失敗時的備援）
+  if (existingHandlers['processPendingBookingJobs']) {
+    Logger.log('processPendingBookingJobs trigger: 已存在');
+  } else {
+    ScriptApp.newTrigger('processPendingBookingJobs')
+      .timeBased()
+      .everyMinutes(1)
+      .create();
+    Logger.log('processPendingBookingJobs trigger: 已建立 (every 1 min)');
   }
 }
 

@@ -1140,6 +1140,19 @@
         updateLineStatusUI();
     }
 
+    /** 預約成功後背景消化佇列（Calendar / LINE / Email），不擋住成功頁 */
+    function kickPostBookingWorker() {
+        if (!CONFIG.SCRIPT_URL) return;
+        try {
+            var sep = CONFIG.SCRIPT_URL.indexOf('?') >= 0 ? '&' : '?';
+            var url = CONFIG.SCRIPT_URL + sep + 'task=processJobs&_t=' + Date.now();
+            // 不 await：讓瀏覽器在背景跑，客戶先看到成功頁
+            fetch(url, { method: 'GET', redirect: 'follow', keepalive: true }).catch(function () {});
+        } catch (err) {
+            console.log('kickPostBookingWorker:', err);
+        }
+    }
+
     async function submitBooking() {
         if (isSubmitting) return;
 
@@ -1233,6 +1246,8 @@
                     return;
                 }
                 const bookingId = (result && result.bookingId) ? result.bookingId : '';
+                // 立刻顯示成功，背景觸發 Calendar / LINE / Email（不 await）
+                kickPostBookingWorker();
                 showSuccess(Object.assign({}, data, {
                     bookingId: bookingId,
                     warnings: (result && result.warnings) || []
