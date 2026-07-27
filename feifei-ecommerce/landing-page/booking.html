@@ -1212,6 +1212,8 @@
                         alert('此時段剛被其他人預約了，請重新選擇時段');
                     } else if (result.error === 'RATE_LIMITED') {
                         alert(result.message || '操作太頻繁，請稍後再試');
+                    } else if (result.error === 'SERVER_BUSY') {
+                        alert(result.message || '系統忙線中，請稍後 10 秒再按一次送出（您的資料還在）');
                     } else if (result.error === 'VALIDATION_ERROR') {
                         alert(result.message || '資料有誤，請檢查後重新填寫');
                     } else if (result.error === 'LINE_AUTH_REQUIRED') {

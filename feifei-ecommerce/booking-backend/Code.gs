@@ -238,9 +238,17 @@ function getSlotsForDate(date) {
 function syncPublicSheet() {
   if (!SETTINGS.PUBLIC_SHEET_ID) return;
 
-  // 加鎖防止並發寫入衝突（等最多 30 秒）
+  // Calendar 讀取可能很慢，必須在鎖外執行，避免卡住 doPost 預約寫入
+  var calBlocks = [];
+  try {
+    calBlocks = getCalendarBlocks() || [];
+  } catch (calErr) {
+    Logger.log('syncPublicSheet getCalendarBlocks error: ' + calErr.message);
+  }
+
+  // 只在讀寫 Sheet 時短鎖；搶不到就跳過（公開時段可下次再同步）
   var lock = LockService.getScriptLock();
-  if (!lock.tryLock(30000)) {
+  if (!lock.tryLock(8000)) {
     Logger.log('syncPublicSheet: could not acquire lock, skipping');
     return;
   }
@@ -258,6 +266,7 @@ function syncPublicSheet() {
     var publicRows = [];
 
     if (lastRow > 1) {
+      // getRange(row, column, numRows, numColumns)
       var data = source.getRange(2, 1, lastRow - 1, 9).getValues();
       for (var i = 0; i < data.length; i++) {
         var row = data[i];
@@ -272,7 +281,6 @@ function syncPublicSheet() {
       }
     }
 
-    var calBlocks = getCalendarBlocks();
     for (var j = 0; j < calBlocks.length; j++) {
       var block = calBlocks[j];
       var isDuplicate = false;
@@ -507,7 +515,7 @@ function normalizeFriendStatus_(flag) {
 function doGet(e) {
   return ContentService
     .createTextOutput(JSON.stringify({
-      version: 'BOOKING-v7-2026-07-27-line-calendar-reminder',
+      version: 'BOOKING-v7.1-2026-07-27-lock-fix',
       hasLinePush: typeof sendLinePush === 'function',
       hasLineReceived: typeof sendLineBookingReceived === 'function',
       hasCalendarCreate: typeof createPendingCalendarEvent === 'function',
@@ -568,14 +576,24 @@ function doPost(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
-    // 3. 加鎖 — 防止 TOCTOU 競爭條件（等最多 30 秒）
+    // 3. 加鎖 — 防止 TOCTOU（短鎖 + 重試；避免被 syncPublicSheet/Trigger 長時間卡住）
     var lock = LockService.getScriptLock();
-    if (!lock.tryLock(30000)) {
+    var gotLock = false;
+    var lockAttempts = 0;
+    while (lockAttempts < 4 && !gotLock) {
+      lockAttempts++;
+      gotLock = lock.tryLock(12000);
+      if (!gotLock && lockAttempts < 4) {
+        Utilities.sleep(400 * lockAttempts);
+      }
+    }
+    if (!gotLock) {
+      Logger.log('doPost SERVER_BUSY after ' + lockAttempts + ' lock attempts bookingId=' + bookingId);
       return ContentService
         .createTextOutput(JSON.stringify({
           success: false,
           error: 'SERVER_BUSY',
-          message: '\u7cfb\u7d71\u5fd9\u7891\u4e2d\uff0c\u8acb\u7a0d\u5f8c\u518d\u8a66'
+          message: '\u7cfb\u7d71\u5fd9\u7891\u4e2d\uff0c\u8acb\u7a0d\u5f8c 10 \u79d2\u518d\u8a66'
         }))
         .setMimeType(ContentService.MimeType.JSON);
     }
@@ -619,7 +637,7 @@ function doPost(e) {
       ]);
       sheetRow = sheet.getLastRow();
     } finally {
-      lock.releaseLock();
+      try { lock.releaseLock(); } catch (relErr) { /* ignore */ }
     }
 
     // 6. 鎖外執行非關鍵操作 — 任一失敗都不影響預約成功狀態
