@@ -153,9 +153,9 @@
 <h2>二、入口連結（兩個都要測）</h2>
 <ul>
   <li><strong>LIFF 連結</strong>：<span class="url-box">https://liff.line.me/2009821980-46y6BEMh</span></li>
-  <li><strong>直連網址</strong>：<span class="url-box">（請填入 GitHub Pages 的 booking.html 網址）</span></li>
+  <li><strong>直連網址</strong>：<span class="url-box">https://myfeifei768.com.tw/booking.html</span></li>
 </ul>
-<div class="note">兩個都要驗證：能順利打開，且功能正常。</div>
+<div class="note">兩個都要驗證：能順利打開，且功能正常。Booking v2 起，一般瀏覽器送出時會導向 LINE Login，回跳後應恢復表單。</div>
 
 <h2>三、頁面開啟檢查</h2>
 <ul>
@@ -215,25 +215,75 @@
   </li>
 </ul>
 
-<h2>八、送出預約</h2>
+<h2>八、送出預約（既有流程）</h2>
 <ul>
   <li>全部填正確 → 跳出確認資訊（可再次檢查）</li>
   <li>確認送出 → 顯示「預約成功」頁面，並顯示日期 + 時段</li>
   <li>成功頁應出現「📸 最後一步：傳匯款截圖」提醒區塊</li>
+  <li>成功頁顯示<strong>預約編號</strong>（格式例：F768-260727-A1B2）</li>
+  <li>成功頁有按鈕「前往官方 LINE 傳匯款截圖」</li>
   <li><strong>馬上重新整理頁面</strong> → 看時段是否變灰（代表後台已寫入）</li>
 </ul>
 
-<h2>九、通知收件確認（這項要等收到通知再回報）</h2>
+<h2>九、LINE 好友情境（Booking v2）</h2>
 <ul>
-  <li>填寫的 Email 信箱有收到預約確認信</li>
-  <li>如果是從 LINE 連結進來的 → LINE 有收到 feifei 推播訊息</li>
-  <li>如果是用直連網址（沒登入 LINE）→ LINE 不會推，但 Email 要有</li>
+  <li><strong>已登入 + 已是好友</strong>：送出按鈕維持「送出預約」，不跳額外 modal，直接送出</li>
+  <li><strong>已登入 + 不是好友</strong>：按鈕文案為「加入官方 LINE 並送出預約」；點擊後只出現 LINE 原生加好友提示</li>
+  <li>接受加好友 → 自動繼續送出</li>
+  <li>取消加好友 → 所有已填資料與 Step 4 都保留，可再按一次</li>
+  <li>LINE 顯示名稱仍自動帶入且可手動修改</li>
+  <li>Sheet 第 10 欄 LINE UID 應為後端驗證後的值（非空、以 U 開頭）</li>
+  <li>Sheet 第 19 欄「LINE 好友狀態」有記錄（已確認好友 / 未確認 等）</li>
 </ul>
 
-<h2>十、錯誤情境</h2>
+<h2>十、一般瀏覽器 + LINE Login 草稿恢復</h2>
+<ul>
+  <li>未登入 LINE 時填完整表單後按送出 → 導向 LINE Login</li>
+  <li>Login 回跳後：日期、時段、所有欄位、checkbox 都恢復，不需重填</li>
+  <li>預約成功後 draft 清除（重新整理不會再跳出舊資料）</li>
+  <li>sessionStorage 中<strong>沒有</strong> ID token</li>
+</ul>
+
+<h2>十一、官方 LINE 傳截圖按鈕</h2>
+<ul>
+  <li>按鈕只開啟非非官方帳號（不會送到來源聊天室）</li>
+  <li>固定訊息含：預約編號、日期、時段</li>
+  <li>客戶不需重新輸入預約資料，接著選截圖送出即可</li>
+  <li>iOS LINE / Android LINE / Safari / Chrome 各測一次</li>
+</ul>
+<div class="note">若 CONFIG.OFFICIAL_LINE_CHAT_URL 仍為空，按鈕會提示「尚未設定」並嘗試複製訊息 — 此為已知 blocker，請業主補上官方 URL 後再驗正式站。</div>
+
+<h2>十二、Google Calendar 同步（助理後台）</h2>
+<ul>
+  <li>新預約自動建立一個「【待確認】姓名｜線上諮詢」事件，長度 60 分鐘</li>
+  <li>Sheet 第 17 欄寫入 Calendar Event ID</li>
+  <li>Sheet 改「已確認」→ 同一事件標題改為「【已確認】…」，不另建第二個</li>
+  <li>Sheet 改「已取消」→ 事件刪除，網站時段釋放</li>
+  <li>公開時段 Sheet 沒有重複 block</li>
+</ul>
+
+<h2>十三、前一天提醒（助理後台）</h2>
+<ul>
+  <li>僅「已確認」且預約日為明天者會收到 LINE 提醒</li>
+  <li>待確認 / 已取消 / 已完成 不提醒</li>
+  <li>同一筆 Trigger 重跑只發一次（第 18 欄提醒時間有值）</li>
+  <li>文案不含生日、備註、匯款末五碼</li>
+  <li>UID 空白或推播失敗時 Email 備援，第 18 欄記「Email備援 …」</li>
+</ul>
+
+<h2>十四、通知收件確認</h2>
+<ul>
+  <li>助理 Email 有收到新預約通知（含預約編號）</li>
+  <li>客戶 LINE 有收到「已收到預約申請」推播</li>
+  <li>Sheet 改已確認 → 客戶 Email + LINE 確認通知</li>
+  <li>Sheet 改已取消 → 客戶 Email + LINE 取消通知</li>
+</ul>
+
+<h2>十五、錯誤情境</h2>
 <ul>
   <li>同一個 Email 在 60 秒內連送兩次 → 第二次應被擋下</li>
   <li>故意把網路關掉再送出 → 應該顯示錯誤頁，可重試</li>
+  <li>LINE 未登入/驗證失敗 → 顯示需 LINE 登入，表單資料不應清空</li>
 </ul>
 
 <h2>助理回報格式</h2>

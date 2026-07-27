@@ -1,6 +1,6 @@
 # 非非選品｜進度追蹤
 
-> **最後更新**: 2026-05-02
+> **最後更新**: 2026-07-27
 > **定位**: 個人品牌帶貨（宗教 IP 方向待驗證），長期經營
 > **合作模式**: Ian（行銷策略長）+ feifei（品牌主理人），長期抽成合作
 > **官網**: https://myfeifei768.com.tw（自訂網域已上線；舊網址 ian0323.github.io 已停用）
@@ -133,6 +133,48 @@
 3. 用瀏覽器打開 Web App URL，確認 `version: BOOKING-v5-2026-05-02-remove-topic`
 4. `booking.html` commit + push → GitHub Pages 自動部署
 5. 端到端測試一次
+
+---
+
+## Sprint 1.11 🟡 — Booking v2：LINE 聯絡、Calendar 雙向、前一天提醒（2026-07-27）
+
+計畫文件：`docs/booking-v2-implementation-plan.md`
+
+| 項目 | 狀態 | 備註 |
+|------|------|------|
+| 前端 LIFF 登入 / 好友確認 / 表單草稿恢復 | ✅ 程式 | `booking.html`：`ensureLineReadyForBooking`、sessionStorage 草稿 30 分、成功後清除 |
+| 送出前不信任 raw `lineUid`，改送 `lineIdToken` | ✅ 程式 | 後端 `verifyLineIdToken` 驗 LINE OAuth，`sub` 寫入 Sheet 第 10 欄 |
+| 後端產生預約編號 | ✅ 程式 | 格式 `F768-YYMMDD-XXXX`，寫入第 16 欄，成功回應回傳 `bookingId` |
+| 成功頁「前往官方 LINE 傳匯款截圖」 | ✅ 程式 | 按鈕 + 固定訊息 + clipboard fallback；`OFFICIAL_LINE_CHAT_URL` = `https://line.me/R/ti/p/@329pbeom`（來自 `@329pbeom`） |
+| Sheet P–S 自動化欄位 | ✅ 程式 | 預約編號 / Calendar Event ID / 提醒時間 / LINE 好友狀態；`migrateBookingAutomationColumns()` |
+| 新預約建立 Calendar「待確認」事件 | ✅ 程式 | 鎖外建立；失敗 warnings `calendar_event_failed`，不回滾預約 |
+| 已確認更新 / 已取消刪除 Calendar | ✅ 程式 | 擴充 `checkStatusChanges`；缺事件時重建 |
+| `backfillMissingCalendarEvents()` | ✅ 程式 | 管理用補建 |
+| `sendLinePush` 回傳 ok/status | ✅ 程式 | 既有已收到/確認/取消適配 |
+| 前一天提醒 `sendTomorrowBookingReminders` | ✅ 程式 | 去重寫第 18 欄；失敗 Email 備援 |
+| Trigger 管理 `installBookingTriggers` / `listBookingTriggers` | ✅ 程式 | checkStatusChanges 每 5 分；提醒每天 ~18:00 Asia/Taipei |
+| 後端版本字串 | ✅ 程式 | `BOOKING-v7-2026-07-27-line-calendar-reminder` |
+| 測試清單 HTML | ✅ 程式 | `docs/booking-test-checklist.html` 新增 v2 項目 |
+| 測試清單 PDF | ⬜ 未重產 | 僅 HTML 更新；不得宣稱 PDF 已同步 |
+| LINE Console（Full view / scopes / linked OA） | ⬜ 待業主 | openid、profile、Add friend、Endpoint 確認 |
+| Script Property `LINE_LOGIN_CHANNEL_ID` | ⬜ 待設定 | Apps Script Project Settings |
+| Sheet 備份 + `migrateBookingAutomationColumns` | ⬜ 待執行 | 部署前先備份私人 Sheet |
+| Apps Script v7 部署 | ⬜ 待部署 | 正式 doGet 2026-07-27 仍為 v6 |
+| Trigger 安裝 | ⬜ 待執行 | 部署後跑 `installBookingTriggers` + `listBookingTriggers` |
+| Calendar 寫入權限驗證 | ⬜ 待驗證 | 確認擁有者可寫入 `CALENDAR_ID` |
+| 官方 LINE Basic ID / 聊天 URL | ✅ 已填入 | Basic ID `@329pbeom` → 客戶端 `https://line.me/R/ti/p/@329pbeom`（管理後台連結不可直接給客戶） |
+| 端到端實機測試 | ⬜ 部署後 | 已是好友 / 未加好友 / 一般瀏覽器 / 確認 / 取消 / 提醒 |
+
+**部署順序（不要顛倒）：**
+1. 備份私人預約 Sheet
+2. 設定 Script Property：`LINE_LOGIN_CHANNEL_ID`（既有 `LINE_CHANNEL_ACCESS_TOKEN` 保留）
+3. 貼上新 `Code.gs` → 執行 `migrateBookingAutomationColumns()` → 執行 `installBookingTriggers()` → 新版本 Web App 部署
+4. 打開正式 doGet，確認 `version: BOOKING-v7-2026-07-27-line-calendar-reminder` 與 `timeSlots`
+5. 業主提供官方 LINE URL → 填入 `booking.html` 的 `CONFIG.OFFICIAL_LINE_CHAT_URL`
+6. push 前端 → GitHub Pages
+7. 端到端測試（兩支 LINE 帳號）
+
+**明確不做（本 sprint）：** 不改欄位必填、不定價、不改時段、不做客戶 Calendar 邀請、不做自動改期、不擴 chat webhook 對帳。
 
 ---
 

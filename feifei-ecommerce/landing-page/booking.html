@@ -337,6 +337,7 @@
                     送出預約
                 </button>
             </div>
+            <p id="line-status-hint" class="mt-3 text-center text-xs text-ink/50"></p>
         </div>
 
         <!-- Success -->
@@ -356,11 +357,21 @@
                     <p class="text-sm text-ink/70">
                         預約日期：<span id="success-datetime" class="font-medium text-ink"></span>
                     </p>
+                    <p id="success-booking-id-wrap" class="mt-2 hidden text-sm text-ink/70">
+                        預約編號：<span id="success-booking-id" class="font-bold text-plum"></span>
+                    </p>
                 </div>
                 <div class="mt-4 rounded-xl border-2 border-plum/40 bg-plum/5 p-4 text-left">
                     <p class="text-sm font-bold text-plum">📸 最後一步：傳匯款截圖</p>
                     <p class="mt-2 text-sm leading-relaxed text-ink/75">
                         請將<span class="font-bold text-blush">匯款截圖私訊官方 LINE</span>，助理核對到款項後才會完成預約確認。
+                    </p>
+                    <button type="button" id="btn-official-line" onclick="openOfficialLineWithProofMessage()"
+                        class="mt-4 w-full rounded-xl bg-plum py-3.5 text-sm font-bold text-white transition hover:bg-plum/90 active:scale-[0.98]">
+                        前往官方 LINE 傳匯款截圖
+                    </button>
+                    <p id="official-line-fallback-hint" class="mt-2 hidden text-xs leading-relaxed text-ink/50">
+                        官方 LINE 連結尚未設定。請先記下預約編號，再私訊官方帳號並附上匯款截圖。
                     </p>
                 </div>
                 <p class="mt-6 text-xs text-ink/40">如有任何問題，請透過 LINE 聯繫我們</p>
@@ -393,6 +404,9 @@
         SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyIm5XPUyfR__N66-59kjUY1vyM8uY3RDeQzlIYj5gepuu7CBTHkOxO3HVU-eoKDlxC/exec',
         // LIFF ID — 從 LINE 內開啟時用來抓客戶 UID 做推播
         LIFF_ID: '2009821980-46y6BEMh',
+        // 官方 LINE 一對一聊天 URL（Basic ID @329pbeom，來自 manager.line.biz）
+        // 客戶端請用 line.me 聊天連結，不要用 manager 後台網址
+        OFFICIAL_LINE_CHAT_URL: 'https://line.me/R/ti/p/@329pbeom',
         // 可預約的星期幾 (0=日, 1=一, 2=二, 3=三, 4=四, 5=五, 6=六)
         AVAILABLE_DAYS: [1, 2, 3, 4, 5],
         // 一般時段
@@ -403,28 +417,309 @@
         MIN_ADVANCE_DAYS: 1,
         // 最多預約幾天後
         MAX_ADVANCE_DAYS: 30,
+        // LINE Login 草稿（sessionStorage）
+        DRAFT_STORAGE_KEY: 'feifei_booking_draft_v1',
+        DRAFT_SCHEMA_VERSION: 1,
+        DRAFT_TTL_MS: 30 * 60 * 1000,
     };
 
-    // ===== LIFF =====
-    // 從 LINE 進來時自動抓 UID，一般瀏覽器開啟則降級為 null（仍可預約，只是不推 LINE）
+    // ===== LIFF 狀態 =====
     let lineUid = null;
-    (async function initLiff() {
-        if (typeof liff === 'undefined' || !CONFIG.LIFF_ID) return;
+    let lineIdToken = null;
+    let lineFriendFlag = false;
+    let lineProfile = null;
+    let liffInitError = null;
+    let liffReadyPromise = null;
+    let lastSuccessPayload = null;
+    let isSubmitting = false; // 防重複提交（須在 updateLineStatusUI 之前宣告）
+
+    async function initLiff() {
+        if (typeof liff === 'undefined' || !CONFIG.LIFF_ID) {
+            liffInitError = 'liff_sdk_missing';
+            updateLineStatusUI();
+            return;
+        }
         try {
             await liff.init({ liffId: CONFIG.LIFF_ID });
             if (liff.isLoggedIn()) {
-                const profile = await liff.getProfile();
-                lineUid = profile.userId;
-                // 自動帶入 LINE 顯示名稱（客人仍可手動修改）
-                const lineNameField = document.getElementById('field-line-name');
-                if (lineNameField && profile.displayName && !lineNameField.value) {
-                    lineNameField.value = profile.displayName;
-                }
+                await refreshLineSessionState();
             }
         } catch (err) {
+            liffInitError = (err && err.message) ? err.message : String(err);
             console.log('LIFF init error:', err);
         }
-    })();
+        updateLineStatusUI();
+    }
+
+    async function refreshLineSessionState() {
+        try {
+            lineProfile = await liff.getProfile();
+            lineUid = lineProfile.userId || null;
+            lineIdToken = (typeof liff.getIDToken === 'function') ? liff.getIDToken() : null;
+            if (typeof liff.getFriendship === 'function') {
+                try {
+                    const friendship = await liff.getFriendship();
+                    lineFriendFlag = !!(friendship && friendship.friendFlag);
+                } catch (friendErr) {
+                    console.log('getFriendship error:', friendErr);
+                    lineFriendFlag = false;
+                }
+            }
+            // 自動帶入 LINE 顯示名稱（客人仍可手動修改；不覆蓋已輸入內容）
+            const lineNameField = document.getElementById('field-line-name');
+            if (lineNameField && lineProfile.displayName && !lineNameField.value) {
+                lineNameField.value = lineProfile.displayName;
+            }
+        } catch (err) {
+            liffInitError = (err && err.message) ? err.message : String(err);
+            console.log('refreshLineSessionState error:', err);
+        }
+        updateLineStatusUI();
+    }
+
+    function updateLineStatusUI() {
+        const hint = document.getElementById('line-status-hint');
+        const btn = document.getElementById('btn-submit');
+        if (!hint) return;
+
+        if (liffInitError && !lineUid) {
+            hint.textContent = 'LINE 連線異常時，送出時會再嘗試登入';
+        } else if (lineUid && lineFriendFlag) {
+            hint.textContent = '已連結 LINE，可接收預約提醒';
+        } else if (lineUid && !lineFriendFlag) {
+            hint.textContent = '送出時將請您加入官方 LINE，以接收通知';
+        } else {
+            hint.textContent = '送出時將透過 LINE 登入以接收通知';
+        }
+
+        if (btn && !isSubmitting) {
+            btn.textContent = (lineUid && !lineFriendFlag)
+                ? '加入官方 LINE 並送出預約'
+                : '送出預約';
+        }
+    }
+
+    function saveBookingDraftForLineLogin() {
+        try {
+            const draft = {
+                schemaVersion: CONFIG.DRAFT_SCHEMA_VERSION,
+                savedAt: Date.now(),
+                selectedDate: selectedDate,
+                selectedTime: selectedTime,
+                currentStep: currentStep,
+                fields: {
+                    name: document.getElementById('field-name')?.value || '',
+                    phone: document.getElementById('field-phone')?.value || '',
+                    email: document.getElementById('field-email')?.value || '',
+                    ig: document.getElementById('field-ig')?.value || '',
+                    lineName: document.getElementById('field-line-name')?.value || '',
+                    payment: document.getElementById('field-payment')?.value || '',
+                    notes: document.getElementById('field-notes')?.value || '',
+                    birthYear: document.getElementById('field-birth-year')?.value || '',
+                    birthMonth: document.getElementById('field-birth-month')?.value || '',
+                    birthDay: document.getElementById('field-birth-day')?.value || '',
+                },
+                checkboxes: {
+                    agree: !!document.getElementById('field-agree')?.checked,
+                    proof: !!document.getElementById('field-proof')?.checked,
+                }
+            };
+            sessionStorage.setItem(CONFIG.DRAFT_STORAGE_KEY, JSON.stringify(draft));
+        } catch (err) {
+            console.log('saveBookingDraftForLineLogin error:', err);
+        }
+    }
+
+    function clearBookingDraft() {
+        try {
+            sessionStorage.removeItem(CONFIG.DRAFT_STORAGE_KEY);
+        } catch (err) { /* ignore */ }
+    }
+
+    function restoreBookingDraftAfterLineLogin() {
+        let raw;
+        try {
+            raw = sessionStorage.getItem(CONFIG.DRAFT_STORAGE_KEY);
+        } catch (err) {
+            return false;
+        }
+        if (!raw) return false;
+        let draft;
+        try {
+            draft = JSON.parse(raw);
+        } catch (err) {
+            clearBookingDraft();
+            return false;
+        }
+        if (!draft || draft.schemaVersion !== CONFIG.DRAFT_SCHEMA_VERSION) {
+            clearBookingDraft();
+            return false;
+        }
+        if (!draft.savedAt || (Date.now() - draft.savedAt) > CONFIG.DRAFT_TTL_MS) {
+            clearBookingDraft();
+            return false;
+        }
+
+        if (draft.fields) {
+            const map = {
+                'field-name': draft.fields.name,
+                'field-phone': draft.fields.phone,
+                'field-email': draft.fields.email,
+                'field-ig': draft.fields.ig,
+                'field-line-name': draft.fields.lineName,
+                'field-payment': draft.fields.payment,
+                'field-notes': draft.fields.notes,
+                'field-birth-year': draft.fields.birthYear,
+                'field-birth-month': draft.fields.birthMonth,
+                'field-birth-day': draft.fields.birthDay,
+            };
+            Object.keys(map).forEach(function(id) {
+                const el = document.getElementById(id);
+                if (el && map[id] != null) el.value = map[id];
+            });
+        }
+        if (draft.checkboxes) {
+            const agree = document.getElementById('field-agree');
+            const proof = document.getElementById('field-proof');
+            if (agree) agree.checked = !!draft.checkboxes.agree;
+            if (proof) proof.checked = !!draft.checkboxes.proof;
+        }
+
+        if (draft.selectedDate) selectedDate = draft.selectedDate;
+        if (draft.selectedTime) selectedTime = draft.selectedTime;
+
+        // 重新抓時段；最終仍以後端防撞為準
+        fetchBookedSlots();
+        renderCalendar();
+        if (selectedDate) {
+            if (selectedTime) {
+                document.getElementById('confirm-datetime').textContent =
+                    formatDateDisplay(selectedDate) + ' ' + selectedTime;
+            }
+            // 恢復到送出前步驟（通常 step 4）；若缺資料則至少回到表單
+            const step = draft.currentStep || 4;
+            if (step >= 4 && selectedDate && selectedTime) {
+                // 重建 step 4 檢視欄位
+                try {
+                    const birth = buildBirthDisplay();
+                    document.getElementById('review-date').textContent = formatDateDisplay(selectedDate);
+                    document.getElementById('review-time').textContent = selectedTime;
+                    document.getElementById('review-consult-mode').textContent = CONSULT_MODE_DISPLAY;
+                    document.getElementById('review-name').textContent = document.getElementById('field-name').value.trim();
+                    document.getElementById('review-phone').textContent = document.getElementById('field-phone').value.trim();
+                    document.getElementById('review-email').textContent = document.getElementById('field-email').value.trim();
+                    document.getElementById('review-birth').textContent = birth ? birth.display : '';
+                    const ig = document.getElementById('field-ig').value.trim().replace(/^@/, '');
+                    document.getElementById('review-ig').textContent = ig ? ('@' + ig) : '';
+                    document.getElementById('review-line-name').textContent = document.getElementById('field-line-name').value.trim();
+                    document.getElementById('review-payment').textContent = document.getElementById('field-payment').value.trim();
+                    document.getElementById('review-notes').textContent =
+                        document.getElementById('field-notes').value.trim() || '無';
+                } catch (e) { /* ignore */ }
+                goToStep(4);
+            } else if (selectedDate) {
+                renderTimeSlots();
+                goToStep(step >= 2 ? step : 2);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 送出前確保 LINE 已登入、已取得 ID token，並在非好友時觸發原生加好友。
+     * 必須在 user gesture 內呼叫 requestFriendship。
+     */
+    async function ensureLineReadyForBooking() {
+        await liffReadyPromise;
+
+        if (typeof liff === 'undefined' || !CONFIG.LIFF_ID) {
+            throw new Error('LINE 功能無法使用，請稍後再試或改用 LINE 內開啟本頁');
+        }
+
+        if (!liff.isLoggedIn()) {
+            saveBookingDraftForLineLogin();
+            liff.login({ redirectUri: window.location.href.split('#')[0] });
+            // login 會導頁；回傳 false 讓呼叫端中止
+            return false;
+        }
+
+        await refreshLineSessionState();
+
+        if (!lineFriendFlag && typeof liff.requestFriendship === 'function') {
+            try {
+                await liff.requestFriendship();
+            } catch (err) {
+                console.log('requestFriendship:', err);
+            }
+            await refreshLineSessionState();
+            if (!lineFriendFlag) {
+                alert('請加入官方 LINE 好友，才能接收預約通知與提醒。您的資料已保留，加入後再按一次送出即可。');
+                updateLineStatusUI();
+                return false;
+            }
+        }
+
+        lineIdToken = (typeof liff.getIDToken === 'function') ? liff.getIDToken() : lineIdToken;
+        if (!lineIdToken) {
+            // 部分環境需重新 login 才能拿到 id token
+            saveBookingDraftForLineLogin();
+            liff.login({ redirectUri: window.location.href.split('#')[0] });
+            return false;
+        }
+        return true;
+    }
+
+    function buildOfficialLineProofMessage(bookingId, dateDisplay, time) {
+        return '您好，我已完成非非768預約。\n'
+            + '預約編號：' + (bookingId || '（請見成功頁）') + '\n'
+            + '預約日期：' + (dateDisplay || '') + '\n'
+            + '預約時段：' + (time || '') + '\n'
+            + '接著傳送匯款截圖，謝謝。';
+    }
+
+    async function openOfficialLineWithProofMessage() {
+        const payload = lastSuccessPayload || {};
+        const message = buildOfficialLineProofMessage(
+            payload.bookingId,
+            payload.dateDisplay || payload.date,
+            payload.time
+        );
+        const baseUrl = (CONFIG.OFFICIAL_LINE_CHAT_URL || '').trim();
+
+        // 嘗試複製固定訊息（iOS/Android fallback）
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(message);
+            }
+        } catch (err) {
+            console.log('clipboard copy failed:', err);
+        }
+
+        if (!baseUrl) {
+            const hint = document.getElementById('official-line-fallback-hint');
+            if (hint) hint.classList.remove('hidden');
+            alert('官方 LINE 連結尚未設定。預約編號：' + (payload.bookingId || '') + '\n訊息已嘗試複製，請自行開啟官方 LINE 貼上並傳送匯款截圖。');
+            return;
+        }
+
+        // line.me 官方帳號可用 text 參數預填（各版 LINE 支援度不一；已備 clipboard fallback）
+        let target = baseUrl;
+        try {
+            const u = new URL(baseUrl);
+            if (!u.searchParams.has('text')) {
+                u.searchParams.set('text', message);
+            }
+            target = u.toString();
+        } catch (err) {
+            // 非標準 URL（如 line://）— 直接開啟
+            const sep = baseUrl.indexOf('?') >= 0 ? '&' : '?';
+            target = baseUrl + sep + 'text=' + encodeURIComponent(message);
+        }
+
+        window.open(target, '_blank', 'noopener,noreferrer');
+    }
+
+    liffReadyPromise = initLiff();
 
     // ===== State =====
     let currentYear, currentMonth;
@@ -447,6 +742,11 @@
     }
     renderCalendar();
     fetchBookedSlots();
+    // LINE Login 回跳後恢復表單（不需重填）
+    liffReadyPromise.then(function() {
+        restoreBookingDraftAfterLineLogin();
+        updateLineStatusUI();
+    });
 
     // ===== Fetch Booked Slots (via public Google Sheet, no customer data) =====
 
@@ -831,7 +1131,14 @@
     }
 
     // ===== Submit =====
-    let isSubmitting = false; // 防重複提交
+
+    function resetSubmitButton() {
+        isSubmitting = false;
+        const btn = document.getElementById('btn-submit');
+        if (!btn) return;
+        btn.disabled = false;
+        updateLineStatusUI();
+    }
 
     async function submitBooking() {
         if (isSubmitting) return;
@@ -840,6 +1147,22 @@
         if (!document.getElementById('field-proof').checked) {
             alert('請先勾選「我已完成匯款，並會將匯款截圖私訊官方 LINE」');
             goToStep(3);
+            return;
+        }
+
+        // LINE 登入 / 加好友（必須在 isSubmitting 之前，以保留 user gesture；取消時可再按）
+        let lineReady = false;
+        try {
+            lineReady = await ensureLineReadyForBooking();
+        } catch (lineErr) {
+            console.error('LINE ready error:', lineErr);
+            alert(lineErr.message || 'LINE 準備失敗，請稍後再試');
+            resetSubmitButton();
+            return;
+        }
+        if (!lineReady) {
+            // 導向 login 或拒絕加好友：不鎖定送出狀態
+            resetSubmitButton();
             return;
         }
 
@@ -864,12 +1187,14 @@
             lineName: document.getElementById('field-line-name').value.trim(),
             paymentLast5: document.getElementById('field-payment').value.trim(),
             notes: document.getElementById('field-notes').value.trim(),
-            lineUid: lineUid || '',
+            // 後端只信任 lineIdToken 驗證結果；lineUid 僅供相容診斷，不作安全依據
+            lineIdToken: lineIdToken || '',
+            lineFriendFlag: !!lineFriendFlag,
         };
 
         if (!CONFIG.SCRIPT_URL) {
             console.log('Booking data (demo):', data);
-            showSuccess(data);
+            showSuccess(Object.assign({}, data, { bookingId: 'F768-DEMO-0000' }));
             return;
         }
 
@@ -889,17 +1214,27 @@
                         alert(result.message || '操作太頻繁，請稍後再試');
                     } else if (result.error === 'VALIDATION_ERROR') {
                         alert(result.message || '資料有誤，請檢查後重新填寫');
+                    } else if (result.error === 'LINE_AUTH_REQUIRED') {
+                        alert(result.message || '請先透過 LINE 登入後再送出預約');
+                        try {
+                            saveBookingDraftForLineLogin();
+                            if (typeof liff !== 'undefined' && liff.login) {
+                                liff.login({ redirectUri: window.location.href.split('#')[0] });
+                            }
+                        } catch (e) { /* ignore */ }
                     } else {
                         alert('預約失敗：' + (result.message || result.error || '未知錯誤'));
                     }
-                    isSubmitting = false;
-                    btn.disabled = false;
-                    btn.textContent = '送出預約';
+                    resetSubmitButton();
                     fetchBookedSlots();
                     if (result.error === 'SLOT_TAKEN') goToStep(2);
                     return;
                 }
-                showSuccess(data);
+                const bookingId = (result && result.bookingId) ? result.bookingId : '';
+                showSuccess(Object.assign({}, data, {
+                    bookingId: bookingId,
+                    warnings: (result && result.warnings) || []
+                }));
             } else {
                 showError();
             }
@@ -910,10 +1245,7 @@
     }
 
     function showError() {
-        isSubmitting = false;
-        const btn = document.getElementById('btn-submit');
-        btn.disabled = false;
-        btn.textContent = '送出預約';
+        resetSubmitButton();
         document.querySelectorAll('.step').forEach(el => el.classList.add('hidden'));
         const target = document.getElementById('step-error');
         target.classList.remove('hidden');
@@ -925,12 +1257,29 @@
     function retrySubmit() {
         document.getElementById('progress').classList.remove('hidden');
         goToStep(4);
+        updateLineStatusUI();
     }
 
     function showSuccess(data) {
         isSubmitting = false;
+        clearBookingDraft();
+        lastSuccessPayload = data || {};
         document.getElementById('success-datetime').textContent =
-            `${data.dateDisplay} ${data.time}`;
+            `${data.dateDisplay || data.date || ''} ${data.time || ''}`;
+        const idWrap = document.getElementById('success-booking-id-wrap');
+        const idEl = document.getElementById('success-booking-id');
+        if (data.bookingId && idWrap && idEl) {
+            idEl.textContent = data.bookingId;
+            idWrap.classList.remove('hidden');
+        }
+        const fallback = document.getElementById('official-line-fallback-hint');
+        if (fallback) {
+            if (!(CONFIG.OFFICIAL_LINE_CHAT_URL || '').trim()) {
+                fallback.classList.remove('hidden');
+            } else {
+                fallback.classList.add('hidden');
+            }
+        }
         document.querySelectorAll('.step').forEach(el => el.classList.add('hidden'));
         const target = document.getElementById('step-success');
         target.classList.remove('hidden');
