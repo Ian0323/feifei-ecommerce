@@ -235,6 +235,44 @@ function getSlotsForDate(date) {
   return SETTINGS.TIME_SLOTS.concat(extra);
 }
 
+/**
+ * 預約送出專用：只把「這一筆」寫入公開 Sheet，不掃 Calendar、不重建整表。
+ * 完整同步交給 checkStatusChanges / syncPublicSheet（背景 Trigger）。
+ */
+function appendPublicBookingSlot_(date, time, status) {
+  if (!SETTINGS.PUBLIC_SHEET_ID) return;
+
+  var dateKey = formatDateKey(date);
+  var timeKey = formatTimeKey(time);
+  var statusVal = status || '\u5f85\u78ba\u8a8d';
+
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) {
+    Logger.log('appendPublicBookingSlot_: could not acquire lock, skipping');
+    return;
+  }
+  try {
+    var target = SpreadsheetApp.openById(SETTINGS.PUBLIC_SHEET_ID)
+      .getSheetByName(SETTINGS.PUBLIC_SHEET_NAME);
+    if (!target) return;
+
+    var lastRow = target.getLastRow();
+    if (lastRow > 1) {
+      // getRange(row, column, numRows, numColumns)
+      var existing = target.getRange(2, 1, lastRow - 1, 3).getValues();
+      for (var i = 0; i < existing.length; i++) {
+        if (formatDateKey(existing[i][0]) === dateKey && formatTimeKey(existing[i][1]) === timeKey) {
+          target.getRange(i + 2, 3).setValue(statusVal);
+          return;
+        }
+      }
+    }
+    target.appendRow([dateKey, timeKey, statusVal]);
+  } finally {
+    try { lock.releaseLock(); } catch (e) { /* ignore */ }
+  }
+}
+
 function syncPublicSheet() {
   if (!SETTINGS.PUBLIC_SHEET_ID) return;
 
@@ -515,7 +553,7 @@ function normalizeFriendStatus_(flag) {
 function doGet(e) {
   return ContentService
     .createTextOutput(JSON.stringify({
-      version: 'BOOKING-v7.1-2026-07-27-lock-fix',
+      version: 'BOOKING-v7.2-2026-07-27-fast-submit',
       hasLinePush: typeof sendLinePush === 'function',
       hasLineReceived: typeof sendLineBookingReceived === 'function',
       hasCalendarCreate: typeof createPendingCalendarEvent === 'function',
@@ -640,27 +678,19 @@ function doPost(e) {
       try { lock.releaseLock(); } catch (relErr) { /* ignore */ }
     }
 
-    // 6. 鎖外執行非關鍵操作 — 任一失敗都不影響預約成功狀態
-    //    （資料已寫入 Sheet，通知/同步可後續手動補；避免客戶看到失敗卻其實已預約）
+    // 6. 鎖外非關鍵操作 — 任一失敗都不影響預約成功
+    //    速度：先擋時段（公開表輕量寫入）→ Calendar → LINE → Email（Email 通常最慢放最後）
+    //    完整公開表+Calendar 掃描改由 checkStatusChanges 背景做，避免客戶乾等 10+ 秒
     var warnings = [];
-    if (SETTINGS.ASSISTANT_EMAIL) {
-      try {
-        sendAssistantNotification(data);
-      } catch (errNotify) {
-        warnings.push('assistant_email_failed');
-        Logger.log('sendAssistantNotification error: ' + errNotify.message);
-      }
-    }
-    if (data.lineUid) {
-      try {
-        sendLineBookingReceived(data);
-      } catch (errLine) {
-        warnings.push('line_push_failed');
-        Logger.log('sendLineBookingReceived error: ' + errLine.message);
-      }
+
+    try {
+      appendPublicBookingSlot_(data.date, data.time, '\u5f85\u78ba\u8a8d');
+    } catch (errSync) {
+      warnings.push('sync_public_sheet_failed');
+      Logger.log('appendPublicBookingSlot_ error: ' + errSync.message);
     }
 
-    // Calendar：建立待確認事件（鎖外；失敗不回滾預約）
+    // Calendar：建立待確認事件（失敗不回滾預約）
     try {
       var eventId = createPendingCalendarEvent({
         bookingId: bookingId,
@@ -682,11 +712,22 @@ function doPost(e) {
       Logger.log('createPendingCalendarEvent error bookingId=' + bookingId + ' row=' + sheetRow + ': ' + errCal.message);
     }
 
-    try {
-      syncPublicSheet();
-    } catch (errSync) {
-      warnings.push('sync_public_sheet_failed');
-      Logger.log('syncPublicSheet error: ' + errSync.message);
+    if (data.lineUid) {
+      try {
+        sendLineBookingReceived(data);
+      } catch (errLine) {
+        warnings.push('line_push_failed');
+        Logger.log('sendLineBookingReceived error: ' + errLine.message);
+      }
+    }
+
+    if (SETTINGS.ASSISTANT_EMAIL) {
+      try {
+        sendAssistantNotification(data);
+      } catch (errNotify) {
+        warnings.push('assistant_email_failed');
+        Logger.log('sendAssistantNotification error: ' + errNotify.message);
+      }
     }
 
     var result = {
