@@ -220,6 +220,46 @@
                         class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition">
                     <p class="mt-1 text-xs text-ink/50">請填寫您 LINE 上目前顯示的暱稱</p>
                 </div>
+                <fieldset>
+                    <legend class="mb-2 block text-sm font-medium text-ink/80">想詢問的方向 <span class="text-blush">*</span></legend>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="inquiry-direction" value="事業" required
+                                class="peer sr-only" onchange="toggleInquiryDirectionOther()">
+                            <span class="block rounded-xl border border-ink/10 bg-white px-4 py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum peer-checked:font-bold peer-checked:text-white">事業</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="inquiry-direction" value="財運"
+                                class="peer sr-only" onchange="toggleInquiryDirectionOther()">
+                            <span class="block rounded-xl border border-ink/10 bg-white px-4 py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum peer-checked:font-bold peer-checked:text-white">財運</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="inquiry-direction" value="姻緣"
+                                class="peer sr-only" onchange="toggleInquiryDirectionOther()">
+                            <span class="block rounded-xl border border-ink/10 bg-white px-4 py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum peer-checked:font-bold peer-checked:text-white">姻緣</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="inquiry-direction" value="學業"
+                                class="peer sr-only" onchange="toggleInquiryDirectionOther()">
+                            <span class="block rounded-xl border border-ink/10 bg-white px-4 py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum peer-checked:font-bold peer-checked:text-white">學業</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="inquiry-direction" value="家庭"
+                                class="peer sr-only" onchange="toggleInquiryDirectionOther()">
+                            <span class="block rounded-xl border border-ink/10 bg-white px-4 py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum peer-checked:font-bold peer-checked:text-white">家庭</span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="inquiry-direction" value="其他"
+                                class="peer sr-only" onchange="toggleInquiryDirectionOther()">
+                            <span class="block rounded-xl border border-ink/10 bg-white px-4 py-3 text-center text-sm transition peer-checked:border-plum peer-checked:bg-plum peer-checked:font-bold peer-checked:text-white">其他</span>
+                        </label>
+                    </div>
+                    <div id="direction-other-wrap" class="mt-3 hidden">
+                        <label for="field-direction-other" class="mb-1 block text-xs font-medium text-ink/60">請填寫其他詢問方向</label>
+                        <input type="text" id="field-direction-other" placeholder="請簡單填寫想詢問的方向" maxlength="100"
+                            class="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm transition">
+                    </div>
+                </fieldset>
                 <div>
                     <label class="mb-1 block text-sm font-medium text-ink/80">想先讓非非知道的事（選填）</label>
                     <textarea id="field-notes" rows="3" placeholder="簡單描述您的狀況，讓諮詢更有效率"
@@ -280,6 +320,11 @@
                 <div class="flex justify-between text-sm">
                     <span class="text-ink/50">諮詢方式</span>
                     <span id="review-consult-mode" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
+                <div class="flex justify-between gap-4 text-sm">
+                    <span class="shrink-0 text-ink/50">詢問方向</span>
+                    <span id="review-inquiry-direction" class="text-right font-medium text-ink"></span>
                 </div>
                 <div class="h-px bg-ink/5"></div>
                 <div class="flex justify-between text-sm">
@@ -419,7 +464,7 @@
         MAX_ADVANCE_DAYS: 30,
         // LINE Login 草稿（sessionStorage）
         DRAFT_STORAGE_KEY: 'feifei_booking_draft_v1',
-        DRAFT_SCHEMA_VERSION: 1,
+        DRAFT_SCHEMA_VERSION: 2,
         DRAFT_TTL_MS: 30 * 60 * 1000,
     };
 
@@ -513,6 +558,8 @@
                     email: document.getElementById('field-email')?.value || '',
                     ig: document.getElementById('field-ig')?.value || '',
                     lineName: document.getElementById('field-line-name')?.value || '',
+                    inquiryDirection: getInquiryDirection(),
+                    inquiryDirectionOther: document.getElementById('field-direction-other')?.value || '',
                     payment: document.getElementById('field-payment')?.value || '',
                     notes: document.getElementById('field-notes')?.value || '',
                     birthYear: document.getElementById('field-birth-year')?.value || '',
@@ -567,6 +614,7 @@
                 'field-email': draft.fields.email,
                 'field-ig': draft.fields.ig,
                 'field-line-name': draft.fields.lineName,
+                'field-direction-other': draft.fields.inquiryDirectionOther,
                 'field-payment': draft.fields.payment,
                 'field-notes': draft.fields.notes,
                 'field-birth-year': draft.fields.birthYear,
@@ -577,6 +625,13 @@
                 const el = document.getElementById(id);
                 if (el && map[id] != null) el.value = map[id];
             });
+            if (draft.fields.inquiryDirection) {
+                const directionRadio = document.querySelector(
+                    'input[name="inquiry-direction"][value="' + draft.fields.inquiryDirection + '"]'
+                );
+                if (directionRadio) directionRadio.checked = true;
+            }
+            toggleInquiryDirectionOther();
         }
         if (draft.checkboxes) {
             const agree = document.getElementById('field-agree');
@@ -605,6 +660,7 @@
                     document.getElementById('review-date').textContent = formatDateDisplay(selectedDate);
                     document.getElementById('review-time').textContent = selectedTime;
                     document.getElementById('review-consult-mode').textContent = CONSULT_MODE_DISPLAY;
+                    document.getElementById('review-inquiry-direction').textContent = getInquiryDirectionDisplay();
                     document.getElementById('review-name').textContent = document.getElementById('field-name').value.trim();
                     document.getElementById('review-phone').textContent = document.getElementById('field-phone').value.trim();
                     document.getElementById('review-email').textContent = document.getElementById('field-email').value.trim();
@@ -1042,6 +1098,28 @@
     const CONSULT_MODE = '視訊';
     const CONSULT_MODE_DISPLAY = '線上視訊';
 
+    function getInquiryDirection() {
+        const selected = document.querySelector('input[name="inquiry-direction"]:checked');
+        return selected ? selected.value : '';
+    }
+
+    function getInquiryDirectionDisplay() {
+        const direction = getInquiryDirection();
+        if (direction !== '其他') return direction;
+        const other = document.getElementById('field-direction-other').value.trim();
+        return other ? ('其他：' + other) : '其他';
+    }
+
+    function toggleInquiryDirectionOther() {
+        const isOther = getInquiryDirection() === '其他';
+        const wrap = document.getElementById('direction-other-wrap');
+        const input = document.getElementById('field-direction-other');
+        if (!wrap || !input) return;
+        wrap.classList.toggle('hidden', !isOther);
+        input.required = isOther;
+        input.setAttribute('aria-required', isOther ? 'true' : 'false');
+    }
+
     function buildBirthDisplay() {
         const y = document.getElementById('field-birth-year').value.trim();
         const m = document.getElementById('field-birth-month').value.trim();
@@ -1065,6 +1143,8 @@
         const email = document.getElementById('field-email').value.trim();
         const igAccount = document.getElementById('field-ig').value.trim().replace(/^@/, '');
         const lineName = document.getElementById('field-line-name').value.trim();
+        const inquiryDirection = getInquiryDirection();
+        const inquiryDirectionOther = document.getElementById('field-direction-other').value.trim();
         const paymentLast5 = document.getElementById('field-payment').value.trim();
         const agreed = document.getElementById('field-agree').checked;
         const proofPromised = document.getElementById('field-proof').checked;
@@ -1079,8 +1159,14 @@
             return;
         }
 
-        if (!name || !phone || !email || !igAccount || !lineName || !paymentLast5) {
+        if (!name || !phone || !email || !igAccount || !lineName || !inquiryDirection || !paymentLast5) {
             alert('請填寫所有必填欄位');
+            return;
+        }
+
+        if (inquiryDirection === '其他' && !inquiryDirectionOther) {
+            alert('請填寫其他詢問方向');
+            document.getElementById('field-direction-other').focus();
             return;
         }
 
@@ -1117,6 +1203,7 @@
         document.getElementById('review-date').textContent = formatDateDisplay(selectedDate);
         document.getElementById('review-time').textContent = selectedTime;
         document.getElementById('review-consult-mode').textContent = CONSULT_MODE_DISPLAY;
+        document.getElementById('review-inquiry-direction').textContent = getInquiryDirectionDisplay();
         document.getElementById('review-name').textContent = name;
         document.getElementById('review-phone').textContent = phone;
         document.getElementById('review-email').textContent = email;
@@ -1194,6 +1281,8 @@
             phone: document.getElementById('field-phone').value.trim(),
             email: document.getElementById('field-email').value.trim(),
             consultMode: CONSULT_MODE,
+            inquiryDirection: getInquiryDirection(),
+            inquiryDirectionOther: document.getElementById('field-direction-other').value.trim(),
             birthCalendar: birth ? birth.calendar : '',
             birthDate: birth ? birth.date : '',
             igAccount: document.getElementById('field-ig').value.trim().replace(/^@/, ''),

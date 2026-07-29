@@ -17,6 +17,7 @@ var SETTINGS = {
   MIN_ADVANCE_DAYS: 1, // \u660e\u5929\u8d77\u53ef\u9810\u7d04\uff1b\u7576\u5929\u8acb\u79c1\u8a0a\u5b98\u65b9 LINE
   MAX_ADVANCE_DAYS: 30,
   VALID_CONSULT_MODES: ['\u8996\u8a0a', '\u73fe\u5834'],
+  VALID_INQUIRY_DIRECTIONS: ['事業', '財運', '姻緣', '學業', '家庭', '其他'],
   VALID_BIRTH_CALENDARS: ['\u6c11\u570b'],
   MAX_FIELD_LENGTH: 500,
   RATE_LIMIT_SECONDS: 60, // 同一 email 最短間隔
@@ -29,6 +30,7 @@ var SETTINGS = {
   COL_CALENDAR_EVENT_ID: 17,
   COL_REMINDER_AT: 18,
   COL_LINE_FRIEND_STATUS: 19,
+  COL_INQUIRY_DIRECTION: 20,
   // 背景工作佇列（Script Properties key）
   PENDING_JOBS_KEY: 'PENDING_BOOKING_JOBS'
 };
@@ -55,7 +57,8 @@ function getPrivateSheetHeaders_() {
     '\u63d0\u4ea4\u6642\u9593', '\u9810\u7d04\u65e5\u671f', '\u9810\u7d04\u6642\u6bb5', '\u59d3\u540d', '\u96fb\u8a71',
     'Email', '\u5099\u8a3b', '\u72c0\u614b', '\u78ba\u8a8d\u6642\u9593', 'LINE UID',
     '\u751f\u5e74\u6708\u65e5', 'IG \u5e33\u865f', '\u532f\u6b3e\u672b\u4e94\u78bc', '\u8aee\u8a62\u65b9\u5f0f', 'LINE \u540d\u7a31',
-    '\u9810\u7d04\u7de8\u865f', 'Calendar Event ID', '\u63d0\u9192\u6642\u9593', 'LINE \u597d\u53cb\u72c0\u614b'
+    '\u9810\u7d04\u7de8\u865f', 'Calendar Event ID', '\u63d0\u9192\u6642\u9593', 'LINE \u597d\u53cb\u72c0\u614b',
+    '詢問方向'
   ];
 }
 
@@ -158,6 +161,20 @@ function migrateBookingAutomationColumns() {
     sheet.autoResizeColumn(h.col);
   }
   Logger.log('Booking automation columns P–S ready (idempotent)');
+}
+
+// 新增第 20 欄「詢問方向」。放在既有自動化欄位之後，避免搬動預約編號與 Calendar 欄位。
+// Deploy 後請手動執行一次：migrateSheetAddInquiryDirection
+function migrateSheetAddInquiryDirection() {
+  var sheet = getSheet();
+  var col = SETTINGS.COL_INQUIRY_DIRECTION;
+  sheet.getRange(1, col).setValue('詢問方向');
+  var header = sheet.getRange(1, col);
+  header.setFontWeight('bold');
+  header.setBackground('#7B5EA7');
+  header.setFontColor('#FFFFFF');
+  sheet.autoResizeColumn(col);
+  Logger.log('詢問方向 header set at column T (idempotent)');
 }
 
 function initPublicSheet() {
@@ -392,6 +409,12 @@ function sanitizeText(val, maxLen) {
   return val;
 }
 
+function formatInquiryDirection_(direction, other) {
+  if (direction !== '其他') return direction || '';
+  var detail = String(other || '').trim();
+  return detail ? ('其他：' + detail) : '其他';
+}
+
 function validateBookingData(data) {
   var errors = [];
 
@@ -402,6 +425,7 @@ function validateBookingData(data) {
   if (!data.phone) errors.push('缺少電話');
   if (!data.email) errors.push('缺少 Email');
   if (!data.consultMode) errors.push('缺少諮詢方式');
+  if (!data.inquiryDirection) errors.push('缺少詢問方向');
   if (!data.birthCalendar) errors.push('缺少生年月日曆法');
   if (!data.birthDate) errors.push('缺少生年月日');
   if (!data.igAccount) errors.push('缺少 IG 帳號');
@@ -432,6 +456,17 @@ function validateBookingData(data) {
 
   // 諮詢方式是否有效
   if (SETTINGS.VALID_CONSULT_MODES.indexOf(data.consultMode) === -1) errors.push('無效的諮詢方式');
+
+  // 詢問方向是否有效；選「其他」時必須補充內容
+  if (SETTINGS.VALID_INQUIRY_DIRECTIONS.indexOf(data.inquiryDirection) === -1) {
+    errors.push('無效的詢問方向');
+  } else if (data.inquiryDirection === '其他') {
+    if (typeof data.inquiryDirectionOther !== 'string' || !data.inquiryDirectionOther.trim()) {
+      errors.push('請填寫其他詢問方向');
+    } else if (data.inquiryDirectionOther.trim().length > 100) {
+      errors.push('其他詢問方向不可超過 100 字');
+    }
+  }
 
   // 生年月日曆法是否有效
   if (SETTINGS.VALID_BIRTH_CALENDARS.indexOf(data.birthCalendar) === -1) errors.push('無效的曆法');
@@ -569,7 +604,7 @@ function doGet(e) {
 
   return ContentService
     .createTextOutput(JSON.stringify({
-      version: 'BOOKING-v7.3-2026-07-27-async-side-effects',
+      version: 'BOOKING-v8-2026-07-29-inquiry-direction',
       hasLinePush: typeof sendLinePush === 'function',
       hasLineReceived: typeof sendLineBookingReceived === 'function',
       hasCalendarCreate: typeof createPendingCalendarEvent === 'function',
@@ -580,6 +615,7 @@ function doGet(e) {
       lineLoginChannelIdSet: !!getLineLoginChannelId(),
       liffId: SETTINGS.LIFF_ID,
       timeSlots: SETTINGS.TIME_SLOTS,
+      inquiryDirections: SETTINGS.VALID_INQUIRY_DIRECTIONS,
       now: new Date().toISOString()
     }, null, 2))
     .setMimeType(ContentService.MimeType.JSON);
@@ -694,6 +730,7 @@ function runBookingSideEffects_(job) {
       phone: job.phone,
       igAccount: job.igAccount,
       paymentLast5: job.paymentLast5,
+      inquiryDirection: job.inquiryDirection,
       status: '\u5f85\u78ba\u8a8d'
     });
     if (eventId && job.sheetRow) {
@@ -714,7 +751,8 @@ function runBookingSideEffects_(job) {
         dateDisplay: job.dateDisplay || job.date,
         time: job.time,
         lineUid: job.lineUid,
-        bookingId: job.bookingId
+        bookingId: job.bookingId,
+        inquiryDirection: job.inquiryDirection
       });
     } catch (errLine) {
       Logger.log('runBookingSideEffects_ line error: ' + errLine.message);
@@ -738,6 +776,7 @@ function runBookingSideEffects_(job) {
         birthCalendar: job.birthCalendar,
         birthDate: job.birthDate,
         consultMode: job.consultMode,
+        inquiryDirection: job.inquiryDirection,
         paymentLast5: job.paymentLast5,
         bookingId: job.bookingId
       });
@@ -830,8 +869,12 @@ function doPost(e) {
           .setMimeType(ContentService.MimeType.JSON);
       }
 
-      // 5. 寫入（文字經過清理）— 欄位 1–19
+      // 5. 寫入（文字經過清理）— 欄位 1–20
       var birthDisplay = data.birthCalendar + ' ' + data.birthDate;
+      var inquiryDirectionDisplay = formatInquiryDirection_(
+        data.inquiryDirection,
+        data.inquiryDirectionOther
+      );
       sheet.appendRow([
         new Date(),
         data.date,
@@ -851,7 +894,8 @@ function doPost(e) {
         bookingId,
         '', // Calendar Event ID — filled after lock
         '', // 提醒時間
-        friendStatus
+        friendStatus,
+        sanitizeText(inquiryDirectionDisplay, 120)
       ]);
       sheetRow = sheet.getLastRow();
     } finally {
@@ -885,6 +929,7 @@ function doPost(e) {
         birthCalendar: data.birthCalendar,
         birthDate: data.birthDate,
         consultMode: data.consultMode,
+        inquiryDirection: inquiryDirectionDisplay,
         paymentLast5: data.paymentLast5,
         lineUid: data.lineUid,
         attempts: 0
@@ -926,6 +971,7 @@ function buildCalendarDescription_(booking, statusLabel) {
     + '姓名：' + (booking.name || '') + '\n'
     + '電話：' + (booking.phone || '') + '\n'
     + 'IG 帳號：' + (booking.igAccount || '') + '\n'
+    + '詢問方向：' + (booking.inquiryDirection || '') + '\n'
     + '匯款末五碼：' + (booking.paymentLast5 || '') + '\n'
     + '狀態：' + (statusLabel || booking.status || '') + '\n'
     + '（內部日曆 · 請至 Google Sheet 管理預約）';
@@ -991,6 +1037,7 @@ function updateConfirmedCalendarEvent(booking, sheet, rowNumber, existingEventId
     name: booking.name,
     phone: booking.phone,
     igAccount: booking.igAccount,
+    inquiryDirection: booking.inquiryDirection,
     paymentLast5: booking.paymentLast5
   });
   if (newId) {
@@ -1036,7 +1083,7 @@ function backfillMissingCalendarEvents() {
     Logger.log('backfillMissingCalendarEvents: no data rows');
     return;
   }
-  var lastCol = Math.max(sheet.getLastColumn(), SETTINGS.COL_LINE_FRIEND_STATUS);
+  var lastCol = Math.max(sheet.getLastColumn(), SETTINGS.COL_INQUIRY_DIRECTION);
   var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
   var candidates = [];
   for (var i = 0; i < data.length; i++) {
@@ -1060,6 +1107,7 @@ function backfillMissingCalendarEvents() {
       name: r[3],
       phone: r[4],
       igAccount: r[11] || '',
+      inquiryDirection: r[SETTINGS.COL_INQUIRY_DIRECTION - 1] || '',
       paymentLast5: r[12] || '',
       status: r[7]
     };
@@ -1116,6 +1164,7 @@ function sendAssistantNotification(data) {
   var lineName = sanitizeText(data.lineName || '', 50);
   var birthDisplay = (data.birthCalendar || '') + ' ' + (data.birthDate || '');
   var consultMode = data.consultMode || '';
+  var inquiryDirection = sanitizeText(data.inquiryDirection || '', 120);
   var paymentLast5 = data.paymentLast5 || '';
   var bookingId = data.bookingId || '';
 
@@ -1130,6 +1179,7 @@ function sendAssistantNotification(data) {
     + '\u65e5\u671f\uff1a' + displayDate + '\n'
     + '\u6642\u6bb5\uff1a' + data.time + '\n'
     + '\u8aee\u8a62\u65b9\u5f0f\uff1a' + consultMode + '\n'
+    + '詢問方向：' + inquiryDirection + '\n'
     + '\u532f\u6b3e\u672b\u4e94\u78bc\uff1a' + paymentLast5 + '\n'
     + '\u5099\u8a3b\uff1a' + notes + '\n\n'
     + '\u8acb\u5230 Google Sheet \u5c07\u72c0\u614b\u6539\u70ba\u300c\u5df2\u78ba\u8a8d\u300d\uff0c\u7cfb\u7d71\u6703\u81ea\u52d5\u901a\u77e5\u5ba2\u6236\u3002';
@@ -1142,6 +1192,7 @@ function sendAssistantNotification(data) {
     + infoRow('\u65e5\u671f', displayDate)
     + infoRow('\u6642\u6bb5', data.time)
     + infoRow('\u8aee\u8a62\u65b9\u5f0f', consultMode)
+    + infoRow('詢問方向', inquiryDirection)
     + infoRow('\u751f\u5e74\u6708\u65e5', birthDisplay)
     + infoRow('IG \u5e33\u865f', igAccount)
     + infoRow('LINE \u540d\u7a31', lineName)
@@ -1176,7 +1227,7 @@ function checkStatusChanges() {
     syncPublicSheet();
     return;
   }
-  var lastCol = Math.max(sheet.getLastColumn(), SETTINGS.COL_LINE_FRIEND_STATUS);
+  var lastCol = Math.max(sheet.getLastColumn(), SETTINGS.COL_INQUIRY_DIRECTION);
   var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
   for (var i = 0; i < data.length; i++) {
     var row = data[i];
@@ -1197,6 +1248,7 @@ function checkStatusChanges() {
         lineUid: lineUid,
         bookingId: bookingId,
         igAccount: row[11] || '',
+        inquiryDirection: row[SETTINGS.COL_INQUIRY_DIRECTION - 1] || '',
         paymentLast5: row[12] || ''
       };
       try {
@@ -1301,6 +1353,7 @@ function sendCustomerConfirmation(booking) {
     + (booking.bookingId ? infoRow('\u9810\u7d04\u7de8\u865f', booking.bookingId) : '')
     + infoRow('\u65e5\u671f', dateStr)
     + infoRow('\u6642\u6bb5', timeStr)
+    + (booking.inquiryDirection ? infoRow('詢問方向', booking.inquiryDirection) : '')
     + infoRow('\u8cbb\u7528', '<span style="color:#7B5EA7;font-weight:700;">' + SETTINGS.SERVICE_PRICE + '</span>')
     + '</table>'
     + '<p style="margin:0;font-size:13px;color:#2C1810;opacity:0.6;line-height:1.6;">'
@@ -1308,7 +1361,7 @@ function sendCustomerConfirmation(booking) {
     + '\u5982\u9700\u66f4\u6539\u6216\u53d6\u6d88\uff0c\u8acb\u63d0\u524d\u806f\u7e6b\u6211\u5011\u3002'
     + '</p>';
 
-  var plainBody = booking.name + ' \u60a8\u597d\uff0c\n\n\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u78ba\u8a8d\uff01\n\n\u65e5\u671f\uff1a' + dateStr + '\n\u6642\u6bb5\uff1a' + timeStr + '\n\u8cbb\u7528\uff1a' + SETTINGS.SERVICE_PRICE + '\n\n' + SETTINGS.BRAND_NAME;
+  var plainBody = booking.name + ' \u60a8\u597d\uff0c\n\n\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u78ba\u8a8d\uff01\n\n\u65e5\u671f\uff1a' + dateStr + '\n\u6642\u6bb5\uff1a' + timeStr + (booking.inquiryDirection ? ('\n詢問方向：' + booking.inquiryDirection) : '') + '\n\u8cbb\u7528\uff1a' + SETTINGS.SERVICE_PRICE + '\n\n' + SETTINGS.BRAND_NAME;
 
   sendBrandEmail({
     to: booking.email,
@@ -1388,6 +1441,7 @@ function sendLineBookingReceived(data) {
     + '已收到您的預約申請：\n'
     + (data.bookingId ? ('預約編號：' + data.bookingId + '\n') : '')
     + '📅 ' + dateDisplay + '  ' + data.time + '\n'
+    + (data.inquiryDirection ? ('詢問方向：' + data.inquiryDirection + '\n') : '')
     + '費用：' + SETTINGS.SERVICE_PRICE + '\n\n'
     + '助理會盡快與非非確認時間，確認後會再通知您 🙏';
   return sendLinePush(data.lineUid, [{ type: 'text', text: text }]);
@@ -1402,6 +1456,7 @@ function sendLineBookingConfirmed(booking) {
     + (booking.bookingId ? ('預約編號：' + booking.bookingId + '\n') : '')
     + '📅 日期：' + dateStr + '\n'
     + '🕒 時段：' + timeStr + '\n'
+    + (booking.inquiryDirection ? ('詢問方向：' + booking.inquiryDirection + '\n') : '')
     + '費用：' + SETTINGS.SERVICE_PRICE + '\n\n'
     + '諮詢方式將由助理另行通知。\n'
     + '如需更改或取消，請提前聯繫我們 🙏';
@@ -1610,7 +1665,8 @@ function testDirectLinePush() {
     dateDisplay: '5/15（五）',
     time: '10:30',
     lineUid: YOUR_UID,
-    bookingId: 'F768-TEST-0000'
+    bookingId: 'F768-TEST-0000',
+    inquiryDirection: '事業'
   });
   Logger.log('✓ Push 已發送，請檢查你的 LINE 有沒有收到「已收到您的預約申請」訊息');
 }
