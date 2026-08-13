@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>預約諮詢 | 非非768 療癒系問事</title>
-    <meta name="description" content="預約非非768 療癒系問事，諮詢服務，武財公協助，每次 NT$3,800">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>付款預約 | 非非療癒系服務</title>
+    <meta name="description" content="選擇非非768 問事方案後，完成付款資料並預約日期與時段。">
+    <script src="https://cdn.tailwindcss.com" defer></script>
     <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="booking.css" rel="stylesheet">
     <script>
-        tailwind.config = {
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         ink: "#2C1810",
-                        mist: "#F4F8FB",
-                        plum: "#1B3A57",
+                        mist: "#FBF4E7",
+                        plum: "#65130E",
                         blush: "#A0524D",
                         gold: "#C9A84C",
-                        sand: "#E8EFF5"
+                        sand: "#F1E5D1"
                     },
                     fontFamily: {
                         sans: ["Noto Sans TC", "sans-serif"]
@@ -29,7 +31,7 @@
     </script>
     <style>
         body {
-            background: linear-gradient(180deg, #f4f8fb 0%, #e6eef5 100%);
+            background: linear-gradient(180deg, #fffaf1 0%, #f2e7d6 100%);
             color: #2C1810;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
@@ -40,9 +42,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .slot-btn.selected {
-            background-color: #1B3A57;
+            background-color: #65130E;
             color: white;
-            border-color: #1B3A57;
+            border-color: #65130E;
         }
         .slot-btn.booked {
             opacity: 0.35;
@@ -51,7 +53,7 @@
             background-color: #f3f0f0;
         }
         .day-btn.selected {
-            background-color: #1B3A57;
+            background-color: #65130E;
             color: white;
         }
         .day-btn.today {
@@ -63,8 +65,8 @@
         }
         input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: #1B3A57;
-            box-shadow: 0 0 0 3px rgba(27, 58, 87, 0.15);
+            border-color: #65130E;
+            box-shadow: 0 0 0 3px rgba(101, 19, 14, 0.15);
         }
     </style>
 </head>
@@ -73,11 +75,26 @@
     <!-- Header -->
     <header class="sticky top-0 z-50 border-b border-plum/15 bg-mist/95 backdrop-blur-md">
         <div class="mx-auto flex max-w-lg items-center justify-between px-5 py-3">
-            <span class="text-lg font-bold text-plum">非非768 療癒系問事</span>
+            <span class="text-lg font-bold text-plum">非非療癒系服務</span>
         </div>
     </header>
 
     <main class="mx-auto max-w-lg px-5 pb-10 pt-6">
+
+        <!-- 已選方案 -->
+        <div class="mb-5 rounded-2xl border border-gold/30 bg-white/80 p-4 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-xs font-bold tracking-wider text-gold">已選方案</p>
+                    <h1 id="selected-plan-name" class="mt-1 text-lg font-bold text-ink">單次問事</h1>
+                    <p id="selected-plan-summary" class="mt-1 text-xs leading-relaxed text-ink/55">一次線上視訊問事</p>
+                </div>
+                <div class="text-right">
+                    <p id="selected-plan-price" class="text-xl font-bold text-plum">NT$3,800</p>
+                    <a href="membership.html#plans" class="mt-1 inline-block text-xs text-ink/45 underline underline-offset-2">更換方案</a>
+                </div>
+            </div>
+        </div>
 
         <!-- 預約須知（條款） -->
         <div id="terms-block" class="mb-5 rounded-2xl border-2 border-plum/40 bg-plum/5 p-5">
@@ -106,18 +123,18 @@
 
         <!-- Service Info -->
         <div class="mb-6 rounded-2xl border-2 border-plum/30 bg-white/80 p-5">
-            <h1 class="text-xl font-bold text-ink">諮詢服務</h1>
-            <p class="mt-2 text-sm leading-relaxed text-ink/75">
+            <h2 id="service-card-title" class="text-xl font-bold text-ink">單次問事</h2>
+            <p id="service-card-description" class="mt-2 text-sm leading-relaxed text-ink/75">
                 由武財公開文，非非傳達旨意，針對目前遇到的問題給予方向指引。
             </p>
-            <ul class="mt-3 space-y-1.5 text-sm text-ink/75">
+            <ul id="service-card-benefits" class="mt-3 space-y-1.5 text-sm text-ink/75">
                 <li class="flex gap-2"><span class="text-plum">•</span><span>武財公會指引參拜的神明及準備的供品</span></li>
                 <li class="flex gap-2"><span class="text-plum">•</span><span>還有合適的土地公</span></li>
                 <li class="flex gap-2"><span class="text-plum">•</span><span>全程以<span class="font-medium text-plum">線上視訊</span>方式進行</span></li>
             </ul>
             <div class="mt-4 flex items-baseline gap-2">
-                <span class="text-2xl font-bold text-plum">NT$3,800</span>
-                <span class="text-sm text-ink/50">/ 次</span>
+                <span id="service-card-price" class="text-2xl font-bold text-plum">NT$3,800</span>
+                <span id="service-card-price-suffix" class="text-sm text-ink/50">/ 次</span>
             </div>
         </div>
 
@@ -269,7 +286,7 @@
                 <!-- 匯款資訊 -->
                 <div class="rounded-xl border border-plum/15 bg-plum/5 p-4 text-sm">
                     <p class="font-bold text-plum">📱 線上視訊諮詢</p>
-                    <p class="mt-2 text-ink/75">請匯款全額 <span class="font-bold text-ink">NT$3,800</span> 至：</p>
+                    <p class="mt-2 text-ink/75">請匯款全額 <span id="payment-plan-price" class="font-bold text-ink">NT$3,800</span> 至：</p>
                     <div class="mt-2 rounded-lg bg-white p-3 leading-relaxed">
                         <div class="text-ink/60 text-xs">銀行</div>
                         <div class="text-ink font-medium">國泰世華（013）</div>
@@ -307,6 +324,11 @@
         <div id="step-4" class="step hidden">
             <h2 class="mb-4 text-base font-bold text-ink">確認預約內容</h2>
             <div class="mb-5 space-y-3 rounded-2xl border border-ink/5 bg-white/70 p-5">
+                <div class="flex justify-between text-sm">
+                    <span class="text-ink/50">方案</span>
+                    <span id="review-plan-name" class="font-medium text-ink"></span>
+                </div>
+                <div class="h-px bg-ink/5"></div>
                 <div class="flex justify-between text-sm">
                     <span class="text-ink/50">日期</span>
                     <span id="review-date" class="font-medium text-ink"></span>
@@ -369,7 +391,7 @@
                 <div class="h-px bg-ink/5"></div>
                 <div class="flex justify-between text-sm">
                     <span class="text-ink/50">費用</span>
-                    <span class="font-bold text-plum">NT$3,800</span>
+                    <span id="review-plan-price" class="font-bold text-plum">NT$3,800</span>
                 </div>
             </div>
             <div class="flex gap-3">
@@ -460,13 +482,72 @@
         TUESDAY_EXTRA_SLOTS: [],
         // 最少提前幾天預約（1 = 明天起；當天請改私訊官方 LINE）
         MIN_ADVANCE_DAYS: 1,
-        // 最多預約幾天後
-        MAX_ADVANCE_DAYS: 30,
+        // 最多預約 1.5 個月後（以 45 天計）
+        MAX_ADVANCE_DAYS: 45,
         // LINE Login 草稿（sessionStorage）
         DRAFT_STORAGE_KEY: 'feifei_booking_draft_v1',
         DRAFT_SCHEMA_VERSION: 2,
         DRAFT_TTL_MS: 30 * 60 * 1000,
     };
+
+    // 方案只接受固定 ID；價格與名稱由本地白名單決定，不信任網址傳入的任意金額。
+    const BOOKING_PLANS = {
+        single: {
+            id: 'single',
+            name: '單次問事',
+            price: 3800,
+            priceDisplay: 'NT$3,800',
+            summary: '一次線上視訊問事',
+            description: '由武財公開文，非非傳達旨意，針對目前遇到的問題給予方向指引。',
+            benefits: ['武財公指引方向', '選擇一次預約日期與時段', '全程以線上視訊方式進行']
+        },
+        guidance: {
+            id: 'guidance',
+            name: '武財公指引方案',
+            price: 9900,
+            priceDisplay: 'NT$9,900',
+            summary: '一次完整問事＋2 個月內延伸 5 題',
+            description: '適合第一次完整了解自己的你，一次看見現況，並保留後續釐清的空間。',
+            benefits: ['一次完整問事', '2 個月內延伸 5 個問題', '金咒輪 100 張（只送不賣）']
+        },
+        deep: {
+            id: 'deep',
+            name: '深度陪伴方案',
+            price: 9900,
+            priceDisplay: 'NT$9,900',
+            summary: '3 個月內延伸 8 題＋水晶香霧任選二',
+            description: '適合曾經來過、希望在三個月內持續釐清與被陪伴的你。',
+            benefits: ['3 個月內延伸 8 個問題', '金咒輪 100 張（只送不賣）', '非非水晶香霧任選二']
+        }
+    };
+    const requestedPlanId = new URLSearchParams(window.location.search).get('plan') || 'single';
+    const SELECTED_PLAN = BOOKING_PLANS[requestedPlanId] || BOOKING_PLANS.single;
+
+    function renderSelectedPlan() {
+        const textMap = {
+            'selected-plan-name': SELECTED_PLAN.name,
+            'selected-plan-summary': SELECTED_PLAN.summary,
+            'selected-plan-price': SELECTED_PLAN.priceDisplay,
+            'service-card-title': SELECTED_PLAN.name,
+            'service-card-description': SELECTED_PLAN.description,
+            'service-card-price': SELECTED_PLAN.priceDisplay,
+            'payment-plan-price': SELECTED_PLAN.priceDisplay,
+            'review-plan-name': SELECTED_PLAN.name,
+            'review-plan-price': SELECTED_PLAN.priceDisplay,
+        };
+        Object.keys(textMap).forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = textMap[id];
+        });
+        const suffix = document.getElementById('service-card-price-suffix');
+        if (suffix) suffix.textContent = SELECTED_PLAN.id === 'single' ? '/ 次' : '/ 方案';
+        const benefits = document.getElementById('service-card-benefits');
+        if (benefits) {
+            benefits.innerHTML = SELECTED_PLAN.benefits.map(function(item) {
+                return '<li class="flex gap-2"><span class="text-plum">•</span><span>' + item + '</span></li>';
+            }).join('');
+        }
+    }
 
     // ===== LIFF 狀態 =====
     let lineUid = null;
@@ -552,6 +633,7 @@
                 selectedDate: selectedDate,
                 selectedTime: selectedTime,
                 currentStep: currentStep,
+                planId: SELECTED_PLAN.id,
                 fields: {
                     name: document.getElementById('field-name')?.value || '',
                     phone: document.getElementById('field-phone')?.value || '',
@@ -657,6 +739,8 @@
                 // 重建 step 4 檢視欄位
                 try {
                     const birth = buildBirthDisplay();
+                    document.getElementById('review-plan-name').textContent = SELECTED_PLAN.name;
+                    document.getElementById('review-plan-price').textContent = SELECTED_PLAN.priceDisplay;
                     document.getElementById('review-date').textContent = formatDateDisplay(selectedDate);
                     document.getElementById('review-time').textContent = selectedTime;
                     document.getElementById('review-consult-mode').textContent = CONSULT_MODE_DISPLAY;
@@ -728,6 +812,7 @@
     function buildOfficialLineProofMessage(bookingId, dateDisplay, time) {
         return '您好，我已完成非非768預約。\n'
             + '預約編號：' + (bookingId || '（請見成功頁）') + '\n'
+            + '方案：' + SELECTED_PLAN.name + '（' + SELECTED_PLAN.priceDisplay + '）\n'
             + '預約日期：' + (dateDisplay || '') + '\n'
             + '預約時段：' + (time || '') + '\n'
             + '接著傳送匯款截圖，謝謝。';
@@ -790,6 +875,7 @@
     today.setHours(0, 0, 0, 0); // 正規化到午夜，避免邊界日期計算偏差
     currentYear = today.getFullYear();
     currentMonth = today.getMonth();
+    renderSelectedPlan();
     // 若當月已無可預約日（例：月底開頁面，最早可預約日落在下個月），自動跳到下個月
     let __advanceSafety = 0;
     while (!monthHasAvailability(currentYear, currentMonth) && __advanceSafety++ < 12) {
@@ -1200,6 +1286,8 @@
             return;
         }
 
+        document.getElementById('review-plan-name').textContent = SELECTED_PLAN.name;
+        document.getElementById('review-plan-price').textContent = SELECTED_PLAN.priceDisplay;
         document.getElementById('review-date').textContent = formatDateDisplay(selectedDate);
         document.getElementById('review-time').textContent = selectedTime;
         document.getElementById('review-consult-mode').textContent = CONSULT_MODE_DISPLAY;
@@ -1274,6 +1362,7 @@
 
         const birth = buildBirthDisplay();
         const data = {
+            planId: SELECTED_PLAN.id,
             date: selectedDate,
             dateDisplay: formatDateDisplay(selectedDate),
             time: selectedTime,

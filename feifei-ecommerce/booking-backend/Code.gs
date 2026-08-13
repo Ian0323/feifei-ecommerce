@@ -10,12 +10,17 @@ var SETTINGS = {
   SENDER_NAME: '\u975e\u975e768 \u52a9\u7406',
   BRAND_NAME: '\u975e\u975e768',
   SERVICE_PRICE: 'NT$3,800',
+  BOOKING_PLANS: {
+    single: { id: 'single', name: '單次問事', price: 'NT$3,800' },
+    guidance: { id: 'guidance', name: '武財公指引方案', price: 'NT$9,900' },
+    deep: { id: 'deep', name: '深度陪伴方案', price: 'NT$9,900' }
+  },
   CALENDAR_ID: '1cb0aeeafa55fb75407aa932bb3b1d84e322a7bab04e54099d432b2cc9bcd976@group.calendar.google.com',
   TIME_SLOTS: ['10:30', '11:30', '14:30', '15:30', '16:30'],
   TUESDAY_EXTRA_SLOTS: [], // 僅週二開放的延長時段（2026-07-23 業主要求先關閉；要開回來填 ['18:00'] 即可）
   AVAILABLE_DAYS: [1, 2, 3, 4, 5], // 週一到五
   MIN_ADVANCE_DAYS: 1, // \u660e\u5929\u8d77\u53ef\u9810\u7d04\uff1b\u7576\u5929\u8acb\u79c1\u8a0a\u5b98\u65b9 LINE
-  MAX_ADVANCE_DAYS: 30,
+  MAX_ADVANCE_DAYS: 45, // 開放未來 1.5 個月（以 45 天計）
   VALID_CONSULT_MODES: ['\u8996\u8a0a', '\u73fe\u5834'],
   VALID_INQUIRY_DIRECTIONS: ['事業', '財運', '姻緣', '學業', '家庭', '其他'],
   VALID_BIRTH_CALENDARS: ['\u6c11\u570b'],
@@ -31,6 +36,9 @@ var SETTINGS = {
   COL_REMINDER_AT: 18,
   COL_LINE_FRIEND_STATUS: 19,
   COL_INQUIRY_DIRECTION: 20,
+  COL_PLAN_ID: 21,
+  COL_PLAN_NAME: 22,
+  COL_PLAN_PRICE: 23,
   // 背景工作佇列（Script Properties key）
   PENDING_JOBS_KEY: 'PENDING_BOOKING_JOBS'
 };
@@ -58,7 +66,7 @@ function getPrivateSheetHeaders_() {
     'Email', '\u5099\u8a3b', '\u72c0\u614b', '\u78ba\u8a8d\u6642\u9593', 'LINE UID',
     '\u751f\u5e74\u6708\u65e5', 'IG \u5e33\u865f', '\u532f\u6b3e\u672b\u4e94\u78bc', '\u8aee\u8a62\u65b9\u5f0f', 'LINE \u540d\u7a31',
     '\u9810\u7d04\u7de8\u865f', 'Calendar Event ID', '\u63d0\u9192\u6642\u9593', 'LINE \u597d\u53cb\u72c0\u614b',
-    '詢問方向'
+    '詢問方向', '方案 ID', '方案名稱', '方案金額'
   ];
 }
 
@@ -175,6 +183,26 @@ function migrateSheetAddInquiryDirection() {
   header.setFontColor('#FFFFFF');
   sheet.autoResizeColumn(col);
   Logger.log('詢問方向 header set at column T (idempotent)');
+}
+
+// 新增方案欄位 U–W。既有資料留白，讀取時會自動視為單次問事。
+// Deploy 後請手動執行一次：migrateSheetAddBookingPlans
+function migrateSheetAddBookingPlans() {
+  var sheet = getSheet();
+  var headers = [
+    { col: SETTINGS.COL_PLAN_ID, title: '方案 ID' },
+    { col: SETTINGS.COL_PLAN_NAME, title: '方案名稱' },
+    { col: SETTINGS.COL_PLAN_PRICE, title: '方案金額' }
+  ];
+  for (var i = 0; i < headers.length; i++) {
+    sheet.getRange(1, headers[i].col).setValue(headers[i].title);
+    var cell = sheet.getRange(1, headers[i].col);
+    cell.setFontWeight('bold');
+    cell.setBackground('#7B5EA7');
+    cell.setFontColor('#FFFFFF');
+    sheet.autoResizeColumn(headers[i].col);
+  }
+  Logger.log('Booking plan columns U–W ready (idempotent)');
 }
 
 function initPublicSheet() {
@@ -415,8 +443,19 @@ function formatInquiryDirection_(direction, other) {
   return detail ? ('其他：' + detail) : '其他';
 }
 
+function getBookingPlan_(planId) {
+  var id = String(planId || 'single').trim();
+  return SETTINGS.BOOKING_PLANS[id] || null;
+}
+
+function getBookingPlanOrDefault_(planId) {
+  return getBookingPlan_(planId) || SETTINGS.BOOKING_PLANS.single;
+}
+
 function validateBookingData(data) {
   var errors = [];
+
+  if (!getBookingPlan_(data.planId || 'single')) errors.push('無效的問事方案');
 
   // 必填欄位檢查
   if (!data.date) errors.push('缺少日期');
@@ -604,11 +643,12 @@ function doGet(e) {
 
   return ContentService
     .createTextOutput(JSON.stringify({
-      version: 'BOOKING-v8-2026-07-29-inquiry-direction',
+      version: 'BOOKING-v10-2026-08-13-owner-feedback',
       hasLinePush: typeof sendLinePush === 'function',
       hasLineReceived: typeof sendLineBookingReceived === 'function',
       hasCalendarCreate: typeof createPendingCalendarEvent === 'function',
       hasTomorrowReminder: typeof sendTomorrowBookingReminders === 'function',
+      hasScheduleChangeSync: typeof syncConfirmedScheduleChange_ === 'function',
       hasIdTokenVerify: typeof verifyLineIdToken === 'function',
       hasAsyncJobs: typeof processPendingBookingJobs === 'function',
       tokenSet: !!getLineToken(),
@@ -731,6 +771,8 @@ function runBookingSideEffects_(job) {
       igAccount: job.igAccount,
       paymentLast5: job.paymentLast5,
       inquiryDirection: job.inquiryDirection,
+      planName: job.planName,
+      planPrice: job.planPrice,
       status: '\u5f85\u78ba\u8a8d'
     });
     if (eventId && job.sheetRow) {
@@ -752,7 +794,11 @@ function runBookingSideEffects_(job) {
         time: job.time,
         lineUid: job.lineUid,
         bookingId: job.bookingId,
-        inquiryDirection: job.inquiryDirection
+        birthCalendar: job.birthCalendar,
+        birthDate: job.birthDate,
+        inquiryDirection: job.inquiryDirection,
+        planName: job.planName,
+        planPrice: job.planPrice
       });
     } catch (errLine) {
       Logger.log('runBookingSideEffects_ line error: ' + errLine.message);
@@ -777,6 +823,8 @@ function runBookingSideEffects_(job) {
         birthDate: job.birthDate,
         consultMode: job.consultMode,
         inquiryDirection: job.inquiryDirection,
+        planName: job.planName,
+        planPrice: job.planPrice,
         paymentLast5: job.paymentLast5,
         bookingId: job.bookingId
       });
@@ -804,6 +852,12 @@ function doPost(e) {
         }))
         .setMimeType(ContentService.MimeType.JSON);
     }
+
+    // 價格只從後端白名單取得，前端不可自行指定金額。
+    var selectedPlan = getBookingPlanOrDefault_(data.planId);
+    data.planId = selectedPlan.id;
+    data.planName = selectedPlan.name;
+    data.planPrice = selectedPlan.price;
 
     // 1b. 驗證 LINE ID token（後端唯一可信 UID 來源；不信任前端 raw lineUid）
     var tokenResult = verifyLineIdToken(data.lineIdToken);
@@ -869,7 +923,7 @@ function doPost(e) {
           .setMimeType(ContentService.MimeType.JSON);
       }
 
-      // 5. 寫入（文字經過清理）— 欄位 1–20
+      // 5. 寫入（文字經過清理）— 欄位 1–23
       var birthDisplay = data.birthCalendar + ' ' + data.birthDate;
       var inquiryDirectionDisplay = formatInquiryDirection_(
         data.inquiryDirection,
@@ -895,7 +949,10 @@ function doPost(e) {
         '', // Calendar Event ID — filled after lock
         '', // 提醒時間
         friendStatus,
-        sanitizeText(inquiryDirectionDisplay, 120)
+        sanitizeText(inquiryDirectionDisplay, 120),
+        data.planId,
+        sanitizeText(data.planName, 50),
+        data.planPrice
       ]);
       sheetRow = sheet.getLastRow();
     } finally {
@@ -930,6 +987,9 @@ function doPost(e) {
         birthDate: data.birthDate,
         consultMode: data.consultMode,
         inquiryDirection: inquiryDirectionDisplay,
+        planId: data.planId,
+        planName: data.planName,
+        planPrice: data.planPrice,
         paymentLast5: data.paymentLast5,
         lineUid: data.lineUid,
         attempts: 0
@@ -968,6 +1028,8 @@ function buildCalendarTitle_(statusLabel, name) {
 
 function buildCalendarDescription_(booking, statusLabel) {
   return '預約編號：' + (booking.bookingId || '') + '\n'
+    + '方案：' + (booking.planName || SETTINGS.BOOKING_PLANS.single.name) + '\n'
+    + '金額：' + (booking.planPrice || SETTINGS.SERVICE_PRICE) + '\n'
     + '姓名：' + (booking.name || '') + '\n'
     + '電話：' + (booking.phone || '') + '\n'
     + 'IG 帳號：' + (booking.igAccount || '') + '\n'
@@ -1025,6 +1087,8 @@ function updateConfirmedCalendarEvent(booking, sheet, rowNumber, existingEventId
   var description = buildCalendarDescription_(booking, '\u5df2\u78ba\u8a8d');
   var event = getCalendarEventById_(existingEventId);
   if (event) {
+    var confirmedRange = parseSlotDateTime_(booking.date, booking.time);
+    event.setTime(confirmedRange.start, confirmedRange.end);
     event.setTitle(title);
     event.setDescription(description);
     return existingEventId;
@@ -1038,6 +1102,8 @@ function updateConfirmedCalendarEvent(booking, sheet, rowNumber, existingEventId
     phone: booking.phone,
     igAccount: booking.igAccount,
     inquiryDirection: booking.inquiryDirection,
+    planName: booking.planName,
+    planPrice: booking.planPrice,
     paymentLast5: booking.paymentLast5
   });
   if (newId) {
@@ -1052,6 +1118,52 @@ function updateConfirmedCalendarEvent(booking, sheet, rowNumber, existingEventId
     }
   }
   return newId;
+}
+
+/**
+ * 以 Sheet 的日期／時段為準同步已確認的 Calendar 事件。
+ *
+ * 業主可直接修改 Sheet 的 B（預約日期）或 C（預約時段）。若 Calendar
+ * 仍是舊時段，這裡會先更新事件，再回傳新舊時段供 LINE／Email 改期通知使用。
+ * Calendar 先更新也同時作為去重依據：重複 Trigger 會看到時段已一致，不再通知。
+ */
+function syncConfirmedScheduleChange_(booking, sheet, rowNumber, existingEventId) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) {
+    Logger.log('syncConfirmedScheduleChange_: busy row=' + rowNumber);
+    return null;
+  }
+  try {
+    var event = getCalendarEventById_(existingEventId);
+    if (!event) {
+      updateConfirmedCalendarEvent(booking, sheet, rowNumber, existingEventId);
+      return null;
+    }
+
+    var oldDate = Utilities.formatDate(event.getStartTime(), SETTINGS.TIMEZONE, 'yyyy-MM-dd');
+    var oldTime = Utilities.formatDate(event.getStartTime(), SETTINGS.TIMEZONE, 'HH:mm');
+    var newDate = formatDateKey(booking.date);
+    var newTime = formatTimeKey(booking.time);
+    if (oldDate === newDate && oldTime === newTime) return null;
+
+    var range = parseSlotDateTime_(newDate, newTime);
+    event.setTime(range.start, range.end);
+    event.setTitle(buildCalendarTitle_('\u5df2\u78ba\u8a8d', booking.name));
+    event.setDescription(buildCalendarDescription_(booking, '\u5df2\u78ba\u8a8d'));
+
+    // 新時段需要重新判斷前一天提醒；清空後每日提醒會依 Sheet 最新日期處理。
+    sheet.getRange(rowNumber, SETTINGS.COL_REMINDER_AT).clearContent();
+    SpreadsheetApp.flush();
+
+    return {
+      oldDate: oldDate,
+      oldTime: oldTime,
+      newDate: newDate,
+      newTime: newTime
+    };
+  } finally {
+    try { lock.releaseLock(); } catch (releaseErr) { /* ignore */ }
+  }
 }
 
 function deleteCancelledCalendarEvent(sheet, rowNumber, existingEventId) {
@@ -1083,7 +1195,7 @@ function backfillMissingCalendarEvents() {
     Logger.log('backfillMissingCalendarEvents: no data rows');
     return;
   }
-  var lastCol = Math.max(sheet.getLastColumn(), SETTINGS.COL_INQUIRY_DIRECTION);
+  var lastCol = Math.max(sheet.getLastColumn(), SETTINGS.COL_PLAN_PRICE);
   var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
   var candidates = [];
   for (var i = 0; i < data.length; i++) {
@@ -1108,6 +1220,8 @@ function backfillMissingCalendarEvents() {
       phone: r[4],
       igAccount: r[11] || '',
       inquiryDirection: r[SETTINGS.COL_INQUIRY_DIRECTION - 1] || '',
+      planName: r[SETTINGS.COL_PLAN_NAME - 1] || SETTINGS.BOOKING_PLANS.single.name,
+      planPrice: r[SETTINGS.COL_PLAN_PRICE - 1] || SETTINGS.SERVICE_PRICE,
       paymentLast5: r[12] || '',
       status: r[7]
     };
@@ -1165,11 +1279,15 @@ function sendAssistantNotification(data) {
   var birthDisplay = (data.birthCalendar || '') + ' ' + (data.birthDate || '');
   var consultMode = data.consultMode || '';
   var inquiryDirection = sanitizeText(data.inquiryDirection || '', 120);
+  var planName = sanitizeText(data.planName || SETTINGS.BOOKING_PLANS.single.name, 50);
+  var planPrice = sanitizeText(data.planPrice || SETTINGS.SERVICE_PRICE, 30);
   var paymentLast5 = data.paymentLast5 || '';
   var bookingId = data.bookingId || '';
 
   var plainBody = SETTINGS.BRAND_NAME + ' \u65b0\u9810\u7d04\uff1a\n\n'
     + '\u9810\u7d04\u7de8\u865f\uff1a' + bookingId + '\n'
+    + '方案：' + planName + '\n'
+    + '金額：' + planPrice + '\n'
     + '\u59d3\u540d\uff1a' + name + '\n'
     + '\u96fb\u8a71\uff1a' + data.phone + '\n'
     + 'Email\uff1a' + data.email + '\n'
@@ -1189,6 +1307,8 @@ function sendAssistantNotification(data) {
     + '<p style="margin:0 0 20px;font-size:20px;color:#2C1810;font-weight:700;">' + name + '</p>'
     + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FDF8F3;border-radius:12px;padding:16px 20px;margin-bottom:20px;">'
     + infoRow('\u9810\u7d04\u7de8\u865f', bookingId)
+    + infoRow('方案', planName)
+    + infoRow('金額', planPrice)
     + infoRow('\u65e5\u671f', displayDate)
     + infoRow('\u6642\u6bb5', data.time)
     + infoRow('\u8aee\u8a62\u65b9\u5f0f', consultMode)
@@ -1213,6 +1333,59 @@ function sendAssistantNotification(data) {
   });
 }
 
+/**
+ * 在很短的 ScriptLock 內重新讀取該列並先寫入處理中標記。
+ *
+ * 時間 Trigger 可能重複安裝，也可能在前一次尚未跑完時再次啟動。
+ * 不能只依賴 checkStatusChanges() 開頭讀到的 confirmTime，否則多個執行
+ * 都會看到空白並各自送出一次 LINE / Email。
+ */
+function tryClaimBookingNotification_(sheet, rowNumber, expectedBookingId, notificationType) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) {
+    Logger.log('tryClaimBookingNotification_: lock busy row=' + rowNumber
+      + ' bookingId=' + expectedBookingId + ' type=' + notificationType);
+    return false;
+  }
+
+  try {
+    // H=狀態、I=確認時間/通知標記、P=預約編號
+    var current = sheet.getRange(rowNumber, 8, 1, SETTINGS.COL_BOOKING_ID - 7).getValues()[0];
+    var currentStatus = current[0];
+    var currentMarker = current[1];
+    var currentBookingId = String(current[SETTINGS.COL_BOOKING_ID - 8] || '');
+    var expectedId = String(expectedBookingId || '');
+
+    // 防止工作表排序或插列後，舊快照的 rowNumber 指到另一筆預約。
+    if (expectedId && currentBookingId !== expectedId) {
+      Logger.log('tryClaimBookingNotification_: row changed row=' + rowNumber
+        + ' expected=' + expectedId + ' actual=' + currentBookingId);
+      return false;
+    }
+
+    if (notificationType === 'confirmed') {
+      if (currentStatus !== '\u5df2\u78ba\u8a8d' || currentMarker) return false;
+      sheet.getRange(rowNumber, 9).setValue('\u78ba\u8a8d\u901a\u77e5\u8655\u7406\u4e2d ' + formatTaipeiNow());
+    } else if (notificationType === 'cancelled') {
+      var markerText = String(currentMarker || '');
+      if (currentStatus !== '\u5df2\u53d6\u6d88'
+        || markerText.indexOf('\u53d6\u6d88\u5df2\u901a\u77e5') !== -1
+        || markerText.indexOf('\u53d6\u6d88\u901a\u77e5\u8655\u7406\u4e2d') !== -1) {
+        return false;
+      }
+      sheet.getRange(rowNumber, 9).setValue('\u53d6\u6d88\u901a\u77e5\u8655\u7406\u4e2d ' + formatTaipeiNow());
+    } else {
+      throw new Error('Unknown notification type: ' + notificationType);
+    }
+
+    // 在釋放鎖前送出 Sheet 更新，讓下一個執行一定讀得到認領標記。
+    SpreadsheetApp.flush();
+    return true;
+  } finally {
+    try { lock.releaseLock(); } catch (releaseErr) { /* ignore */ }
+  }
+}
+
 function checkStatusChanges() {
   // 順手消化背景佇列（前端 kick 失敗時的備援）
   try {
@@ -1227,7 +1400,7 @@ function checkStatusChanges() {
     syncPublicSheet();
     return;
   }
-  var lastCol = Math.max(sheet.getLastColumn(), SETTINGS.COL_INQUIRY_DIRECTION);
+  var lastCol = Math.max(sheet.getLastColumn(), SETTINGS.COL_PLAN_PRICE);
   var data = sheet.getRange(2, 1, lastRow - 1, lastCol).getValues();
   for (var i = 0; i < data.length; i++) {
     var row = data[i];
@@ -1238,7 +1411,8 @@ function checkStatusChanges() {
     var calEventId = row[SETTINGS.COL_CALENDAR_EVENT_ID - 1] || '';
     var rowNumber = i + 2;
 
-    if (status === '\u5df2\u78ba\u8a8d' && !confirmTime) {
+    if (status === '\u5df2\u78ba\u8a8d' && !confirmTime
+      && tryClaimBookingNotification_(sheet, rowNumber, bookingId, 'confirmed')) {
       var booking = {
         date: formatDateKey(row[1]),
         time: formatTimeKey(row[2]),
@@ -1247,8 +1421,11 @@ function checkStatusChanges() {
         email: row[5],
         lineUid: lineUid,
         bookingId: bookingId,
+        birthDate: row[10] || '',
         igAccount: row[11] || '',
         inquiryDirection: row[SETTINGS.COL_INQUIRY_DIRECTION - 1] || '',
+        planName: row[SETTINGS.COL_PLAN_NAME - 1] || SETTINGS.BOOKING_PLANS.single.name,
+        planPrice: row[SETTINGS.COL_PLAN_PRICE - 1] || SETTINGS.SERVICE_PRICE,
         paymentLast5: row[12] || ''
       };
       try {
@@ -1271,10 +1448,48 @@ function checkStatusChanges() {
       sheet.getRange(rowNumber, 9).setValue(new Date());
     }
 
+    // 已確認後若業主直接改 Sheet 日期／時間：同步 Calendar 並主動通知客人。
+    // 初次確認的事件時段本來就一致，因此不會重複送出改期通知。
+    if (status === '\u5df2\u78ba\u8a8d' && confirmTime) {
+      var confirmedBooking = {
+        date: formatDateKey(row[1]),
+        time: formatTimeKey(row[2]),
+        name: row[3],
+        phone: row[4],
+        email: row[5],
+        lineUid: lineUid,
+        bookingId: bookingId,
+        birthDate: row[10] || '',
+        igAccount: row[11] || '',
+        inquiryDirection: row[SETTINGS.COL_INQUIRY_DIRECTION - 1] || '',
+        planName: row[SETTINGS.COL_PLAN_NAME - 1] || SETTINGS.BOOKING_PLANS.single.name,
+        planPrice: row[SETTINGS.COL_PLAN_PRICE - 1] || SETTINGS.SERVICE_PRICE,
+        paymentLast5: row[12] || ''
+      };
+      try {
+        var scheduleChange = syncConfirmedScheduleChange_(
+          confirmedBooking,
+          sheet,
+          rowNumber,
+          calEventId
+        );
+        if (scheduleChange) {
+          if (lineUid) {
+            sendLineBookingRescheduled(confirmedBooking, scheduleChange);
+          }
+          sendBookingRescheduledEmail(confirmedBooking, scheduleChange);
+        }
+      } catch (eReschedule) {
+        Logger.log('schedule change sync error row=' + rowNumber + ' bookingId=' + bookingId + ': ' + eReschedule.message);
+      }
+    }
+
     // 取消：用特殊標記區分已確認過的，避免 confirmTime 擋住取消通知
     if (status === '\u5df2\u53d6\u6d88') {
       var marker = String(confirmTime);
-      if (marker.indexOf('\u53d6\u6d88\u5df2\u901a\u77e5') === -1) {
+      if (marker.indexOf('\u53d6\u6d88\u5df2\u901a\u77e5') === -1
+        && marker.indexOf('\u53d6\u6d88\u901a\u77e5\u8655\u7406\u4e2d') === -1
+        && tryClaimBookingNotification_(sheet, rowNumber, bookingId, 'cancelled')) {
         var booking2 = {
           date: formatDateKey(row[1]),
           time: formatTimeKey(row[2]),
@@ -1343,6 +1558,8 @@ function infoRow(label, value) {
 function sendCustomerConfirmation(booking) {
   var dateStr = formatDateKey(booking.date);
   var timeStr = formatTimeKey(booking.time);
+  var planName = booking.planName || SETTINGS.BOOKING_PLANS.single.name;
+  var planPrice = booking.planPrice || SETTINGS.SERVICE_PRICE;
   var subject = '[\u9810\u7d04\u78ba\u8a8d] ' + SETTINGS.BRAND_NAME + ' - ' + dateStr + ' ' + timeStr;
 
   var content = ''
@@ -1351,17 +1568,18 @@ function sendCustomerConfirmation(booking) {
     // Info card
     + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FDF8F3;border-radius:12px;padding:16px 20px;margin-bottom:24px;">'
     + (booking.bookingId ? infoRow('\u9810\u7d04\u7de8\u865f', booking.bookingId) : '')
+    + infoRow('方案', planName)
     + infoRow('\u65e5\u671f', dateStr)
     + infoRow('\u6642\u6bb5', timeStr)
     + (booking.inquiryDirection ? infoRow('詢問方向', booking.inquiryDirection) : '')
-    + infoRow('\u8cbb\u7528', '<span style="color:#7B5EA7;font-weight:700;">' + SETTINGS.SERVICE_PRICE + '</span>')
+    + infoRow('\u8cbb\u7528', '<span style="color:#7B5EA7;font-weight:700;">' + planPrice + '</span>')
     + '</table>'
     + '<p style="margin:0;font-size:13px;color:#2C1810;opacity:0.6;line-height:1.6;">'
     + '\u8aee\u8a62\u65b9\u5f0f\u5c07\u7531\u52a9\u7406\u53e6\u884c\u901a\u77e5\u3002<br>'
     + '\u5982\u9700\u66f4\u6539\u6216\u53d6\u6d88\uff0c\u8acb\u63d0\u524d\u806f\u7e6b\u6211\u5011\u3002'
     + '</p>';
 
-  var plainBody = booking.name + ' \u60a8\u597d\uff0c\n\n\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u78ba\u8a8d\uff01\n\n\u65e5\u671f\uff1a' + dateStr + '\n\u6642\u6bb5\uff1a' + timeStr + (booking.inquiryDirection ? ('\n詢問方向：' + booking.inquiryDirection) : '') + '\n\u8cbb\u7528\uff1a' + SETTINGS.SERVICE_PRICE + '\n\n' + SETTINGS.BRAND_NAME;
+  var plainBody = booking.name + ' \u60a8\u597d\uff0c\n\n\u60a8\u7684\u8aee\u8a62\u9810\u7d04\u5df2\u78ba\u8a8d\uff01\n\n方案：' + planName + '\n\u65e5\u671f\uff1a' + dateStr + '\n\u6642\u6bb5\uff1a' + timeStr + (booking.inquiryDirection ? ('\n詢問方向：' + booking.inquiryDirection) : '') + '\n\u8cbb\u7528\uff1a' + planPrice + '\n\n' + SETTINGS.BRAND_NAME;
 
   sendBrandEmail({
     to: booking.email,
@@ -1396,6 +1614,32 @@ function sendCancellationNotice(booking) {
     body: plainBody,
     htmlBody: brandEmailTemplate(content)
   });
+}
+
+function sendBookingRescheduledEmail(booking, change) {
+  if (!booking.email) return false;
+  var subject = '[預約改期] ' + SETTINGS.BRAND_NAME + ' - ' + change.newDate + ' ' + change.newTime;
+  var content = ''
+    + '<p style="margin:0 0 8px;font-size:16px;color:#2C1810;">' + (booking.name || '您') + ' 您好，</p>'
+    + '<p style="margin:0 0 24px;font-size:15px;color:#2C1810;line-height:1.6;">您的諮詢預約時間已調整，請以以下最新時間為準：</p>'
+    + '<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FDF8F3;border-radius:12px;padding:16px 20px;margin-bottom:24px;">'
+    + (booking.bookingId ? infoRow('預約編號', booking.bookingId) : '')
+    + infoRow('原訂時間', change.oldDate + ' ' + change.oldTime)
+    + infoRow('最新時間', '<strong style="color:#7B5EA7;">' + change.newDate + ' ' + change.newTime + '</strong>')
+    + '</table>'
+    + '<p style="margin:0;font-size:13px;color:#2C1810;opacity:0.6;line-height:1.6;">前一天提醒也會依照這個最新時間發送。</p>';
+  var plainBody = (booking.name || '您') + ' 您好，\n\n'
+    + '您的諮詢預約時間已調整。\n'
+    + '原訂時間：' + change.oldDate + ' ' + change.oldTime + '\n'
+    + '最新時間：' + change.newDate + ' ' + change.newTime + '\n\n'
+    + '前一天提醒也會依照最新時間發送。\n\n' + SETTINGS.BRAND_NAME;
+  sendBrandEmail({
+    to: booking.email,
+    subject: subject,
+    body: plainBody,
+    htmlBody: brandEmailTemplate(content)
+  });
+  return true;
 }
 
 function testSync() {
@@ -1437,12 +1681,17 @@ function sendLinePush(uid, messages) {
 
 function sendLineBookingReceived(data) {
   var dateDisplay = data.dateDisplay || data.date;
+  var planName = data.planName || SETTINGS.BOOKING_PLANS.single.name;
+  var planPrice = data.planPrice || SETTINGS.SERVICE_PRICE;
+  var birthDisplay = ((data.birthCalendar || '') + ' ' + (data.birthDate || '')).trim();
   var text = '✨ ' + SETTINGS.BRAND_NAME + ' 療癒系問事\n\n'
     + '已收到您的預約申請：\n'
     + (data.bookingId ? ('預約編號：' + data.bookingId + '\n') : '')
+    + '方案：' + planName + '\n'
     + '📅 ' + dateDisplay + '  ' + data.time + '\n'
+    + (birthDisplay ? ('出生年月日：' + birthDisplay + '\n') : '')
     + (data.inquiryDirection ? ('詢問方向：' + data.inquiryDirection + '\n') : '')
-    + '費用：' + SETTINGS.SERVICE_PRICE + '\n\n'
+    + '費用：' + planPrice + '\n\n'
     + '助理會盡快與非非確認時間，確認後會再通知您 🙏';
   return sendLinePush(data.lineUid, [{ type: 'text', text: text }]);
 }
@@ -1450,16 +1699,34 @@ function sendLineBookingReceived(data) {
 function sendLineBookingConfirmed(booking) {
   var dateStr = formatDateKey(booking.date);
   var timeStr = formatTimeKey(booking.time);
+  var planName = booking.planName || SETTINGS.BOOKING_PLANS.single.name;
+  var planPrice = booking.planPrice || SETTINGS.SERVICE_PRICE;
+  var birthDisplay = String(booking.birthDate || '').trim();
   var text = '🌸 ' + SETTINGS.BRAND_NAME + ' 療癒系問事\n\n'
     + (booking.name || '您') + ' 您好，\n'
     + '您的諮詢預約已確認！\n\n'
     + (booking.bookingId ? ('預約編號：' + booking.bookingId + '\n') : '')
+    + '方案：' + planName + '\n'
     + '📅 日期：' + dateStr + '\n'
     + '🕒 時段：' + timeStr + '\n'
+    + (birthDisplay ? ('出生年月日：' + birthDisplay + '\n') : '')
     + (booking.inquiryDirection ? ('詢問方向：' + booking.inquiryDirection + '\n') : '')
-    + '費用：' + SETTINGS.SERVICE_PRICE + '\n\n'
+    + '費用：' + planPrice + '\n\n'
     + '諮詢方式將由助理另行通知。\n'
     + '如需更改或取消，請提前聯繫我們 🙏';
+  return sendLinePush(booking.lineUid, [{ type: 'text', text: text }]);
+}
+
+function sendLineBookingRescheduled(booking, change) {
+  var birthDisplay = String(booking.birthDate || '').trim();
+  var text = '📅 ' + SETTINGS.BRAND_NAME + ' 預約改期通知\n\n'
+    + (booking.name || '您') + ' 您好，\n'
+    + '您的諮詢預約時間已調整，請以最新時間為準：\n\n'
+    + (booking.bookingId ? ('預約編號：' + booking.bookingId + '\n') : '')
+    + '原訂時間：' + change.oldDate + ' ' + change.oldTime + '\n'
+    + '最新時間：' + change.newDate + ' ' + change.newTime + '\n'
+    + (birthDisplay ? ('出生年月日：' + birthDisplay + '\n') : '')
+    + '\n前一天提醒也會依照最新時間發送 🙏';
   return sendLinePush(booking.lineUid, [{ type: 'text', text: text }]);
 }
 
@@ -1589,17 +1856,15 @@ function sendTomorrowBookingReminders() {
 // ===== Trigger 管理（idempotent）=====
 
 function installBookingTriggers() {
-  var handlers = {
-    checkStatusChanges: { type: 'everyMinutes', minutes: 5 },
-    sendTomorrowBookingReminders: { type: 'daily', hour: 18 }
-  };
   var existing = ScriptApp.getProjectTriggers();
   var existingHandlers = {};
   for (var i = 0; i < existing.length; i++) {
-    existingHandlers[existing[i].getHandlerFunction()] = true;
+    var handlerName = existing[i].getHandlerFunction();
+    if (!existingHandlers[handlerName]) existingHandlers[handlerName] = [];
+    existingHandlers[handlerName].push(existing[i]);
   }
 
-  if (existingHandlers['checkStatusChanges']) {
+  if (existingHandlers['checkStatusChanges'] && existingHandlers['checkStatusChanges'].length) {
     Logger.log('checkStatusChanges trigger: 已存在');
   } else {
     ScriptApp.newTrigger('checkStatusChanges')
@@ -1609,7 +1874,7 @@ function installBookingTriggers() {
     Logger.log('checkStatusChanges trigger: 已建立 (every 5 min)');
   }
 
-  if (existingHandlers['sendTomorrowBookingReminders']) {
+  if (existingHandlers['sendTomorrowBookingReminders'] && existingHandlers['sendTomorrowBookingReminders'].length) {
     Logger.log('sendTomorrowBookingReminders trigger: 已存在');
   } else {
     ScriptApp.newTrigger('sendTomorrowBookingReminders')
@@ -1622,7 +1887,7 @@ function installBookingTriggers() {
   }
 
   // 背景消化預約側效（前端 kick 失敗時的備援）
-  if (existingHandlers['processPendingBookingJobs']) {
+  if (existingHandlers['processPendingBookingJobs'] && existingHandlers['processPendingBookingJobs'].length) {
     Logger.log('processPendingBookingJobs trigger: 已存在');
   } else {
     ScriptApp.newTrigger('processPendingBookingJobs')
@@ -1630,6 +1895,16 @@ function installBookingTriggers() {
       .everyMinutes(1)
       .create();
     Logger.log('processPendingBookingJobs trigger: 已建立 (every 1 min)');
+  }
+
+  // getProjectTriggers() 只會列出目前帳號建立的 Trigger；每種排程保留一個即可。
+  var managedHandlers = ['checkStatusChanges', 'sendTomorrowBookingReminders', 'processPendingBookingJobs'];
+  for (var h = 0; h < managedHandlers.length; h++) {
+    var duplicates = existingHandlers[managedHandlers[h]] || [];
+    for (var d = 1; d < duplicates.length; d++) {
+      ScriptApp.deleteTrigger(duplicates[d]);
+      Logger.log(managedHandlers[h] + ' trigger: 已刪除重複 #' + (d + 1));
+    }
   }
 }
 

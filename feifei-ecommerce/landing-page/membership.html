@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#5b100c">
+    <meta name="description" content="非非療癒系服務三種方案：單次問事、武財公指引方案、深度陪伴方案。選擇適合的方式，直接付款預約。">
+    <title>選擇問事方案｜非非768</title>
+    <style>
+        :root {
+            --temple: #5b100c;
+            --temple-deep: #2d0806;
+            --temple-light: #8a1d14;
+            --gold: #d6a43c;
+            --gold-light: #f3d98f;
+            --paper: #fbf4e7;
+            --cream: #fffaf1;
+            --ink: #2e1711;
+            --muted: #766258;
+            --line: rgba(91, 16, 12, .14);
+            --serif: "Noto Serif TC", "PMingLiU", serif;
+            --sans: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+        }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            color: var(--ink);
+            background: var(--paper);
+            font-family: var(--sans);
+            -webkit-font-smoothing: antialiased;
+        }
+        button, a { -webkit-tap-highlight-color: transparent; }
+        .shell { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
+        .topbar {
+            height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(243, 217, 143, .2);
+        }
+        .brand { display: flex; align-items: center; gap: 10px; color: var(--gold-light); }
+        .brand-mark {
+            width: 34px;
+            aspect-ratio: 1;
+            border: 1px solid rgba(243, 217, 143, .55);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-family: var(--serif);
+            font-size: 19px;
+        }
+        .brand strong { font-family: var(--serif); font-size: 16px; letter-spacing: .12em; }
+        .line-origin { color: rgba(255, 250, 241, .62); font-size: 11px; letter-spacing: .05em; }
+
+        .hero { position: relative; overflow: hidden; color: var(--cream); background: #170705; }
+        .hero::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            opacity: .13;
+            background-image: radial-gradient(circle at center, transparent 0 1px, rgba(243, 217, 143, .25) 1.5px, transparent 2px);
+            background-size: 24px 24px;
+            pointer-events: none;
+        }
+        .hero-stage { position: relative; z-index: 1; min-height: 520px; display: grid; grid-template-columns: 48% 52%; align-items: stretch; }
+        .deity-visual { position: relative; min-height: 520px; overflow: hidden; border-right: 1px solid rgba(243, 217, 143, .2); }
+        .deity-visual::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: url("assets/images/武財公照片.jpg") no-repeat;
+            background-size: cover;
+            background-position: center 72%;
+            filter: saturate(.87) contrast(1.06) brightness(.78);
+        }
+        .deity-visual::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(90deg, rgba(20, 5, 3, .14), transparent 58%, #170705 100%),
+                linear-gradient(0deg, #170705 0%, transparent 38%),
+                radial-gradient(circle at 42% 45%, transparent 15%, rgba(20, 5, 3, .32) 80%);
+        }
+        .deity-caption { position: absolute; z-index: 1; left: 28px; bottom: 30px; padding-left: 14px; border-left: 1px solid var(--gold); color: rgba(255, 250, 241, .76); font-family: var(--serif); font-size: 12px; letter-spacing: .18em; line-height: 1.8; }
+        .hero-inner { position: relative; z-index: 1; padding: 70px 32px 58px 60px; display: flex; flex-direction: column; justify-content: center; text-align: left; }
+        .eyebrow { margin: 0 0 10px; color: var(--gold-light); font-size: 11px; font-weight: 800; letter-spacing: .18em; }
+        h1 { max-width: 520px; margin: 0; font-family: var(--serif); font-size: clamp(37px, 4vw, 54px); letter-spacing: .06em; line-height: 1.35; }
+        .hero-copy { max-width: 450px; margin: 14px 0 0; color: rgba(255, 250, 241, .68); font-size: 13px; line-height: 1.9; }
+        .hero-rule { width: 74px; height: 1px; margin: 22px 0 0; background: var(--gold); }
+        .steps { margin: 23px 0 0; display: flex; align-items: center; justify-content: flex-start; gap: 8px; color: rgba(255, 250, 241, .75); font-size: 11px; }
+        .steps b { width: 24px; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; color: var(--temple); background: var(--gold-light); }
+        .steps i { width: 24px; height: 1px; background: rgba(243, 217, 143, .28); }
+
+        .chooser { position: relative; z-index: 2; padding: 42px 0 58px; background-color: var(--paper); background-image: radial-gradient(circle at center, rgba(91, 16, 12, .045) 0 1px, transparent 1.5px); background-size: 18px 18px; }
+        .section-heading { margin: 0 0 22px; text-align: center; }
+        .section-heading::before { content: "三種問事方式"; display: block; margin-bottom: 8px; color: var(--temple-light); font-size: 10px; font-weight: 800; letter-spacing: .22em; }
+        .choose-heading { margin: 0; color: var(--ink); font-family: var(--serif); font-size: 25px; font-weight: 700; letter-spacing: .06em; }
+        .choose-note { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.7; }
+        .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        .plan {
+            position: relative;
+            min-width: 0;
+            padding: 22px;
+            border: 1px solid rgba(91, 16, 12, .14);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 252, 246, .98);
+            box-shadow: 0 14px 38px rgba(55, 13, 7, .11);
+        }
+        .plan::before { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(214, 164, 60, .18); pointer-events: none; }
+        .plan.recommended { color: var(--cream); border-color: rgba(243, 217, 143, .43); background: linear-gradient(150deg, #71160f, #370806); }
+        .badge { position: relative; z-index: 1; width: fit-content; align-self: flex-start; justify-self: start; padding: 5px 10px; border-radius: 2px; color: var(--temple); background: #f1dfb8; font-size: 10px; font-weight: 800; letter-spacing: .06em; }
+        .plan h2 { margin: 13px 0 4px; font-family: var(--serif); font-size: 24px; letter-spacing: .06em; }
+        .fit { min-height: 40px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.65; }
+        .recommended .fit { color: rgba(255, 250, 241, .62); }
+        .price { margin: 15px 0; color: var(--temple); font-family: var(--serif); font-size: 28px; font-weight: 700; white-space: nowrap; }
+        .recommended .price { color: var(--gold-light); }
+        .price small { margin-left: 4px; font-family: var(--sans); font-size: 10px; font-weight: 500; opacity: .62; }
+        .summary { margin: 0 0 18px; padding: 0; list-style: none; flex: 1; }
+        .summary li { position: relative; padding: 7px 0 7px 18px; border-top: 1px solid var(--line); font-size: 12px; line-height: 1.55; }
+        .recommended .summary li { border-color: rgba(243, 217, 143, .14); }
+        .summary li::before { content: "✓"; position: absolute; left: 0; color: var(--gold); font-weight: 900; }
+        details { margin-bottom: 15px; }
+        summary { color: var(--muted); font-size: 11px; cursor: pointer; }
+        .recommended summary { color: rgba(255, 250, 241, .62); }
+        details p { margin: 9px 0 0; color: var(--muted); font-size: 11px; line-height: 1.75; }
+        .recommended details p { color: rgba(255, 250, 241, .6); }
+        .cta {
+            min-height: 45px;
+            border: 0;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cream);
+            background: var(--temple);
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .cta:hover { transform: translateY(-1px); box-shadow: 0 9px 20px rgba(63, 8, 5, .16); }
+        .recommended .cta { color: var(--temple-deep); background: linear-gradient(135deg, #fff0ba, #d8a53f); }
+
+        .helper { padding: 64px 0; border-top: 1px solid rgba(214, 164, 60, .22); background: var(--cream); }
+        .helper-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 46px; align-items: start; }
+        .section-kicker { margin: 0 0 8px; color: var(--temple-light); font-size: 10px; font-weight: 800; letter-spacing: .16em; }
+        .helper h2 { margin: 0; font-family: var(--serif); font-size: 31px; line-height: 1.45; letter-spacing: .05em; }
+        .helper-intro { margin: 12px 0 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+        .quiz { padding: 22px; border: 1px solid var(--line); border-radius: 4px; background: #fffdf8; box-shadow: inset 0 0 0 7px #fffdf8, inset 0 0 0 8px rgba(214, 164, 60, .2); }
+        .question + .question { margin-top: 20px; }
+        .question > b { display: block; margin-bottom: 10px; font-size: 13px; }
+        .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .answers button {
+            min-height: 42px;
+            padding: 8px 12px;
+            border: 1px solid var(--line);
+            border-radius: 3px;
+            color: var(--ink);
+            background: #fff;
+            font-family: inherit;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .answers button.selected { border-color: var(--temple); color: var(--temple); background: #f7e9d7; font-weight: 800; }
+        .result { display: none; margin-top: 18px; padding: 15px; border-left: 3px solid var(--gold); color: var(--muted); background: #f8edda; font-size: 12px; line-height: 1.7; }
+        .result.show { display: block; }
+        .result strong { display: block; color: var(--temple); font-family: var(--serif); font-size: 19px; }
+        .result .cta { margin-top: 11px; }
+
+        .confidence { padding: 28px 0 96px; background: var(--cream); }
+        .confidence-inner { padding-top: 24px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 25px; color: var(--muted); font-size: 11px; line-height: 1.75; }
+        .confidence strong { color: var(--ink); }
+        .support { color: var(--temple-light); text-underline-offset: 3px; }
+
+        @media (max-width: 760px) {
+            .shell { width: min(100% - 24px, 1080px); }
+            .line-origin { font-size: 10px; }
+            .hero-stage { min-height: 0; display: block; }
+            .deity-visual { min-height: 390px; border-right: 0; border-bottom: 1px solid rgba(243, 217, 143, .22); }
+            .deity-visual::before { background-size: cover; background-position: center 72%; }
+            .deity-visual::after { background: linear-gradient(0deg, #170705 0%, transparent 45%), radial-gradient(circle at 48% 48%, transparent 12%, rgba(20, 5, 3, .28) 86%); }
+            .deity-caption { left: 20px; bottom: 20px; font-size: 10px; }
+            .hero-inner { padding: 28px 12px 34px; text-align: center; align-items: center; }
+            h1 { max-width: 330px; margin-inline: auto; font-size: 26px; letter-spacing: .025em; }
+            .hero-copy { max-width: 330px; }
+            .hero-rule { margin-top: 17px; }
+            .steps { margin-top: 15px; gap: 5px; }
+            .steps i { width: 14px; }
+            .chooser { padding: 30px 0 42px; }
+            .section-heading { margin-bottom: 17px; }
+            .choose-heading { font-size: 21px; }
+            .choose-note { font-size: 11px; }
+            .plans { grid-template-columns: 1fr; gap: 10px; }
+            .plan { padding: 14px 15px 13px; display: grid; grid-template-columns: 1fr auto; column-gap: 14px; }
+            .plan .badge, .plan h2, .plan .fit, .plan .price, .plan .summary, .plan details, .plan .cta { grid-column: 1 / -1; }
+            .plan h2 { margin: 8px 0 2px; font-size: 20px; }
+            .fit { min-height: 0; }
+            .price { position: static; margin: 8px 0 3px; font-size: 23px; }
+            .summary { display: none; }
+            details { margin: 8px 0 10px; }
+            .cta { min-height: 40px; }
+            .helper { padding: 44px 0; }
+            .helper-grid { grid-template-columns: 1fr; gap: 20px; }
+            .helper h2 { font-size: 26px; }
+            .quiz { padding: 17px; }
+            .confidence { padding-bottom: 45px; }
+            .confidence-inner { display: block; }
+            .confidence-inner p { margin: 8px 0; }
+        }
+        @media (max-width: 390px) {
+            .line-origin { display: none; }
+            .deity-visual { min-height: 355px; }
+            .deity-visual::before { background-size: cover; background-position: center 72%; }
+            .answers { grid-template-columns: 1fr; }
+            .steps { font-size: 10px; }
+            .steps i { width: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="hero">
+        <div class="shell topbar">
+            <div class="brand"><span class="brand-mark">非</span><strong>非非768</strong></div>
+            <span class="line-origin">官方 LINE 專屬預約</span>
+        </div>
+        <div class="shell hero-stage">
+            <div class="deity-visual" role="img" aria-label="業主提供的武財公照片">
+                <span class="deity-caption">聽見你的心聲<br>指引你的方向</span>
+            </div>
+            <div class="hero-inner">
+                <p class="eyebrow">武財公指引方案・非非療癒系服務</p>
+                <h1>在迷惘的時候，<br>為你指引一個方向。</h1>
+                <p class="hero-copy">從一次釐清，到一段時間的陪伴。先依照目前的需要選擇問事方式，再完成付款與預約。</p>
+                <span class="hero-rule" aria-hidden="true"></span>
+                <div class="steps" aria-label="預約流程"><b>1</b><span>選方案</span><i></i><b>2</b><span>選時間</span><i></i><b>3</b><span>匯款送出</span></div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="chooser" id="plans">
+            <div class="shell">
+                <div class="section-heading">
+                    <p class="choose-heading">選擇現在需要的指引</p>
+                    <p class="choose-note">先看「適合誰」；不確定的話，下方兩題會協助你判斷。</p>
+                </div>
+                <div class="plans">
+                    <article class="plan">
+                        <span class="badge">想先問一次</span>
+                        <h2>單次問事</h2>
+                        <p class="fit">適合目前有一件事，想先得到方向的你</p>
+                        <div class="price">NT$3,800<small>／次</small></div>
+                        <ul class="summary"><li>一次線上視訊問事</li><li>選擇日期與時段</li></ul>
+                        <details><summary>查看內容說明</summary><p>由武財公開文，非非傳達旨意，針對目前遇到的問題給予方向指引。</p></details>
+                        <a class="cta" data-plan-link="single" href="booking.html?plan=single">選擇單次問事</a>
+                    </article>
+
+                    <article class="plan recommended">
+                        <span class="badge">第一次完整了解</span>
+                        <h2>武財公指引方案</h2>
+                        <p class="fit">適合第一次來，希望問完後還能繼續釐清的你</p>
+                        <div class="price">NT$9,900</div>
+                        <ul class="summary"><li>一次完整問事</li><li>2 個月內延伸 5 題</li><li>金咒輪 100 張</li></ul>
+                        <details><summary>查看內容說明</summary><p>一次完整看見現況，並保留 5 個延伸問題，讓新的狀況出現時仍能繼續釐清。</p></details>
+                        <a class="cta" data-plan-link="guidance" href="booking.html?plan=guidance">選擇武財公指引方案</a>
+                    </article>
+
+                    <article class="plan">
+                        <span class="badge">老客人持續陪伴</span>
+                        <h2>深度陪伴方案</h2>
+                        <p class="fit">適合曾經來過，希望有一段持續陪伴的你</p>
+                        <div class="price">NT$9,900</div>
+                        <ul class="summary"><li>3 個月內延伸 8 題</li><li>金咒輪 100 張</li><li>水晶香霧任選二</li></ul>
+                        <details><summary>查看內容說明</summary><p>淨化、貴人、招財三款香霧任選二；保留較長的提問期限，陪你走過一段重要歷程。</p></details>
+                        <a class="cta" data-plan-link="deep" href="booking.html?plan=deep">選擇深度陪伴</a>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="helper" id="helper">
+            <div class="shell helper-grid">
+                <div>
+                    <p class="section-kicker">30 秒快速推薦</p>
+                    <h2>還是不確定？<br>回答兩個問題就好。</h2>
+                    <p class="helper-intro">不用回到 LINE 等人工回覆，系統會先依照你的狀況推薦。</p>
+                </div>
+                <div class="quiz">
+                    <div class="question" data-question="history">
+                        <b>1. 以前有找非非問事過嗎？</b>
+                        <div class="answers"><button type="button" data-value="first">第一次</button><button type="button" data-value="returning">曾經問過</button></div>
+                    </div>
+                    <div class="question" data-question="need">
+                        <b>2. 這次比較需要哪一種協助？</b>
+                        <div class="answers"><button type="button" data-value="once">只想先問一次</button><button type="button" data-value="ongoing">希望後續能繼續提問</button></div>
+                    </div>
+                    <div class="result" id="quiz-result" aria-live="polite"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="confidence">
+            <div class="shell confidence-inner">
+                <p><strong>接下來會做什麼？</strong><br>選方案後，依序選日期、時段、完成匯款並填寫預約資料。</p>
+                <p><strong>特殊狀況需要人工協助？</strong><br><a class="support" href="https://line.me/R/ti/p/@329pbeom" target="_blank" rel="noopener noreferrer">回官方 LINE 詢問助理</a></p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        var answers = { history: "", need: "" };
+        var planInfo = {
+            single: { name: "單次問事", reason: "你目前只想先釐清一件事，從單次問事開始最直接。" },
+            guidance: { name: "武財公指引方案", reason: "你是第一次來，也希望後續能繼續釐清，武財公指引方案會比較完整。" },
+            deep: { name: "深度陪伴方案", reason: "你曾經問過、需要持續陪伴，深度方案最符合目前的狀況。" }
+        };
+
+        document.querySelectorAll(".answers button").forEach(function(button) {
+            button.addEventListener("click", function() {
+                var question = button.closest(".question");
+                var key = question.getAttribute("data-question");
+                question.querySelectorAll("button").forEach(function(item) { item.classList.remove("selected"); });
+                button.classList.add("selected");
+                answers[key] = button.getAttribute("data-value");
+                showRecommendation();
+            });
+        });
+
+        function showRecommendation() {
+            if (!answers.history || !answers.need) return;
+            var planId = answers.need === "once" ? "single" : (answers.history === "first" ? "guidance" : "deep");
+            var plan = planInfo[planId];
+            var result = document.getElementById("quiz-result");
+            result.innerHTML = "<strong>推薦你選：" + plan.name + "</strong>" + plan.reason
+                + "<a class=\"cta\" href=\"booking.html?plan=" + planId + "\">選這個方案並預約</a>";
+            result.classList.add("show");
+        }
+    </script>
+</body>
+</html>
