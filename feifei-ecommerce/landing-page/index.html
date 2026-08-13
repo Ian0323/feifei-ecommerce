@@ -16,18 +16,42 @@
             var params = new URLSearchParams(window.location.search);
             if (params.get("entry") !== "membership") return;
 
+            var redirected = false;
+            function openMembership() {
+                if (redirected) return;
+                redirected = true;
+                window.location.replace("membership.html");
+            }
+
+            // Preserve LIFF context when initialization succeeds, but never
+            // strand visitors on the storefront if LINE is unavailable or the
+            // URL is opened in a regular browser.
+            var fallbackTimer = window.setTimeout(openMembership, 5000);
+
             var sdk = document.createElement("script");
             sdk.charset = "utf-8";
             sdk.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
             sdk.onload = function() {
+                if (typeof liff === "undefined") {
+                    window.clearTimeout(fallbackTimer);
+                    openMembership();
+                    return;
+                }
                 liff.init({ liffId: "2009821980-46y6BEMh" })
-                    .then(function() { window.location.replace("membership.html"); })
+                    .then(function() {
+                        window.clearTimeout(fallbackTimer);
+                        openMembership();
+                    })
                     .catch(function(error) {
                         console.error("LIFF entry initialization failed:", error);
+                        window.clearTimeout(fallbackTimer);
+                        openMembership();
                     });
             };
             sdk.onerror = function() {
                 console.error("LIFF SDK failed to load");
+                window.clearTimeout(fallbackTimer);
+                openMembership();
             };
             document.head.appendChild(sdk);
         })();
