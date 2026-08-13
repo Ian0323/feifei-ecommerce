@@ -1,6 +1,6 @@
 # 非非選品｜進度追蹤
 
-> **最後更新**: 2026-07-27
+> **最後更新**: 2026-08-13
 > **定位**: 個人品牌帶貨（宗教 IP 方向待驗證），長期經營
 > **合作模式**: Ian（行銷策略長）+ feifei（品牌主理人），長期抽成合作
 > **官網**: https://myfeifei768.com.tw（自訂網域已上線；舊網址 ian0323.github.io 已停用）
@@ -14,10 +14,51 @@
 |--------|------|------|------|
 | Sprint 1 | 打破僵局，先上線 | ✅ 完成 | 2026-03-14 |
 | Sprint 1.8 | 預約諮詢系統 | ✅ 完成 | 2026-04-16 |
+| Production Recovery | 預約事故修復、v12.1 上線、LIFF 會員入口 | ✅ 完成（改期通知維持關閉） | 2026-08-13 |
 | Sprint 2 | 金流 + 追蹤 | ⬜ 待業主（售價、綠界帳號） | 下一步 |
 | Sprint 3 | LINE Bot 上線 | ⬜ 待業主（LINE Channel） | Sprint 2 後 |
 | Sprint 4 | 內容策略驗證（IG A/B 測試） | ⬜ 待 feifei 產出內容 | Sprint 3 後 |
 | Sprint 5+ | 依 Sprint 4 數據決定 | ⬜ | — |
+
+---
+
+## Production Recovery ✅ — 預約事故修復與 LIFF 入口（2026-08-13）
+
+### 事故與後端恢復
+
+- v10 曾重複發送預約改期 LINE 通知，並顯示「原訂時間：1970-01-01 08:00」。事故處理期間曾暫停 LINE token 與所有 Trigger。
+- `Code.gs` 已完成兩輪 production incident review，正式 Apps Script 已更新並重新部署為 `BOOKING-v12.1-2026-08-13-baseline-past-skip`。
+- `initializeV12Baseline()` 已成功執行：掃描 96 筆、Calendar upsert 14 筆、略過過去資料 72 筆、無效資料 0、隔離工作 0、`errors=[]`。
+- 正式模式已依 `BASELINE → TEST → LIVE` 恢復；最後確認 `BOOKING_SYSTEM_MODE=LIVE`。
+- 正式 Trigger 恢復為恰好 3 個：`checkStatusChanges` 1 個、`sendTomorrowBookingReminders` 1 個、`processPendingBookingJobs` 1 個；最近自動執行均完成。
+- LINE 發訊 token 與 LINE Login ID 已恢復正式屬性名稱，`testLineToken` 驗證有效；恢復後未觀察到異常 LINE 或 Email。
+- **安全開關維持：`RESCHEDULE_NOTIFICATIONS_ENABLED=false`。未完成另一次受控驗證前，不得開啟改期 LINE 通知。**
+- Apps Script 副本盤點：Google Sheet 副本只有空白 bound project，無程式、無 Trigger、無 token，不是重複通知來源。
+- 正式 Web App 維持單一啟用部署與原網址；manifest 保留 `Asia/Taipei`、V8、`USER_DEPLOYING`、`ANYONE_ANONYMOUS`。
+
+### LIFF 與公開網站
+
+- LIFF ID：`2009821980-46y6BEMh`；Rich Menu 動作網址維持 `https://liff.line.me/2009821980-46y6BEMh`。
+- LIFF Endpoint 已改為網站根目錄 `https://myfeifei768.com.tw/`；Size `Full`、Scopes `openid/profile`、Add friend `On (aggressive)`。
+- 公開首頁已移除香霧內容，現在只作為安全 LIFF 入口，自動前往 `membership.html`；SDK 失敗或一般瀏覽器開啟時也有 fallback。
+- 使用者流程已實機確認成功：Rich Menu → 會員方案頁 → 對應 `booking.html?plan=...`。
+- `membership.html` 與 `booking.html` 公開檢查皆為 HTTP 200。
+- 顯示名稱已由「非非療癒系服務」統一改為「非非療癒系問世」。
+
+### 2026-08-13 網站部署提交
+
+| Commit | 內容 |
+|---|---|
+| `32a31dc` | LIFF 預約入口改由會員方案頁進入 |
+| `c4a27a3` | LIFF 初始化失敗時的方案頁 fallback |
+| `c1ebdcf` | 移除香霧首頁，根網址改為預約入口 |
+| `2913e3c` | 服務名稱改為「非非療癒系問世」 |
+
+### 下次接手注意
+
+- 本機仍有 `Code.gs`、LINE Bot 與其他檔案的未提交修改；它們未包含在上述網站提交，不可用 `git add .` 或整批提交。
+- 本輪只有 landing page 提交已推送；LINE Bot 中改用 LIFF URL 的本機修改尚未另外部署，若要處理須先獨立審查差異。
+- 若要啟用改期通知，必須另開 production review／受控測試流程；不要直接把 `RESCHEDULE_NOTIFICATIONS_ENABLED` 改成 `true`。
 
 ---
 
@@ -296,6 +337,7 @@
 
 | 日期 | 變更內容 |
 |------|---------|
+| 2026-08-13 | 完成預約通知事故恢復：v12.1 baseline、三個正式 Trigger、LIVE 模式；改期通知安全開關維持 false；LIFF 改由會員方案頁進入、移除香霧首頁並更新服務名稱 |
 | 2026-07-29 | 預約表單新增詢問方向（事業／財運／姻緣／學業／家庭／其他自填），同步後端驗證、Sheet 第 20 欄、通知與測試清單 |
 | 2026-07-23 | 關閉週二 18:00 延長時段（`TUESDAY_EXTRA_SLOTS` 改空陣列）：booking.html + Code.gs + 測試清單同步；Apps Script 需重新部署 |
 | 2026-07-23 | 預約時段改為 10:30 / 11:30 / 14:30 / 15:30 / 16:30（下午三段各後移 30 分）：booking.html + Code.gs + 測試清單同步；Apps Script 需重新部署 |
