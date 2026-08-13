@@ -8,6 +8,30 @@
         name="description"
         content="M+ feifei 水晶香霧，以日常香氣陪你找回安定、吸引力與好能量。探索淨化、貴人、招財三款香霧，立即選購。"
     >
+    <script>
+        // The LIFF endpoint is the site root so every booking page is within
+        // the same LIFF URL scope. Only initialize here for the booking entry;
+        // normal storefront visits do not load the LIFF SDK.
+        (function routeLiffBookingEntry() {
+            var params = new URLSearchParams(window.location.search);
+            if (params.get("entry") !== "membership") return;
+
+            var sdk = document.createElement("script");
+            sdk.charset = "utf-8";
+            sdk.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
+            sdk.onload = function() {
+                liff.init({ liffId: "2009821980-46y6BEMh" })
+                    .then(function() { window.location.replace("membership.html"); })
+                    .catch(function(error) {
+                        console.error("LIFF entry initialization failed:", error);
+                    });
+            };
+            sdk.onerror = function() {
+                console.error("LIFF SDK failed to load");
+            };
+            document.head.appendChild(sdk);
+        })();
+    </script>
     <!-- GA4: 將 GA_MEASUREMENT_ID 替換為實際的 Measurement ID（格式 G-XXXXXXXXXX） -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
     <script>
@@ -528,4 +552,3 @@
     </script>
 </body>
 </html>
-

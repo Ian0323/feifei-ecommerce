@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#5b100c">
     <meta name="description" content="非非療癒系服務三種方案：單次問事、武財公指引方案、深度陪伴方案。選擇適合的方式，直接付款預約。">
     <title>選擇問事方案｜非非768</title>
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
     <style>
         :root {
             --temple: #5b100c;
@@ -314,6 +315,12 @@
     </main>
 
     <script>
+        var membershipLiffReady = (typeof liff !== "undefined")
+            ? liff.init({ liffId: "2009821980-46y6BEMh" }).catch(function(error) {
+                console.error("LIFF membership initialization failed:", error);
+            })
+            : Promise.resolve();
+
         var answers = { history: "", need: "" };
         var planInfo = {
             single: { name: "單次問事", reason: "你目前只想先釐清一件事，從單次問事開始最直接。" },
@@ -329,6 +336,18 @@
                 button.classList.add("selected");
                 answers[key] = button.getAttribute("data-value");
                 showRecommendation();
+            });
+        });
+
+        // Each page in a multi-page LIFF app must finish its own initialization
+        // before navigation. This also covers the dynamically rendered quiz CTA.
+        document.addEventListener("click", function(event) {
+            var link = event.target.closest('a[href^="booking.html"]');
+            if (!link) return;
+            event.preventDefault();
+            var target = link.href;
+            membershipLiffReady.then(function() {
+                window.location.href = target;
             });
         });
 
