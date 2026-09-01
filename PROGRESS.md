@@ -1,6 +1,6 @@
 # 非非選品｜進度追蹤
 
-> **最後更新**: 2026-08-13
+> **最後更新**: 2026-09-01
 > **定位**: 個人品牌帶貨（宗教 IP 方向待驗證），長期經營
 > **合作模式**: Ian（行銷策略長）+ feifei（品牌主理人），長期抽成合作
 > **官網**: https://myfeifei768.com.tw（自訂網域已上線；舊網址 ian0323.github.io 已停用）
@@ -19,6 +19,18 @@
 | Sprint 3 | LINE Bot 上線 | ⬜ 待業主（LINE Channel） | Sprint 2 後 |
 | Sprint 4 | 內容策略驗證（IG A/B 測試） | ⬜ 待 feifei 產出內容 | Sprint 3 後 |
 | Sprint 5+ | 依 Sprint 4 數據決定 | ⬜ | — |
+
+---
+
+## NT$3,800 單一方案模式（2026-09-01）
+
+- GitHub Pages 前端已由 `575b03a` 部署：既有 LIFF URL 維持不變，網站根入口改為直接前往 `booking.html?plan=single`。
+- `booking.html` 目前只啟用 `single`；「更換方案」已移除，舊的 `?plan=guidance`／`?plan=deep` 網址也會正規化回 `single`。
+- `membership.html` 保留三方案介紹，但已移除 LIFF SDK、登入、方案按鈕與推薦問答，只能閱讀。
+- Apps Script 本機版新增 `ACTIVE_BOOKING_PLAN_IDS: ['single']`；非啟用方案會在 Sheet 寫入、Calendar、Email、LINE 與背景通知排程之前回傳 `VALIDATION_ERROR`。
+- 本次後端只改方案白名單與健康狀態輸出，沒有修改任何通知函式；`Code.v12.test.js` 與通知防重回歸測試通過。
+- **正式 Apps Script 尚未部署本次白名單**：本機沒有 clasp 憑證與 `.clasp.json`，不得冒險改用其他專案。正式站仍維持健康的 v12.1、`LIVE`、`RESCHEDULE_NOTIFICATIONS_ENABLED=false`。
+- LINE Bot 單一方案文案已在本機更新並通過 29 項測試；Bot 尚未獨立部署。
 
 ---
 
