@@ -28,7 +28,8 @@ const booking = read('landing-page/booking.html');
 assert.ok(/activePlanIds:\s*\['single'\]/.test(booking));
 assert.ok(!booking.includes('更換方案'));
 assert.ok(!booking.includes('目前開放方案'));
-assert.ok(!booking.includes('目前僅開放單次問事'));
+assert.ok(booking.includes("name: '非非療癒系問事'"));
+assert.ok(!booking.includes("name: '單次問事'"));
 assert.ok(booking.includes("canonicalUrl.searchParams.set('plan', selectedPlanId)"));
 
 const backend = read('booking-backend/Code.gs');
