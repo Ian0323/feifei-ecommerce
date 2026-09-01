@@ -24,12 +24,22 @@
 
 ## NT$3,800 單一方案模式（2026-09-01）
 
-- GitHub Pages 前端已由 `575b03a` 部署：既有 LIFF URL 維持不變，網站根入口改為直接前往 `booking.html?plan=single`。
+- GitHub Pages 前端已部署：既有 LIFF URL 維持不變，網站根入口直接前往 `booking.html?plan=single`。
 - `booking.html` 目前只啟用 `single`；「更換方案」已移除，舊的 `?plan=guidance`／`?plan=deep` 網址也會正規化回 `single`。
+- 對外服務名稱已由「單次問事」統一改為「非非療癒系問事」；預約頁只顯示名稱、服務說明與 NT$3,800，不顯示「目前開放方案」等額外提示。
 - `membership.html` 保留三方案介紹，但已移除 LIFF SDK、登入、方案按鈕與推薦問答，只能閱讀。
 - Apps Script 白名單曾在本機完成驗證，確認可在 Sheet、Calendar、Email、LINE 與背景通知排程之前阻擋非啟用方案。
 - **本次決定不部署 Apps Script 白名單**：公開前端已沒有其他方案入口，為降低正式通知後端變更風險，後端維持健康的 v12.1、`LIVE`、`RESCHEDULE_NOTIFICATIONS_ENABLED=false`。
 - LINE Bot 單一方案文案已在本機更新並通過 29 項測試；Bot 尚未獨立部署。
+- 前端單一方案測試、Apps Script v12 回歸測試與 LINE Bot 29 項測試皆通過；正式站已確認舊名稱與方案切換入口均未出現。
+
+### 2026-09-01 部署提交
+
+| Commit | 內容 |
+|---|---|
+| `575b03a` | LINE/LIFF 改直達 NT$3,800 單一方案；介紹頁改唯讀 |
+| `74e5a36` | 移除「目前開放方案」等多餘提示 |
+| `a862bcc` | 對外名稱統一為「非非療癒系問事」 |
 
 ---
 
