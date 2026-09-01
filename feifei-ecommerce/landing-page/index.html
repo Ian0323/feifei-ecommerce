@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#5b100c">
-    <meta name="description" content="非非768 問事方案與線上預約。">
-    <title>非非768｜選擇問事方案</title>
+    <meta name="description" content="非非768 NT$3,800 單次問事線上預約。">
+    <title>非非768｜單次問事預約</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -30,53 +30,53 @@
         }
     </style>
     <script>
-        (function openMembershipEntry() {
+        (function openSingleBookingEntry() {
             var redirected = false;
 
-            function openMembership() {
+            function openSingleBooking() {
                 if (redirected) return;
                 redirected = true;
-                window.location.replace("membership.html");
+                window.location.replace("booking.html?plan=single");
             }
 
             // Initialize on the LIFF endpoint before moving to the next page.
-            // Regular browsers and failed SDK loads still reach membership.
-            var fallbackTimer = window.setTimeout(openMembership, 5000);
+            // Regular browsers and failed SDK loads still reach the active booking plan.
+            var fallbackTimer = window.setTimeout(openSingleBooking, 5000);
             var sdk = document.createElement("script");
             sdk.charset = "utf-8";
             sdk.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
             sdk.onload = function() {
                 if (typeof liff === "undefined") {
                     window.clearTimeout(fallbackTimer);
-                    openMembership();
+                    openSingleBooking();
                     return;
                 }
 
                 liff.init({ liffId: "2009821980-46y6BEMh" })
                     .then(function() {
                         window.clearTimeout(fallbackTimer);
-                        openMembership();
+                        openSingleBooking();
                     })
                     .catch(function(error) {
                         console.error("LIFF entry initialization failed:", error);
                         window.clearTimeout(fallbackTimer);
-                        openMembership();
+                        openSingleBooking();
                     });
             };
             sdk.onerror = function() {
                 console.error("LIFF SDK failed to load");
                 window.clearTimeout(fallbackTimer);
-                openMembership();
+                openSingleBooking();
             };
             document.head.appendChild(sdk);
         })();
     </script>
-    <noscript><meta http-equiv="refresh" content="0; url=membership.html"></noscript>
+    <noscript><meta http-equiv="refresh" content="0; url=booking.html?plan=single"></noscript>
 </head>
 <body>
     <main>
-        <p>正在開啟問事方案⋯</p>
-        <a href="membership.html">直接前往方案頁</a>
+        <p>正在開啟 NT$3,800 單次問事預約⋯</p>
+        <a href="booking.html?plan=single">直接前往預約頁</a>
     </main>
 </body>
 </html>

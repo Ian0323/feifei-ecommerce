@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#5b100c">
-    <meta name="description" content="非非療癒系問事三種方案：單次問事、武財公指引方案、深度陪伴方案。選擇適合的方式，直接付款預約。">
-    <title>選擇問事方案｜非非768</title>
-    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <meta name="description" content="非非療癒系問事方案介紹：單次問事、武財公指引方案、深度陪伴方案。">
+    <title>問事方案介紹｜非非768</title>
     <style>
         :root {
             --temple: #5b100c;
@@ -147,6 +146,24 @@
         }
         .cta:hover { transform: translateY(-1px); box-shadow: 0 9px 20px rgba(63, 8, 5, .16); }
         .recommended .cta { color: var(--temple-deep); background: linear-gradient(135deg, #fff0ba, #d8a53f); }
+        .cta.unavailable, .recommended .cta.unavailable {
+            color: rgba(46, 23, 17, .58);
+            background: rgba(118, 98, 88, .14);
+            box-shadow: none;
+            cursor: default;
+        }
+        .recommended .cta.unavailable { color: rgba(255, 250, 241, .72); background: rgba(255, 250, 241, .12); }
+        .cta.unavailable:hover { transform: none; box-shadow: none; }
+        .availability-note {
+            margin: 0 0 20px;
+            padding: 13px 16px;
+            border-left: 3px solid var(--gold);
+            color: var(--muted);
+            background: rgba(255, 250, 241, .88);
+            font-size: 12px;
+            line-height: 1.75;
+            text-align: center;
+        }
 
         .helper { padding: 64px 0; border-top: 1px solid rgba(214, 164, 60, .22); background: var(--cream); }
         .helper-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 46px; align-items: start; }
@@ -235,11 +252,11 @@
                 <span class="deity-caption">聽見你的心聲<br>指引你的方向</span>
             </div>
             <div class="hero-inner">
-                <p class="eyebrow">武財公指引方案・非非療癒系問事</p>
+                <p class="eyebrow">非非療癒系問事・服務介紹</p>
                 <h1>在迷惘的時候，<br>為你指引一個方向。</h1>
-                <p class="hero-copy">從一次釐清，到一段時間的陪伴。先依照目前的需要選擇問事方式，再完成付款與預約。</p>
+                <p class="hero-copy">從一次釐清，到一段時間的陪伴。此頁保留完整服務內容供你了解，目前僅開放 NT$3,800 單次問事。</p>
                 <span class="hero-rule" aria-hidden="true"></span>
-                <div class="steps" aria-label="預約流程"><b>1</b><span>選方案</span><i></i><b>2</b><span>選時間</span><i></i><b>3</b><span>匯款送出</span></div>
+                <div class="steps" aria-label="了解服務流程"><b>1</b><span>查看介紹</span><i></i><b>2</b><span>回到 LINE</span><i></i><b>3</b><span>進入預約</span></div>
             </div>
         </div>
     </header>
@@ -248,9 +265,10 @@
         <section class="chooser" id="plans">
             <div class="shell">
                 <div class="section-heading">
-                    <p class="choose-heading">選擇現在需要的指引</p>
-                    <p class="choose-note">先看「適合誰」；不確定的話，下方兩題會協助你判斷。</p>
+                    <p class="choose-heading">了解問事服務內容</p>
+                    <p class="choose-note">本頁僅供介紹，不提供登入、方案選擇或預約。</p>
                 </div>
+                <p class="availability-note"><strong>目前僅開放 NT$3,800 單次問事。</strong><br>需要預約時，請由官方 LINE 的預約入口進入。</p>
                 <div class="plans">
                     <article class="plan">
                         <span class="badge">想先問一次</span>
@@ -259,7 +277,7 @@
                         <div class="price">NT$3,800<small>／次</small></div>
                         <ul class="summary"><li>一次線上視訊問事</li><li>選擇日期與時段</li></ul>
                         <details><summary>查看內容說明</summary><p>由武財公開文，非非傳達旨意，針對目前遇到的問題給予方向指引。</p></details>
-                        <a class="cta" data-plan-link="single" href="booking.html?plan=single">選擇單次問事</a>
+                        <span class="cta unavailable" aria-disabled="true">目前開放・請由官方 LINE 預約</span>
                     </article>
 
                     <article class="plan recommended">
@@ -269,7 +287,7 @@
                         <div class="price">NT$9,900</div>
                         <ul class="summary"><li>一次完整問事</li><li>2 個月內延伸 5 題</li><li>金咒輪 100 張</li></ul>
                         <details><summary>查看內容說明</summary><p>一次完整看見現況，並保留 5 個延伸問題，讓新的狀況出現時仍能繼續釐清。</p></details>
-                        <a class="cta" data-plan-link="guidance" href="booking.html?plan=guidance">選擇武財公指引方案</a>
+                        <span class="cta unavailable" aria-disabled="true">目前暫不開放</span>
                     </article>
 
                     <article class="plan">
@@ -279,87 +297,18 @@
                         <div class="price">NT$9,900</div>
                         <ul class="summary"><li>3 個月內延伸 8 題</li><li>金咒輪 100 張</li><li>水晶香霧任選二</li></ul>
                         <details><summary>查看內容說明</summary><p>淨化、貴人、招財三款香霧任選二；保留較長的提問期限，陪你走過一段重要歷程。</p></details>
-                        <a class="cta" data-plan-link="deep" href="booking.html?plan=deep">選擇深度陪伴</a>
+                        <span class="cta unavailable" aria-disabled="true">目前暫不開放</span>
                     </article>
-                </div>
-            </div>
-        </section>
-
-        <section class="helper" id="helper">
-            <div class="shell helper-grid">
-                <div>
-                    <p class="section-kicker">30 秒快速推薦</p>
-                    <h2>還是不確定？<br>回答兩個問題就好。</h2>
-                    <p class="helper-intro">不用回到 LINE 等人工回覆，系統會先依照你的狀況推薦。</p>
-                </div>
-                <div class="quiz">
-                    <div class="question" data-question="history">
-                        <b>1. 以前有找非非問事過嗎？</b>
-                        <div class="answers"><button type="button" data-value="first">第一次</button><button type="button" data-value="returning">曾經問過</button></div>
-                    </div>
-                    <div class="question" data-question="need">
-                        <b>2. 這次比較需要哪一種協助？</b>
-                        <div class="answers"><button type="button" data-value="once">只想先問一次</button><button type="button" data-value="ongoing">希望後續能繼續提問</button></div>
-                    </div>
-                    <div class="result" id="quiz-result" aria-live="polite"></div>
                 </div>
             </div>
         </section>
 
         <section class="confidence">
             <div class="shell confidence-inner">
-                <p><strong>接下來會做什麼？</strong><br>選方案後，依序選日期、時段、完成匯款並填寫預約資料。</p>
+                <p><strong>目前如何預約？</strong><br>請回到官方 LINE，從預約入口進入 NT$3,800 單次問事頁面。</p>
                 <p><strong>特殊狀況需要人工協助？</strong><br><a class="support" href="https://line.me/R/ti/p/@329pbeom" target="_blank" rel="noopener noreferrer">回官方 LINE 詢問助理</a></p>
             </div>
         </section>
     </main>
-
-    <script>
-        var membershipLiffReady = (typeof liff !== "undefined")
-            ? liff.init({ liffId: "2009821980-46y6BEMh" }).catch(function(error) {
-                console.error("LIFF membership initialization failed:", error);
-            })
-            : Promise.resolve();
-
-        var answers = { history: "", need: "" };
-        var planInfo = {
-            single: { name: "單次問事", reason: "你目前只想先釐清一件事，從單次問事開始最直接。" },
-            guidance: { name: "武財公指引方案", reason: "你是第一次來，也希望後續能繼續釐清，武財公指引方案會比較完整。" },
-            deep: { name: "深度陪伴方案", reason: "你曾經問過、需要持續陪伴，深度方案最符合目前的狀況。" }
-        };
-
-        document.querySelectorAll(".answers button").forEach(function(button) {
-            button.addEventListener("click", function() {
-                var question = button.closest(".question");
-                var key = question.getAttribute("data-question");
-                question.querySelectorAll("button").forEach(function(item) { item.classList.remove("selected"); });
-                button.classList.add("selected");
-                answers[key] = button.getAttribute("data-value");
-                showRecommendation();
-            });
-        });
-
-        // Each page in a multi-page LIFF app must finish its own initialization
-        // before navigation. This also covers the dynamically rendered quiz CTA.
-        document.addEventListener("click", function(event) {
-            var link = event.target.closest('a[href^="booking.html"]');
-            if (!link) return;
-            event.preventDefault();
-            var target = link.href;
-            membershipLiffReady.then(function() {
-                window.location.href = target;
-            });
-        });
-
-        function showRecommendation() {
-            if (!answers.history || !answers.need) return;
-            var planId = answers.need === "once" ? "single" : (answers.history === "first" ? "guidance" : "deep");
-            var plan = planInfo[planId];
-            var result = document.getElementById("quiz-result");
-            result.innerHTML = "<strong>推薦你選：" + plan.name + "</strong>" + plan.reason
-                + "<a class=\"cta\" href=\"booking.html?plan=" + planId + "\">選這個方案並預約</a>";
-            result.classList.add("show");
-        }
-    </script>
 </body>
 </html>

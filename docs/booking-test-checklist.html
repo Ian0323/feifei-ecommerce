@@ -153,15 +153,18 @@
 <h2>二、入口連結（兩個都要測）</h2>
 <ul>
   <li><strong>LIFF 連結</strong>：<span class="url-box">https://liff.line.me/2009821980-46y6BEMh</span></li>
-  <li><strong>直連網址</strong>：<span class="url-box">https://myfeifei768.com.tw/booking.html</span></li>
+  <li><strong>直連網址</strong>：<span class="url-box">https://myfeifei768.com.tw/booking.html?plan=single</span></li>
 </ul>
-<div class="note">兩個都要驗證：能順利打開，且功能正常。Booking v2 起，一般瀏覽器送出時會導向 LINE Login，回跳後應恢復表單。</div>
+<div class="note">兩個入口都必須直接顯示 NT$3,800 單次問事，不可先進入方案選擇頁。一般瀏覽器送出時會導向 LINE Login，回跳後應恢復表單。</div>
 
 <h2>三、頁面開啟檢查</h2>
 <ul>
   <li>頁面能正常顯示，沒有破版、亂碼、跑版</li>
+  <li>最上方顯示「目前開放方案」與「目前僅開放單次問事」，沒有「更換方案」按鈕</li>
   <li>最上方有「預約須知」深藍色框 + 同意勾選框</li>
-  <li>中間顯示「諮詢服務 NT$3,800」</li>
+  <li>方案名稱固定為「單次問事」，所有金額都顯示 NT$3,800</li>
+  <li>用舊網址 <span class="url-box">booking.html?plan=guidance</span> 或 <span class="url-box">booking.html?plan=deep</span> 開啟，仍只能顯示單次問事 NT$3,800</li>
+  <li>直接開啟 <span class="url-box">membership.html</span> 時可閱讀三方案介紹，但不會 LINE 登入、沒有選擇按鈕或推薦問答</li>
   <li>下方有日曆，<em>今天日期是 5/X 時應顯示 5 月</em></li>
 </ul>
 
