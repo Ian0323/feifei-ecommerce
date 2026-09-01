@@ -27,9 +27,8 @@
 - GitHub Pages 前端已由 `575b03a` 部署：既有 LIFF URL 維持不變，網站根入口改為直接前往 `booking.html?plan=single`。
 - `booking.html` 目前只啟用 `single`；「更換方案」已移除，舊的 `?plan=guidance`／`?plan=deep` 網址也會正規化回 `single`。
 - `membership.html` 保留三方案介紹，但已移除 LIFF SDK、登入、方案按鈕與推薦問答，只能閱讀。
-- Apps Script 本機版新增 `ACTIVE_BOOKING_PLAN_IDS: ['single']`；非啟用方案會在 Sheet 寫入、Calendar、Email、LINE 與背景通知排程之前回傳 `VALIDATION_ERROR`。
-- 本次後端只改方案白名單與健康狀態輸出，沒有修改任何通知函式；`Code.v12.test.js` 與通知防重回歸測試通過。
-- **正式 Apps Script 尚未部署本次白名單**：本機沒有 clasp 憑證與 `.clasp.json`，不得冒險改用其他專案。正式站仍維持健康的 v12.1、`LIVE`、`RESCHEDULE_NOTIFICATIONS_ENABLED=false`。
+- Apps Script 白名單曾在本機完成驗證，確認可在 Sheet、Calendar、Email、LINE 與背景通知排程之前阻擋非啟用方案。
+- **本次決定不部署 Apps Script 白名單**：公開前端已沒有其他方案入口，為降低正式通知後端變更風險，後端維持健康的 v12.1、`LIVE`、`RESCHEDULE_NOTIFICATIONS_ENABLED=false`。
 - LINE Bot 單一方案文案已在本機更新並通過 29 項測試；Bot 尚未獨立部署。
 
 ---

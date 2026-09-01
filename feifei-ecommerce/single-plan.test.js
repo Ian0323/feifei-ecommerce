@@ -27,6 +27,8 @@ assert.ok(membership.includes('本頁僅供介紹，不提供登入、方案選�
 const booking = read('landing-page/booking.html');
 assert.ok(/activePlanIds:\s*\['single'\]/.test(booking));
 assert.ok(!booking.includes('更換方案'));
+assert.ok(!booking.includes('目前開放方案'));
+assert.ok(!booking.includes('目前僅開放單次問事'));
 assert.ok(booking.includes("canonicalUrl.searchParams.set('plan', selectedPlanId)"));
 
 const backend = read('booking-backend/Code.gs');
