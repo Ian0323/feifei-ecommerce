@@ -1,10 +1,18 @@
 # 非非選品｜進度追蹤
 
-> **最後更新**: 2026-09-01
+> **最後更新**: 2026-09-15
 > **定位**: 個人品牌帶貨（宗教 IP 方向待驗證），長期經營
 > **合作模式**: Ian（行銷策略長）+ feifei（品牌主理人），長期抽成合作
 > **官網**: https://myfeifei768.com.tw（自訂網域已上線；舊網址 ian0323.github.io 已停用）
 > **Repo**: https://github.com/Ian0323/feifei-ecommerce
+
+---
+
+## Session 收尾（2026-09-15）
+
+- 業主確認先結束本次 session；時段調整、兩項預約防線修正與前後端部署已完成，網站上線提交為 `3cf8530`。
+- 最後正式檢查時間為 11:07（台灣）：新時段一致、防撞功能存在、LIVE、改期通知關閉。通知實際投遞與 Trigger 執行紀錄尚未查閱，已列入交接限制。
+- 下次由 `docs/business/SESSION_STATE.md` 的 2026-09-15 交接接續；後端完整原始碼比對與版本入庫仍待另行整理，現有未提交修改保留。
 
 ---
 
@@ -19,6 +27,26 @@
 | Sprint 3 | LINE Bot 上線 | ⬜ 待業主（LINE Channel） | Sprint 2 後 |
 | Sprint 4 | 內容策略驗證（IG A/B 測試） | ⬜ 待 feifei 產出內容 | Sprint 3 後 |
 | Sprint 5+ | 依 Sprint 4 數據決定 | ⬜ | — |
+
+---
+
+## 週一、週二諮詢時段調整（2026-09-15）
+
+- 本機 `booking.html` 與 `Code.gs` 已同步改為依星期選用時段：
+  - 週一：10:30、11:30、14:30、15:30、18:15、19:15（移除週一 16:30）。
+  - 週二：10:30、11:30、14:30、15:30、16:30、18:00、19:00。
+  - 週三到週五維持原本 10:30、11:30、14:30、15:30、16:30；開放日期與預約天數限制不變。
+- 時段選擇區新增業主原文：「*諮詢時間可能會延遲5-10分鐘，非非會等客人情緒平復才會結束，請見諒，謝謝。」
+- `docs/booking-test-checklist.html` 已同步更新時段與提醒檢查項目。
+- 驗證通過：`single-plan.test.js`、`Code.v12.test.js`，以及 5 個平日時段、按鈕顯示／額滿狀態與 45 組後端時段驗證。
+- **部署狀態：Apps Script 由業主整份貼上部署；GitHub Pages 已於本輪 push 並成功部署。** 網站提交 `3cf8530`，GitHub Actions run `34923218760` 成功，正式 HTML 已與本機測試版本逐字比對（忽略換行格式）。
+- 2026-09-15 通知檢查：已修正 LINE 登入草稿可能恢復已移除的週一 16:30，並在確認／送出前檢查當日開放時段；已填資料保留。
+- 本機 23 項後端測試與新增 `booking-schedule.test.js` 通過：既有週一 16:30 保留、晚間通知時間正確、重複工作不重送、關閉改期開關時舊待送改期紀錄保持暫停；新增 Calendar 衝突／失敗／相鄰時段與送出回應回歸測試。
+- **Calendar 防撞缺口已修正**：`doPost()` 在既有鎖內、寫入前重查該一小時的 Calendar；重疊、整日／跨日封鎖回 `SLOT_TAKEN`，讀取失敗回 `AVAILABILITY_UNAVAILABLE`，兩者皆不寫入或排入通知。
+- 部署前紀錄：2026-09-15 09:58（台灣）以普通 GET 核對正式後端為 v12.1、LIVE、Asia/Taipei、automationReady=true、改期通知 false，當時尚未含本次修正。正式更新片段見 `docs/booking-schedule-backend-update-2026-09-15.md`，檢查紀錄見 `docs/booking-schedule-review-2026-09-15.md`；本輪沒有發送真實通知。
+- 2026-09-15 10:54／11:07（台灣）業主部署後重新讀取正式診斷：`timeSlotsByDay` 週一／週二與需求一致、`hasCalendarAvailabilityCheck=true`、`activeBookingPlanIds=['single']`、LIVE、automationReady=true、改期通知 false。單一方案白名單也已隨業主本次整份覆蓋上線，取代 2026-09-01 暫不部署的歷史狀態。
+- 正式前端／後端的五個平日時段已驗證一致；本輪只讀取診斷與公開頁面，沒有提交測試預約或啟動通知工作。未取得正式 Apps Script 完整原始碼、Trigger 執行紀錄或 LINE／Email 實際投遞紀錄，健康檢查不等於已排除所有歷史誤發。
+- `Code.gs` 及其 v12 測試仍為本機原有未提交檔案；網站上線提交僅包含 `booking.html`、前端時段測試及測試清單，未混入 LINE Bot 或其他既有修改。
 
 ---
 
