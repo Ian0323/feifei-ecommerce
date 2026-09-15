@@ -184,6 +184,7 @@
                 已選日期：<span id="selected-date-display" class="font-medium text-ink"></span>
             </p>
             <div id="time-slots" class="grid grid-cols-2 gap-3"></div>
+            <p class="mt-4 text-sm leading-relaxed text-ink/75">*諮詢時間可能會延遲5-10分鐘，非非會等客人情緒平復才會結束，請見諒，謝謝。</p>
             <p class="mt-4 text-center text-xs text-blush">需要其他時段？請直接私訊官方 LINE</p>
         </div>
 
@@ -474,10 +475,13 @@
         OFFICIAL_LINE_CHAT_URL: 'https://line.me/R/ti/p/@329pbeom',
         // 可預約的星期幾 (0=日, 1=一, 2=二, 3=三, 4=四, 5=五, 6=六)
         AVAILABLE_DAYS: [1, 2, 3, 4, 5],
-        // 一般時段
+        // 一般時段（週三到週五維持原時段）
         TIME_SLOTS: ['10:30', '11:30', '14:30', '15:30', '16:30'],
-        // 僅週二開放的延長時段（2026-07-23 業主要求先關閉；要開回來填 ['18:00'] 即可）
-        TUESDAY_EXTRA_SLOTS: [],
+        // 週一、週二使用各自的完整時段
+        TIME_SLOTS_BY_DAY: {
+            1: ['10:30', '11:30', '14:30', '15:30', '18:15', '19:15'],
+            2: ['10:30', '11:30', '14:30', '15:30', '16:30', '18:00', '19:00'],
+        },
         // 最少提前幾天預約（1 = 明天起；當天請改私訊官方 LINE）
         MIN_ADVANCE_DAYS: 1,
         // 最多預約 1.5 個月後（以 45 天計）
@@ -741,6 +745,7 @@
         fetchBookedSlots();
         renderCalendar();
         if (selectedDate) {
+            if (selectedTime && !ensureSelectedTimeIsOffered()) return true;
             if (selectedTime) {
                 document.getElementById('confirm-datetime').textContent =
                     formatDateDisplay(selectedDate) + ' ' + selectedTime;
@@ -771,7 +776,7 @@
                 goToStep(4);
             } else if (selectedDate) {
                 renderTimeSlots();
-                goToStep(step >= 2 ? step : 2);
+                goToStep(selectedTime && step >= 2 ? step : 2);
             }
         }
         return true;
@@ -1050,8 +1055,18 @@
     function getSlotsForDateStr(dateStr) {
         const [y, m, d] = dateStr.split('-');
         const dow = new Date(parseInt(y), parseInt(m) - 1, parseInt(d)).getDay();
-        const extra = (dow === 2 && CONFIG.TUESDAY_EXTRA_SLOTS) ? CONFIG.TUESDAY_EXTRA_SLOTS : [];
-        return CONFIG.TIME_SLOTS.concat(extra);
+        return (CONFIG.TIME_SLOTS_BY_DAY[dow] || CONFIG.TIME_SLOTS).slice();
+    }
+
+    function ensureSelectedTimeIsOffered() {
+        if (selectedDate && selectedTime && getSlotsForDateStr(selectedDate).includes(selectedTime)) {
+            return true;
+        }
+        selectedTime = null;
+        alert('請重新選擇預約時段，已填寫的資料會保留。');
+        if (selectedDate) renderTimeSlots();
+        goToStep(selectedDate ? 2 : 1);
+        return false;
     }
 
     function isDateFullyBooked(dateStr) {
@@ -1236,6 +1251,7 @@
     }
 
     function showConfirm() {
+        if (!ensureSelectedTimeIsOffered()) return;
         const name = document.getElementById('field-name').value.trim();
         const phone = document.getElementById('field-phone').value.trim();
         const email = document.getElementById('field-email').value.trim();
@@ -1342,6 +1358,7 @@
 
     async function submitBooking() {
         if (isSubmitting) return;
+        if (!ensureSelectedTimeIsOffered()) return;
 
         // 雙保險：Step 4 是唯一入口，但避免任何路徑繞過匯款截圖確認
         if (!document.getElementById('field-proof').checked) {
@@ -1412,10 +1429,10 @@
                 const result = await resp.json().catch(() => null);
                 if (result && !result.success) {
                     if (result.error === 'SLOT_TAKEN') {
-                        alert('此時段剛被其他人預約了，請重新選擇時段');
+                        alert(result.message || '此時段目前無法預約，請重新選擇時段');
                     } else if (result.error === 'RATE_LIMITED') {
                         alert(result.message || '操作太頻繁，請稍後再試');
-                    } else if (result.error === 'SERVER_BUSY') {
+                    } else if (result.error === 'SERVER_BUSY' || result.error === 'AVAILABILITY_UNAVAILABLE') {
                         alert(result.message || '系統忙線中，請稍後 10 秒再按一次送出（您的資料還在）');
                     } else if (result.error === 'VALIDATION_ERROR') {
                         alert(result.message || '資料有誤，請檢查後重新填寫');
